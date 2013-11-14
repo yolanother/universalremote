@@ -1,0 +1,6 @@
+[submodule "libraries/twoway-view"]
+	path = libraries/twoway-view
+	url = https://github.com/lucasr/twoway-view.git
+[submodule "libraries/ListViewAnimations"]
+	path = libraries/ListViewAnimations
+	url = https://github.com/nhaarman/ListViewAnimations.git
