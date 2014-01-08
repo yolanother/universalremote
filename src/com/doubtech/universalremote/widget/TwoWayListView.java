@@ -858,14 +858,14 @@ public class TwoWayListView extends AdapterView<ListAdapter> implements
         View child = view;
         try {
             View v = child;
-            
-            if(v != this) {
-            	while(null != v && v != this) {
-            		v = (View) v.getParent();
-            	}
+
+            if (v != this) {
+                while (null != v && v != this) {
+                    v = (View) v.getParent();
+                }
             }
-            if(null == v) {
-            	return INVALID_POSITION;
+            if (null == v) {
+                return INVALID_POSITION;
             }
         } catch (ClassCastException e) {
             // We made it up to the window without find this list view
@@ -1336,7 +1336,7 @@ public class TwoWayListView extends AdapterView<ListAdapter> implements
             if (maybeStartScrolling(delta)) {
                 return true;
             }
-            
+
             break;
         }
 
@@ -2391,7 +2391,7 @@ public class TwoWayListView extends AdapterView<ListAdapter> implements
 
             if (mFirstPosition == 0) {
                 final View firstChild = getChildAt(0);
-                final int firstChildStart = (mIsVertical ? firstChild.getTop() : firstChild.getLeft()); 
+                final int firstChildStart = (mIsVertical ? firstChild.getTop() : firstChild.getLeft());
 
                 // First is first in list -> make sure we don't scroll past it
                 final int max = start - firstChildStart;
@@ -3695,7 +3695,7 @@ public class TwoWayListView extends AdapterView<ListAdapter> implements
     }
 
     public void smoothScrollBy(int offset, long duration) {
-    	scrollListItemsBy(-offset);
+        scrollListItemsBy(-offset);
     }
 
     @Override

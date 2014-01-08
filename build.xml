@@ -1,0 +1,25 @@
+<project>
+<target name="compile">
+    <mkdir dir="buttonidentifier_bin"/>
+    <javac sourcepath="" srcdir="src"
+           destdir="buttonidentifier_bin" >
+        <include name="com/doubtech/universalremote/ButtonIdentifier.java"/>
+    </javac>
+</target>
+
+<target name="jar">
+    <jar destfile="buttonidentifier.jar" basedir="buttonidentifier_bin">
+        <manifest><attribute name="Main-Class" value="com.doubtech.universalremote.ButtonIdentifier"/></manifest>
+    </jar>
+</target>
+
+<target name="clean">
+    <delete dir="buttonidentifier_bin" />
+</target>
+
+<target name="run">
+    <antcall target="compile" />
+    <antcall target="jar" />
+    <java jar="buttonidentifier.jar" fork="true" />
+</target>
+</project>

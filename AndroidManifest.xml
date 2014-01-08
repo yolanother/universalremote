@@ -3,10 +3,12 @@
     package="com.doubtech.universalremote"
     android:versionCode="1"
     android:versionName="1.0" >
+    
+    <uses-permission android:name="android.permission.TRANSMIT_IR" />
 
     <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="17" />
+        android:minSdkVersion="16"
+        android:targetSdkVersion="19" />
 
     <application
         android:allowBackup="true"
@@ -35,6 +37,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="com.doubtech.universalremote.providers.irremotes.IrRemoteProvider"
+            android:authorities="com.doubtech.universalremote.providers.irremotes"
+            android:enabled="true"
+            android:exported="true" >
+        </provider>
     </application>
 
 </manifest>

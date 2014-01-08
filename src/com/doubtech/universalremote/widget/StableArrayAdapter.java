@@ -30,7 +30,7 @@ public class StableArrayAdapter<T> extends ArrayAdapter<T> implements ISwappable
 
     HashMap<T, Integer> mIdMap = new HashMap<T, Integer>();
 
-	private List<T> mObjects;
+    private List<T> mObjects;
 
     public StableArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
         super(context, textViewResourceId, objects);
@@ -54,10 +54,10 @@ public class StableArrayAdapter<T> extends ArrayAdapter<T> implements ISwappable
         return true;
     }
 
-	@Override
-	public void swap(int a, int b) {
+    @Override
+    public void swap(int a, int b) {
         T temp = mObjects.get(a);
         mObjects.set(a, mObjects.get(b));
         mObjects.set(b, temp);
-	}
+    }
 }

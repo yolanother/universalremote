@@ -11,6 +11,25 @@
         android:background="@drawable/background"
         android:orientation="vertical" >
 
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"/>
+
+        <ImageView
+            android:id="@+id/screenshot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/ic_action_add_custom" />
+
         <TextView
             android:id="@+id/label"
             android:layout_width="match_parent"
@@ -22,6 +41,7 @@
             android:textColor="#fff"
             android:textSize="12sp"
             android:gravity="center" />
+
     </RelativeLayout>
 
 </FrameLayout>

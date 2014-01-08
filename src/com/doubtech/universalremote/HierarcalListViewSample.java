@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.doubtech.universalremote.widget.HierarchicalListView;
 
 public class HierarcalListViewSample extends Activity {
-	public static final String[] sCheeseStrings = {
+    public static final String[] sCheeseStrings = {
         "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
         "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale",
         "Aisy Cendre", "Allgauer Emmentaler", "Alverca", "Ambert", "American Cheese",
@@ -147,96 +147,96 @@ public class HierarcalListViewSample extends Activity {
         "Wensleydale", "White Stilton", "Whitestone Farmhouse", "Wigmore", "Woodside Cabecou",
         "Xanadu", "Xynotyro", "Yarg Cornish", "Yarra Valley Pyramid", "Yorkshire Blue",
         "Zamorano", "Zanetti Grana Padano", "Zanetti Parmigiano Reggiano"
-	};
-	static ArrayList<String> sCheeseList; 
-	
-	static {
-		sCheeseList = new ArrayList<String>();
-		for(String cheese : sCheeseStrings) {
-			sCheeseList.add(cheese);
-		}
-	}
-	
-	private class CheeseAdapter extends BaseAdapter {
-		ArrayList<Character> mLetters;
-		ArrayList<String> mWords;
-		HashMap<Character, StringBuilder> mNextLevelString;
-		private int mLetterIndex;
+    };
+    static ArrayList<String> sCheeseList;
 
-		public CheeseAdapter() {
-			this(sCheeseList, -1, (char) 0);
-		}
-		
-		public CheeseAdapter(ArrayList<String> cheeses, int letterIndex, char letterFilter) {
-			mLetters = new ArrayList<Character>();
-			mWords = new ArrayList<String>();
-			mNextLevelString = new HashMap<Character, StringBuilder>();
-			for(String cheese : cheeses) {
-				char letter = cheese.charAt(letterIndex < 0 ? 0 : letterIndex);
-				if(0 == letterFilter || letterFilter == letter) {
-					char nextLetter = cheese.charAt(letterIndex + 1);
-					if(!mLetters.contains(nextLetter)) {
-						mLetters.add(nextLetter);
-					}
-					StringBuilder word = mNextLevelString.get(letter);
-					if(null == word) {
-						word = new StringBuilder(cheese);
-						mNextLevelString.put(nextLetter, word);
-					} else if (word.length() < 50) {
-						word.append(", ");
-						word.append(cheese);
-					}
-					mWords.add(cheese);
-				}
-			}
-			Collections.sort(mLetters);
-			mLetterIndex = letterIndex;
-		}
+    static {
+        sCheeseList = new ArrayList<String>();
+        for (String cheese : sCheeseStrings) {
+            sCheeseList.add(cheese);
+        }
+    }
 
-		private boolean isWords() {
-			return mWords.size() < 5;
-		}
+    private class CheeseAdapter extends BaseAdapter {
+        ArrayList<Character> mLetters;
+        ArrayList<String> mWords;
+        HashMap<Character, StringBuilder> mNextLevelString;
+        private int mLetterIndex;
 
-		@Override
-		public int getCount() {
-			return isWords() ? mWords.size() : mLetters.size();
-		}
+        public CheeseAdapter() {
+            this(sCheeseList, -1, (char) 0);
+        }
 
-		@Override
-		public Object getItem(int position) {
-			return isWords() ? mWords.get(position) : new CheeseAdapter(mWords, mLetterIndex + 1, mLetters.get(position));
-		}
+        public CheeseAdapter(ArrayList<String> cheeses, int letterIndex, char letterFilter) {
+            mLetters = new ArrayList<Character>();
+            mWords = new ArrayList<String>();
+            mNextLevelString = new HashMap<Character, StringBuilder>();
+            for (String cheese : cheeses) {
+                char letter = cheese.charAt(letterIndex < 0 ? 0 : letterIndex);
+                if (0 == letterFilter || letterFilter == letter) {
+                    char nextLetter = cheese.charAt(letterIndex + 1);
+                    if (!mLetters.contains(nextLetter)) {
+                        mLetters.add(nextLetter);
+                    }
+                    StringBuilder word = mNextLevelString.get(letter);
+                    if (null == word) {
+                        word = new StringBuilder(cheese);
+                        mNextLevelString.put(nextLetter, word);
+                    } else if (word.length() < 50) {
+                        word.append(", ");
+                        word.append(cheese);
+                    }
+                    mWords.add(cheese);
+                }
+            }
+            Collections.sort(mLetters);
+            mLetterIndex = letterIndex;
+        }
 
-		@Override
-		public long getItemId(int position) {
-			// TODO Auto-generated method stub
-			return position;
-		}
+        private boolean isWords() {
+            return mWords.size() < 5;
+        }
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			TextView tv;
-			if(null == convertView) {
-				tv = (TextView) LayoutInflater.from(HierarcalListViewSample.this).inflate(R.layout.text_view, null);
-				convertView = tv;
-				tv.setBackgroundColor(Color.BLACK);
-			} else {
-				tv = (TextView) convertView;
-			}
-			char letter = mLetters.get(position);
-			tv.setText(isWords() ? mWords.get(position) : letter + ": " + mNextLevelString.get(letter));
-			return convertView;
-		}
-		
-	}
+        @Override
+        public int getCount() {
+            return isWords() ? mWords.size() : mLetters.size();
+        }
 
-	private HierarchicalListView mCheeseHierarchicalListView;
+        @Override
+        public Object getItem(int position) {
+            return isWords() ? mWords.get(position) : new CheeseAdapter(mWords, mLetterIndex + 1, mLetters.get(position));
+        }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_hierarcal_list_view_sample);
-		mCheeseHierarchicalListView = (HierarchicalListView) findViewById(R.id.cheeses);
-        mCheeseHierarchicalListView.setAdapter(new CheeseAdapter());
-	}
+        @Override
+        public long getItemId(int position) {
+            // TODO Auto-generated method stub
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextView tv;
+            if (null == convertView) {
+                tv = (TextView) LayoutInflater.from(HierarcalListViewSample.this).inflate(R.layout.text_view, null);
+                convertView = tv;
+                tv.setBackgroundColor(Color.BLACK);
+            } else {
+                tv = (TextView) convertView;
+            }
+            char letter = mLetters.get(position);
+            tv.setText(isWords() ? mWords.get(position) : letter + ": " + mNextLevelString.get(letter));
+            return convertView;
+        }
+
+    }
+
+    private HierarchicalListView mCheeseHierarchicalListView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_hierarcal_list_view_sample);
+        mCheeseHierarchicalListView = (HierarchicalListView) findViewById(R.id.cheeses);
+        mCheeseHierarchicalListView.addAdapter(new CheeseAdapter());
+    }
 }

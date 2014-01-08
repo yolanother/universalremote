@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="button_volume_up">VOL+</string>
+    <string name="button_volume_down">VOL-</string>
+    <string name="button_power_toggle">POWER</string>
+    <string name="button_power_on">POWER ON</string>
+    <string name="button_power_off">POWER OFF</string>
+    <string name="button_ch_up">CH+</string>
+    <string name="button_ch_down">CH-</string>
+    <string name="button_0">0</string>
+    <string name="button_1">1</string>
+    <string name="button_2">2</string>
+    <string name="button_3">3</string>
+    <string name="button_4">4</string>
+    <string name="button_5">5</string>
+    <string name="button_6">6</string>
+    <string name="button_7">7</string>
+    <string name="button_8">8</string>
+    <string name="button_9">9</string>
+    <string name="button_menu">MENU</string>
+    <string name="button_settings">SETTINGS</string>
+    <string name="button_brightness_up">BRIGHTNESS+</string>
+    <string name="button_brightness_down">BRIGHTNESS-</string>
+    <string name="button_cancel">CANCEL</string>
+    <string name="button_ok">OK</string>
+    <string name="button_enter">ENTER</string>
+    <string name="button_return">RETURN</string>
+    <string name="button_help">HELP</string>
+    <string name="button_guide">GUIDE</string>
+    <string name="button_home">HOME</string>
+    <string name="button_exit">EXIT</string>
+    <string name="button_play">PLAY</string>
+    <string name="button_pause">PAUSE</string>
+    <string name="button_ffwd">FFWD</string>
+    <string name="button_rew">REW</string>
+    <string name="button_stop">STOP</string>
+    <string name="button_page_up">PG+</string>
+    <string name="button_page_down">PG-</string>
+    <string name="button_record">REC</string>
+    <string name="button_up">UP</string>
+    <string name="button_down">DOWN</string>
+    <string name="button_left">LEFT</string>
+    <string name="button_right">RIGHT</string>
+    <string name="button_red">RED</string>
+    <string name="button_green">GREEN</string>
+    <string name="button_blue">BLUE</string>
+    <string name="button_yellow">YELLOW</string>
+    <string name="button_back">BACK</string>
+    <string name="button_backward">BACKWARD</string>
+    <string name="button_mute">MUTE</string>
+    <string name="button_next">NEXT</string>
+    <string name="button_previous">PREVIOUS</string>
+    <string name="button_source">SOURCE</string>
+
+</resources>

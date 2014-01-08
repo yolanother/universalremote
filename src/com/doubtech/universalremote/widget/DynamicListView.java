@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * TODO Remove all the duplicated code, it's there for convenience right now.
  */
 
@@ -61,10 +61,10 @@ import android.widget.BaseAdapter;
  * listview also scrolls on its own so as to reveal additional content.
  */
 public class DynamicListView extends TwoWayListView {
-	
-	public interface ISwappableAdapter {
-		void swap(int a, int b);
-	}
+
+    public interface ISwappableAdapter {
+        void swap(int a, int b);
+    }
 
     private final int SMOOTH_SCROLL_AMOUNT_AT_EDGE = 15;
     private final int MOVE_DURATION = 150;
@@ -127,25 +127,25 @@ public class DynamicListView extends TwoWayListView {
     private AdapterView.OnItemLongClickListener mOnItemLongClickListener =
             new AdapterView.OnItemLongClickListener() {
                 public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-                	if(getAdapter() instanceof ISwappableAdapter) {
-	                    mTotalOffsetX = 0;
-	                    mTotalOffsetY = 0;
-	
-	                    int position = pointToPosition(mDownX, mDownY);
-	                    int itemNum = position - getFirstVisiblePosition();
-	
-	                    View selectedView = getChildAt(itemNum);
-	                    mMobileItemId = getAdapter().getItemId(position);
-	                    mHoverCell = getAndAddHoverView(selectedView);
-	                    selectedView.setVisibility(INVISIBLE);
-	
-	                    mCellIsMobile = true;
-	
-	                    updateNeighborViewsForID(mMobileItemId);
-	
-	                    return true;
-                	}
-                	return false;
+                    if (getAdapter() instanceof ISwappableAdapter) {
+                        mTotalOffsetX = 0;
+                        mTotalOffsetY = 0;
+
+                        int position = pointToPosition(mDownX, mDownY);
+                        int itemNum = position - getFirstVisiblePosition();
+
+                        View selectedView = getChildAt(itemNum);
+                        mMobileItemId = getAdapter().getItemId(position);
+                        mHoverCell = getAndAddHoverView(selectedView);
+                        selectedView.setVisibility(INVISIBLE);
+
+                        mCellIsMobile = true;
+
+                        updateNeighborViewsForID(mMobileItemId);
+
+                        return true;
+                    }
+                    return false;
                 }
             };
 
@@ -216,7 +216,7 @@ public class DynamicListView extends TwoWayListView {
     public View getViewForID (long itemID) {
         int firstVisiblePosition = getFirstVisiblePosition();
         Adapter adapter = getAdapter();
-        for(int i = 0; i < getChildCount(); i++) {
+        for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             int position = firstVisiblePosition + i;
             long id = adapter.getItemId(position);
@@ -272,13 +272,13 @@ public class DynamicListView extends TwoWayListView {
                 int deltaY = mLastEventY - mDownY;
 
                 if (mCellIsMobile) {
-                	if(isVertical()) {
-	                    mHoverCellCurrentBounds.offsetTo(mHoverCellOriginalBounds.left,
-	                            mHoverCellOriginalBounds.top + deltaY + mTotalOffsetY);
-                	} else {
-                		mHoverCellCurrentBounds.offsetTo(mHoverCellOriginalBounds.left + deltaX + mTotalOffsetX,
-	                            mHoverCellOriginalBounds.top);
-                	}
+                    if (isVertical()) {
+                        mHoverCellCurrentBounds.offsetTo(mHoverCellOriginalBounds.left,
+                                mHoverCellOriginalBounds.top + deltaY + mTotalOffsetY);
+                    } else {
+                        mHoverCellCurrentBounds.offsetTo(mHoverCellOriginalBounds.left + deltaX + mTotalOffsetX,
+                                mHoverCellOriginalBounds.top);
+                    }
                     mHoverCell.setBounds(mHoverCellCurrentBounds);
                     invalidate();
 
@@ -338,12 +338,12 @@ public class DynamicListView extends TwoWayListView {
         boolean isBelow;
         boolean isAbove;
 
-        if(isVertical()) {
-	        isBelow = (belowView != null) && (deltaYTotal > belowView.getTop());
-	        isAbove = (aboveView != null) && (deltaYTotal < aboveView.getTop());
+        if (isVertical()) {
+            isBelow = (belowView != null) && (deltaYTotal > belowView.getTop());
+            isAbove = (aboveView != null) && (deltaYTotal < aboveView.getTop());
         } else {
-	        isBelow = (belowView != null) && (deltaXTotal > belowView.getLeft());
-	        isAbove = (aboveView != null) && (deltaXTotal < aboveView.getLeft());        	
+            isBelow = (belowView != null) && (deltaXTotal > belowView.getLeft());
+            isAbove = (aboveView != null) && (deltaXTotal < aboveView.getLeft());
         }
 
         if (isBelow || isAbove) {
@@ -359,17 +359,17 @@ public class DynamicListView extends TwoWayListView {
 
             Log.d("AARON", "Original view: " + originalItem);
             Log.d("AARON", "Switch view: " + switchView);
-            if(-1 == originalItem) {
-            	return;
+            if (-1 == originalItem) {
+                return;
             }
             ((ISwappableAdapter) getAdapter()).swap(originalItem,  getPositionForView(switchView));
 
             ((BaseAdapter) getAdapter()).notifyDataSetChanged();
 
-            if(isVertical()) {
-            	mDownY = mLastEventY;
+            if (isVertical()) {
+                mDownY = mLastEventY;
             } else {
-            	mDownX = mLastEventX;
+                mDownX = mLastEventX;
             }
 
             final int switchViewStartTop = switchView.getTop();
@@ -388,27 +388,27 @@ public class DynamicListView extends TwoWayListView {
                     View switchView = getViewForID(switchItemID);
 
                     ObjectAnimator animator;
-                    
-                    if(isVertical()) {
-	                    mTotalOffsetY += deltaY;
-	
-	                    int switchViewNewTop = switchView.getTop();
-	                    int delta = switchViewStartTop - switchViewNewTop;
-	
-	                    switchView.setTranslationY(delta);
-	
-	                    animator = ObjectAnimator.ofFloat(switchView,
-	                            View.TRANSLATION_Y, 0);
-                    } else {
-	                    mTotalOffsetX += deltaX;
-	
-	                    int switchViewNewLeft = switchView.getLeft();
-	                    int delta = switchViewStartLeft - switchViewNewLeft;
-	
-	                    switchView.setTranslationX(delta);
 
-	                    animator = ObjectAnimator.ofFloat(switchView,
-	                            View.TRANSLATION_X, 0);
+                    if (isVertical()) {
+                        mTotalOffsetY += deltaY;
+
+                        int switchViewNewTop = switchView.getTop();
+                        int delta = switchViewStartTop - switchViewNewTop;
+
+                        switchView.setTranslationY(delta);
+
+                        animator = ObjectAnimator.ofFloat(switchView,
+                                View.TRANSLATION_Y, 0);
+                    } else {
+                        mTotalOffsetX += deltaX;
+
+                        int switchViewNewLeft = switchView.getLeft();
+                        int delta = switchViewStartLeft - switchViewNewLeft;
+
+                        switchView.setTranslationX(delta);
+
+                        animator = ObjectAnimator.ofFloat(switchView,
+                                View.TRANSLATION_X, 0);
                     }
                     animator.setDuration(MOVE_DURATION);
                     animator.start();
@@ -439,10 +439,10 @@ public class DynamicListView extends TwoWayListView {
                 return;
             }
 
-            if(isVertical()) {
-            	mHoverCellCurrentBounds.offsetTo(mHoverCellOriginalBounds.left, mobileView.getTop());
+            if (isVertical()) {
+                mHoverCellCurrentBounds.offsetTo(mHoverCellOriginalBounds.left, mobileView.getTop());
             } else {
-            	mHoverCellCurrentBounds.offsetTo(mobileView.getLeft(), mHoverCellOriginalBounds.top);            	
+                mHoverCellCurrentBounds.offsetTo(mobileView.getLeft(), mHoverCellOriginalBounds.top);
             }
 
             ObjectAnimator hoverViewAnimator = ObjectAnimator.ofObject(mHoverCell, "bounds",
@@ -526,50 +526,50 @@ public class DynamicListView extends TwoWayListView {
      * upward or downward smooth scroll so as to reveal new items.
      */
     public boolean handleMobileCellScroll(Rect r) {
-    	if(isVertical()) {
-	        int offset = computeVerticalScrollOffset();
-	        int height = getHeight();
-	        int extent = computeVerticalScrollExtent();
-	        int range = computeVerticalScrollRange();
-	        int hoverViewTop = r.top;
-	        int hoverHeight = r.height();
-	
-	        if (hoverViewTop <= 0 && offset > 0) {
-	            smoothScrollBy(-mSmoothScrollAmountAtEdge, 0);
-	            return true;
-	        }
-	
-	        if (hoverViewTop + hoverHeight >= height && (offset + extent) < range) {
-	            smoothScrollBy(mSmoothScrollAmountAtEdge, 0);
-	            return true;
-	        }
-	
-	        return false;
-    	} else {
-	        int offset = computeHorizontalScrollOffset();
-	        int width = getWidth();
-	        int extent = computeHorizontalScrollExtent();
-	        int range = computeHorizontalScrollRange();
-	        int hoverViewLeft = r.left;
-	        int hoverWidth = r.width();
-	
-	        if (hoverViewLeft <= 0 && offset > 0) {
-	            smoothScrollBy(-mSmoothScrollAmountAtEdge, 0);
-	            return true;
-	        }
-	
-	        if (hoverViewLeft + hoverWidth >= width && (offset + extent) < range) {
-	            smoothScrollBy(mSmoothScrollAmountAtEdge, 0);
-	            return true;
-	        }
+        if (isVertical()) {
+            int offset = computeVerticalScrollOffset();
+            int height = getHeight();
+            int extent = computeVerticalScrollExtent();
+            int range = computeVerticalScrollRange();
+            int hoverViewTop = r.top;
+            int hoverHeight = r.height();
 
-	        return false;
-    	}
+            if (hoverViewTop <= 0 && offset > 0) {
+                smoothScrollBy(-mSmoothScrollAmountAtEdge, 0);
+                return true;
+            }
+
+            if (hoverViewTop + hoverHeight >= height && (offset + extent) < range) {
+                smoothScrollBy(mSmoothScrollAmountAtEdge, 0);
+                return true;
+            }
+
+            return false;
+        } else {
+            int offset = computeHorizontalScrollOffset();
+            int width = getWidth();
+            int extent = computeHorizontalScrollExtent();
+            int range = computeHorizontalScrollRange();
+            int hoverViewLeft = r.left;
+            int hoverWidth = r.width();
+
+            if (hoverViewLeft <= 0 && offset > 0) {
+                smoothScrollBy(-mSmoothScrollAmountAtEdge, 0);
+                return true;
+            }
+
+            if (hoverViewLeft + hoverWidth >= width && (offset + extent) < range) {
+                smoothScrollBy(mSmoothScrollAmountAtEdge, 0);
+                return true;
+            }
+
+            return false;
+        }
     }
 
     private boolean isVertical() {
-		return getOrientation() == Orientation.VERTICAL;
-	}
+        return getOrientation() == Orientation.VERTICAL;
+    }
 
     /**
      * This scroll listener is added to the listview in order to handle cell swapping
