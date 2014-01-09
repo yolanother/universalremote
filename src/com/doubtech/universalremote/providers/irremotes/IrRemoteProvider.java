@@ -1,19 +1,13 @@
 package com.doubtech.universalremote.providers.irremotes;
 
-import java.io.OutputStream;
-
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import com.doubtech.universalremote.ButtonIdentifier;
-import com.doubtech.universalremote.ButtonIdentifier.ResourceLabel;
 import com.doubtech.universalremote.ir.IrManager;
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
@@ -75,16 +69,6 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
 		return Remotes.Columns.RemoteId;
 	}
 
-	private class FullResourceLabel extends ResourceLabel {
-		@Override
-		public String getLabelText() {
-			if(0 != getLabelId()) {
-				return getContext().getResources().getString(getLabelId());
-			}
-			return null;
-		}
-	}
-
 	@Override
 	protected Cursor getButtons(String[] projection, String modelId,
 			String[] buttons, String sortOrder) {
@@ -138,19 +122,17 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
         if(cursor.moveToFirst()) {
         	do {
         		Object[] row = new Object[cursor.getColumnCount()];
-    			FullResourceLabel outputLabel = new FullResourceLabel();
-    			ButtonIdentifier.getLabel(cursor.getString(URPContract.Buttons.COLIDX_NAME), outputLabel);
         		for(int i = 0; i < cursor.getColumnCount(); i++) {        			
         			switch(i) {
         			case URPContract.Buttons.COLIDX_NAME:
-        				row[i] = outputLabel.toString();
+        				row[i] = ButtonIdentifier.getLabel(getContext().getResources(), cursor.getString(URPContract.Buttons.COLIDX_NAME));
         				break;
         			case URPContract.Buttons.COLIDX_ID:
         			case URPContract.Buttons.COLIDX_MODEL_ID:
         				row[i] = cursor.getInt(i);
         				break;
         			case URPContract.Buttons.COLIDX_BUTTON_IDENTIFIER:
-        				row[i] = outputLabel.getButtonIdentifier();
+        				row[i] = ButtonIdentifier.getKnownButton(cursor.getString(URPContract.Buttons.COLIDX_NAME));
         			default:
         				row[i] = cursor.getString(i);
         				break;
@@ -259,13 +241,13 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
 	@Override
 	public AssetFileDescriptor openButtonIconAsset(Cursor button) {
 		button.moveToFirst();
-		FullResourceLabel outputLabel = new FullResourceLabel();
-		ButtonIdentifier.getLabel(button.getString(URPContract.Buttons.COLIDX_NAME), outputLabel);
+		String name = button.getString(URPContract.Buttons.COLIDX_NAME);
+		int iconId = ButtonIdentifier.getIconId(name);
 		try {
-			if(0 != outputLabel.getIconId()) {
+			if(0 != iconId) {
 				return getContext()
 						.getResources()
-						.openRawResourceFd(outputLabel.getIconId());
+						.openRawResourceFd(iconId);
 			}
 		} catch (Exception e) {
 			Log.d(TAG, "Could not open icon file.", e);

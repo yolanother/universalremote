@@ -9,5 +9,6 @@
     <string name="title_activity_remote_page_configuration">RemotePageConfiguration</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_hierarcal_list_view_sample">HierarcalListViewSample</string>
-
+	<string name="action_save">Save</string>
+	<string name="action_remote">Add Remote</string>
 </resources>

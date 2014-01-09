@@ -353,7 +353,7 @@ public class TextDrawable extends Drawable {
             mTextBounds.setEmpty();
         } else {
             //Measure text bounds
-            float desired = Layout.getDesiredWidth(mText, mTextPaint);
+            float desired = Layout.getDesiredWidth(mText, mTextPaint) + 10;
             mTextLayout = new StaticLayout(mText, mTextPaint, (int)desired,
                     mTextAlignment, 1.0f, 0.0f, false);
             mTextBounds.set(0, 0, mTextLayout.getWidth(), mTextLayout.getHeight());

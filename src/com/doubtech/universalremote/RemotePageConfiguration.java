@@ -1,5 +1,8 @@
 package com.doubtech.universalremote;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -29,15 +33,20 @@ import android.widget.TextView;
 import com.doubtech.universalremote.RemotePage.RemotePageBuilder;
 import com.doubtech.universalremote.adapters.TextAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter.RequestChildAdapterListener;
+import com.doubtech.universalremote.io.RemoteConfigurationWriter;
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.irremotes.IrRemoteProvider;
+import com.doubtech.universalremote.utils.Constants;
+import com.doubtech.universalremote.utils.IOUtil;
 import com.doubtech.universalremote.widget.DynamicListView.ISwappableAdapter;
 import com.doubtech.universalremote.widget.HierarchicalListView;
 import com.doubtech.universalremote.widget.HierarchicalListView.OnItemClickListener;
 import com.doubtech.universalremote.widget.TwoWayListView;
 
 public class RemotePageConfiguration extends Activity {
+	private static final String TAG = "UniversalRemote :: RemotePageConfiguration";
+
     private class RemotePageAdapter extends BaseAdapter implements ISwappableAdapter {
         private class ViewHolder {
 
@@ -159,6 +168,7 @@ public class RemotePageConfiguration extends Activity {
 	private RequestChildAdapterListener mRequestChildListener = new RequestChildAdapterListener() {
 		
 		public Object onRequestChild(String authority, int parentTable, String id) {
+			mMenuItemAddRemote.setEnabled(false);
 			switch(parentTable) {
 			case URPContract.TABLE_BRANDS:
 				return new TextAdapter(
@@ -205,6 +215,8 @@ public class RemotePageConfiguration extends Activity {
 		};
 	};
 	private RemotePageAdapter mRemotePageAdapter;
+	private MenuItem mMenuItemAddRemote;
+	private File mFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -259,7 +271,38 @@ public class RemotePageConfiguration extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.remote_page_configuration, menu);
+        mMenuItemAddRemote = menu.findItem(R.id.action_remote);
+        mMenuItemAddRemote.setEnabled(false);
         return true;
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    	switch(item.getItemId()) {
+    	case R.id.action_save:
+    		FileOutputStream fos = null;
+    		try {
+    			mFile = Constants.REMOTE_FILE;
+    			mFile.getParentFile().mkdirs();
+    			fos = new FileOutputStream(mFile);
+    			RemoteConfigurationWriter writer = new RemoteConfigurationWriter(fos, "Default Configuration");
+    			for(RemotePage page : mRemotePageAdapter.mRemotes) {
+    				writer.addPage(page);
+    			}
+    			writer.close();
+    		} catch (IOException e) {
+    			Log.d(TAG, e.getMessage(), e);
+    		} finally {
+    			IOUtil.closeQuietly(fos);
+    		}
+    		setResult(RESULT_OK);
+    		finish();
+    		return true;
+    	case R.id.action_remote:
+    		
+    		return true;
+    	}
+    	return super.onMenuItemSelected(featureId, item);
     }
     
     private class LoaderHandler implements LoaderCallbacks<Cursor> {

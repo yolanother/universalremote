@@ -56,6 +56,8 @@ public class TextAdapter extends CursorAdapter {
 			mAuthorityIndex = getCursor().getColumnIndex(mAuthorityColumn);
 		}
 		
+		getCursor().moveToPosition(position);
+		
 		String authority = getCursor().getString(mAuthorityIndex);
 		String id = getCursor().getString(mIdColIndex);
 

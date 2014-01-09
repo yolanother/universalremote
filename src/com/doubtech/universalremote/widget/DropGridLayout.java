@@ -1,7 +1,10 @@
 package com.doubtech.universalremote.widget;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
+
+import org.xmlpull.v1.XmlSerializer;
 
 import android.R.color;
 import android.content.Context;
@@ -12,6 +15,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.DragEvent;
 import android.view.View;
@@ -59,16 +63,26 @@ public class DropGridLayout extends RelativeLayout {
 
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
+        
 
         mCellWidth = (width  - getPaddingLeft() - getPaddingRight()) / getColumnCount();
         mCellHeight = (height - getPaddingTop() - getPaddingBottom()) / getRowCount();
+
+        if(height == 0) {
+        	mCellHeight = mCellWidth;
+        }
 
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             ChildSpec spec = mChildSpecs.get(child);
             child.measure((int) (spec.colspan * mCellWidth), (int) (spec.rowspan * mCellHeight));
         }
-        setMeasuredDimension(width, height);
+
+        if(MeasureSpec.EXACTLY == MeasureSpec.getMode(heightMeasureSpec) && height != 0) {
+        	setMeasuredDimension(width, height);
+        } else {
+        	setMeasuredDimension(width, (int) (mOccupiedCells.size() * mCellHeight));
+        }
     }
 
     @Override
@@ -219,15 +233,35 @@ public class DropGridLayout extends RelativeLayout {
             this.rowspan = 1;
             this.colspan = 1;
         }
+        
+        public int getRow() {
+			return row;
+		}
+        public int getCol() {
+			return col;
+		}
+        public int getColSpan() {
+			return colspan;
+		}
+        public int getRowSpan() {
+			return rowspan;
+		}
+
+    	public void writeXml(XmlSerializer xml) throws IllegalArgumentException, IllegalStateException, IOException {
+    		xml.attribute("", "row", Integer.toString(getRow()));
+    		xml.attribute("", "col", Integer.toString(getCol()));
+    		xml.attribute("", "rowspan", Integer.toString(getRowSpan()));
+    		xml.attribute("", "colspan", Integer.toString(getColSpan()));
+    	}
     }
 
     private HashMap<View, ChildSpec> mChildSpecs = new HashMap<View, DropGridLayout.ChildSpec>();
     private SparseArray<SparseArray<Boolean>> mOccupiedCells = new SparseArray<SparseArray<Boolean>>();
 
     public void addView(View child, ChildSpec spec) {
-        
+    	child.setPadding(10, 10, 10, 10);
         for(int row = spec.row; row < spec.row + spec.rowspan; row++) {
-        	for(int col = spec.col; col <= spec.col + spec.colspan; col++) {
+        	for(int col = spec.col; col < spec.col + spec.colspan; col++) {
         		if(isOccupied(row, col)) {
         			ChildSpec ns = new ChildSpec(spec.row + 1, spec.col, spec.rowspan, spec.colspan);
         			addView(child, ns);
@@ -237,15 +271,18 @@ public class DropGridLayout extends RelativeLayout {
         }
 
         for(int row = spec.row; row < spec.row + spec.rowspan; row++) {
-        	for(int col = spec.col; col <= spec.col + spec.colspan; col++) {
+        	for(int col = spec.col; col < spec.col + spec.colspan; col++) {
         		setOccupied(row, col, true);        		
         	}
         }
-        
 
         super.addView(child);
         mChildSpecs.put(child, spec);
-        //updateLayoutParams(child);
+    }
+    
+    public int getMaxRow() {
+    	// TODO Fix for when cells are removed
+    	return mOccupiedCells.size();
     }
 
     private void setOccupied(int row, int col, boolean occupied) {
@@ -257,7 +294,7 @@ public class DropGridLayout extends RelativeLayout {
     	cols.put(col, occupied);
 	}
 
-	private boolean isOccupied(int row, int col) {
+	public boolean isOccupied(int row, int col) {
     	SparseArray<Boolean> cols = mOccupiedCells.get(row);
     	if(null == cols) {
     		return false;

@@ -1,16 +1,11 @@
 package com.doubtech.universalremote;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import android.content.res.Resources;
 
 public class ButtonIdentifier {
 	public static final int BUTTON_UNKNOWN = 0;
@@ -65,20 +60,23 @@ public class ButtonIdentifier {
 	public static final int BUTTON_PREVIOUS = 49;
 	public static final int BUTTON_SOURCE = 50;
 	public static final int BUTTON_MENU = 51;
+	public static final int BUTTON_CLOSED_CAPTIONS = 52;
+	public static final int BUTTON_DOT = 53;
 	
-	public static final String IGNORED_WORDS_STRING = "^(key|button|btn|but|kp)";
+	public static final String IGNORED_WORDS_STRING = "^(KEY|BUTTON|BTN|BUT|KP)";
 	private static final String NBR_LEAD = "(num|number|nr)?\\s*";
 	private static final String NPS_LEAD = IGNORED_WORDS_STRING + "?\\s*";
 	private static final String NPS_TAIL = "$";
 	
 	public static final String[] NAME_PATTERN_STRINGS = new String[] {
+		"UNKNOWN",
 		NPS_LEAD + "(vol(ume)?\\s*(up|[+^]|plus|inc))|([+]\\s*vol(ume)?)" + NPS_TAIL,
 		NPS_LEAD + "(vol(ume)?\\s*(down|-|minus|dec|dn|dwn))|([+]\\s*vol(ume)?)" + NPS_TAIL,
 		NPS_LEAD + "pow(er)?(\\s*toggle)?" + NPS_TAIL,
 		NPS_LEAD + "pow(er)?\\s*on" + NPS_TAIL,
 		NPS_LEAD + "pow(er)?\\s*off" + NPS_TAIL,
-		NPS_LEAD + "ch(an(nel)?)?\\s*(up|[\\^]|plus)|[+]\\s*ch(an(nel)?)?" + NPS_TAIL,
-		NPS_LEAD + "ch(an(nel)?)?\\s*(down|[-]|dn|dwn|dec|minus)|[+]\\s*ch(an(nel)?)?" + NPS_TAIL,
+		NPS_LEAD + "ch(an(nel)?)?\\s*(up|[+\\^]|inc|plus)|[+]\\s*ch(an(nel)?)?" + NPS_TAIL,
+		NPS_LEAD + "ch(an(nel)?)?\\s*(down|[-]|dn|dwn|dec|minus)|[-]\\s*ch(an(nel)?)?" + NPS_TAIL,
 		NPS_LEAD + NBR_LEAD + "(0|zero)" + NPS_TAIL,
 		NPS_LEAD + NBR_LEAD + "(1|one)" + NPS_TAIL,
 		NPS_LEAD + NBR_LEAD + "(2|two)" + NPS_TAIL,
@@ -89,7 +87,6 @@ public class ButtonIdentifier {
 		NPS_LEAD + NBR_LEAD + "(7|seven)" + NPS_TAIL,
 		NPS_LEAD + NBR_LEAD + "(8|eight)" + NPS_TAIL,
 		NPS_LEAD + NBR_LEAD + "(9|nine)" + NPS_TAIL,
-		NPS_LEAD + "(menu)" + NPS_TAIL,
 		NPS_LEAD + "(settings)" + NPS_TAIL,
 		NPS_LEAD + "((br|bri|brgt|bright|brighness|brightness|brt)\\s*(up|[+]|plus|inc))|((up|[+]|plus|inc)\\s*(br|bri|brgt|brt|bright|brightness|brighness))" + NPS_TAIL,
 		NPS_LEAD + "((br|bri|brgt|bright|brightness|brighness|brt)\\s*(dwn|down|-|minus|dec))|((dwn|down|-|minus|dec)\\s*(br|bri|brgt|brt|bright|brightness|brighness))" + NPS_TAIL,
@@ -120,15 +117,18 @@ public class ButtonIdentifier {
 		NPS_LEAD + "(back|bck)" + NPS_TAIL,
 		NPS_LEAD + "(backward|bwd)" + NPS_TAIL,
 		NPS_LEAD + "(mute|muting)" + NPS_TAIL,
-		NPS_LEAD + "(next|nxt)" + NPS_TAIL,
-		NPS_LEAD + "(previous|prev|prv)" + NPS_TAIL,
+		NPS_LEAD + "(next|nxt|skip\\s*forward)" + NPS_TAIL,
+		NPS_LEAD + "(previous|prev|prv|skip\\s*back(ward)?)" + NPS_TAIL,
 		NPS_LEAD + "(source|input)" + NPS_TAIL,
+		NPS_LEAD + "(menu)" + NPS_TAIL,
+		NPS_LEAD + "(cc|closed\\s*caption(ing|s)|captions)" + NPS_TAIL,
+		NPS_LEAD + "(dot|[.])" + NPS_TAIL,
 	};
 
-	public static final int[] NAME_LABEL_IDS = new int[NAME_PATTERN_STRINGS.length + 1];
-	public static final int[] NAME_ICON_IDS = new int[NAME_PATTERN_STRINGS.length + 1];
+	public static final int[] NAME_LABEL_IDS = new int[NAME_PATTERN_STRINGS.length];
+	public static final int[] NAME_ICON_IDS = new int[NAME_PATTERN_STRINGS.length];
 
-	public static final Pattern[] NAME_PATTERNS = new Pattern[NAME_PATTERN_STRINGS.length + 1];
+	public static final Pattern[] NAME_PATTERNS = new Pattern[NAME_PATTERN_STRINGS.length];
 
 	private static final HashMap<String, Integer> sKnownButtons = new HashMap<String, Integer>();
 	private static final HashMap<String, String> sButtonLabels = new HashMap<String, String>();
@@ -205,6 +205,8 @@ public class ButtonIdentifier {
 		NAME_LABEL_IDS[BUTTON_NEXT] = R.string.button_next;
 		NAME_LABEL_IDS[BUTTON_PREVIOUS] = R.string.button_previous;
 		NAME_LABEL_IDS[BUTTON_SOURCE] = R.string.button_source;
+		NAME_LABEL_IDS[BUTTON_CLOSED_CAPTIONS] = R.string.button_closed_captions;
+		NAME_LABEL_IDS[BUTTON_DOT] = R.string.button_dot;
 		
 		NAME_ICON_IDS[BUTTON_VOLUME_UP] = R.drawable.button_volume_up;
 		NAME_ICON_IDS[BUTTON_VOLUME_DOWN] = R.drawable.button_volume_down;
@@ -230,7 +232,7 @@ public class ButtonIdentifier {
 		NAME_ICON_IDS[BUTTON_FFWD] = R.drawable.button_ffwd;
 		NAME_ICON_IDS[BUTTON_REW] = R.drawable.button_rew;
 		NAME_ICON_IDS[BUTTON_STOP] = R.drawable.button_stop;
-		//NAME_ICON_IDS[BUTTON_RECORD] = R.drawable.button_rec;
+		NAME_ICON_IDS[BUTTON_RECORD] = R.drawable.button_record;
 		NAME_ICON_IDS[BUTTON_UP] = R.drawable.button_up;
 		NAME_ICON_IDS[BUTTON_DOWN] = R.drawable.button_down;
 		NAME_ICON_IDS[BUTTON_LEFT] = R.drawable.button_left;
@@ -245,6 +247,7 @@ public class ButtonIdentifier {
 		NAME_ICON_IDS[BUTTON_NEXT] = R.drawable.button_next;
 		NAME_ICON_IDS[BUTTON_PREVIOUS] = R.drawable.button_previous;
 		NAME_ICON_IDS[BUTTON_SOURCE] = R.drawable.button_input_source;
+		NAME_ICON_IDS[BUTTON_DOT] = R.drawable.button_dot;
 	}
 	
 	public static Integer getKnownButton(String label) {
@@ -253,6 +256,7 @@ public class ButtonIdentifier {
 			for(int i = 1; i < NAME_PATTERNS.length; i++) {
 				Pattern p = NAME_PATTERNS[i];
 				if(null != p && p.matcher(label).find()) {
+					sKnownButtons.put(label, i);
 					return i;
 				}
 			}
@@ -262,123 +266,27 @@ public class ButtonIdentifier {
 
 		return null != button ? button : BUTTON_UNKNOWN;
 	}
-	
-	public abstract static class Label {
-		private String mLabel;
 
-		protected Label setLabel(String label) {
-			mLabel = label;
-			return this;
-		}
-		
-		String getLabel() {
-			return mLabel;
-		}
-		
-		@Override
-		public String toString() {
-			return getLabel();
-		}
-	}
-	
-	/**
-	 * Created so we don't have to have Context dependencies here
-	 */
-	public static abstract class ResourceLabel extends Label {
-		private int mResource = -1;
-
-		public abstract String getLabelText();
-		
-		public int getLabelId() {
-			if(mResource >= 0) {
-				return NAME_LABEL_IDS[mResource];
-			}
-			return 0;
-		}
-		
-		public int getIconId() {
-			if(mResource >= 0) {
-				return NAME_ICON_IDS[mResource];
-			}
-			return 0;
-		}
-
-		public boolean hasIcon() {
-			return mResource >= 0 && NAME_ICON_IDS[mResource] != 0;
-		}
-
-		protected Label setLabel(int buttonIdentifier) {
-			mResource  = buttonIdentifier;
-			String label = getLabelText();
-			if(null != label) {
-				super.setLabel(label);
-			}
-			return this;
-		}
-		
-		public int getButtonIdentifier() {
-			return mResource;
-		}
-	}
-
-	public static Label getLabel(String label, Label outputLabel) {
-		outputLabel.setLabel(label);
+	public static String getLabel(Resources res, String label) {
 		Integer definedLabel = getKnownButton(label);
-		if(null != definedLabel && outputLabel instanceof ResourceLabel) {
-			return ((ResourceLabel) outputLabel).setLabel(definedLabel);
+		if(null != definedLabel && 0 != definedLabel) {
+			return getLabel(res, definedLabel);
 		}
-		
+
 		String alteredLabel = sButtonLabels.get(label);
 		if(null == alteredLabel) {
-			alteredLabel = label.replaceFirst(IGNORED_WORDS_STRING + "\\s*", "").toUpperCase(Locale.getDefault());
+			alteredLabel = label.toUpperCase(Locale.getDefault()).replaceFirst(IGNORED_WORDS_STRING + "\\s*", "");
 			if(!alteredLabel.equals(label)) {
 				sButtonLabels.put(label, alteredLabel);
 			}
 		}
-		outputLabel.setLabel(alteredLabel);
-		return outputLabel;
-	}
-	
-	private static String[] readFile(InputStream stream) throws IOException {
-	    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-	    String         line = null;
-	    ArrayList<String>  stringBuilder = new ArrayList<String>();
-	    String         ls = System.getProperty("line.separator");
 
-	    while( ( line = reader.readLine() ) != null ) {
-	        stringBuilder.add(line);
-	    }
-
-	    return stringBuilder.toArray(new String[0]);
-	}
-	
-	private static class TestLabel extends ResourceLabel {
-		@Override
-		public String getLabelText() {
-			return "[" + Integer.toString(getButtonIdentifier()) + "]\t" + super.getLabel();
-		}
+		return alteredLabel;
 	}
 
-	// File parser
-	/*public static void main(String[] args) throws FileNotFoundException, IOException {
-		String[] lines;
-		if(args.length > 0) {
-			lines = readFile(new FileInputStream(args[0]));
-		} else {
-			lines = readFile(System.in);
-		}
-		
-		TestLabel testLabel = new TestLabel();
-		for(String label : lines) {
-			getLabel(label, testLabel);
-			if(testLabel.getButtonIdentifier() < 0) {
-				System.out.printf("[U]\t%-24s %s\n", testLabel.toString(), label);
-			} else {
-				System.out.printf("%-24s %s\n", testLabel.toString(), label);
-			}
-			testLabel.setLabel(-1);
-		}
-	}*/
+	private static String getLabel(Resources res, int buttonIdentifier) {
+		return res.getString(NAME_LABEL_IDS[buttonIdentifier]);
+	}
 
 	public static boolean isNumber(int buttonIdentifier) {
 		return buttonIdentifier >= ButtonIdentifier.BUTTON_0 && buttonIdentifier <= ButtonIdentifier.BUTTON_9;
@@ -386,5 +294,13 @@ public class ButtonIdentifier {
 
 	public static boolean isArrow(int buttonIdentifier) {
 		return buttonIdentifier == BUTTON_UP || buttonIdentifier == BUTTON_LEFT || buttonIdentifier == BUTTON_RIGHT || buttonIdentifier == BUTTON_DOWN;
+	}
+
+	public static int getIconId(String label) {
+		Integer buttonId = getKnownButton(label);
+		if(null != buttonId) {
+			return NAME_ICON_IDS[buttonId];
+		}
+		return 0;
 	}
 }
