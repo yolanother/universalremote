@@ -105,7 +105,9 @@ public class RemotePage extends DropGridLayout {
 						ButtonIdentifier.BUTTON_DOWN,
 						ButtonIdentifier.BUTTON_LEFT,
 						ButtonIdentifier.BUTTON_RIGHT,
-						ButtonIdentifier.BUTTON_OK);
+						identifiedButtons.indexOfKey(ButtonIdentifier.BUTTON_OK) >= 0 ?
+								ButtonIdentifier.BUTTON_OK :
+								ButtonIdentifier.BUTTON_ENTER);
 			}
 			
 			if(numberButtons == 10) {
@@ -282,7 +284,7 @@ public class RemotePage extends DropGridLayout {
 		public RemotePageBuilder addToggleButton(int column, ButtonFunction toggleButton, ButtonFunction[] states) {
 			ChildSpec spec = new ChildSpec(0, column);
 			if(null != toggleButton) {
-				mPage.addView(new RemoteButton(mPage.getContext(), toggleButton), spec);			
+				mPage.addView(new RemoteButton(mPage.getContext(), toggleButton), spec);
 			} else {
 				RemoteToggleButton button = new RemoteToggleButton(mPage.getContext());
 				for(ButtonFunction state : states) {
@@ -293,6 +295,10 @@ public class RemotePage extends DropGridLayout {
 				if(button.getStateCount() > 0) {
 					mPage.addView(button, spec);
 				}
+			}
+			unusedIdentifiedButtons.remove(toggleButton.getButtonIdentifier());
+			for(ButtonFunction function : states) {
+				unusedIdentifiedButtons.remove(function.getButtonIdentifier());
 			}
 			return this;
 		}

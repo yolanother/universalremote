@@ -58,4 +58,11 @@ public class ButtonFunctionSet extends ArrayList<ButtonFunction> {
 			listener.onIconLoaded(null);
 		}
 	}
+
+	public String getLabel() {
+		if(size() > 0) {
+			return get(0).getLabel();
+		}
+		return "";
+	}
 }

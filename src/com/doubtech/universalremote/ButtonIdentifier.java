@@ -211,8 +211,8 @@ public class ButtonIdentifier {
 		NAME_ICON_IDS[BUTTON_VOLUME_UP] = R.drawable.button_volume_up;
 		NAME_ICON_IDS[BUTTON_VOLUME_DOWN] = R.drawable.button_volume_down;
 		NAME_ICON_IDS[BUTTON_POWER_TOGGLE] = R.drawable.button_power;
-		NAME_ICON_IDS[BUTTON_POWER_ON] = R.drawable.button_power;
-		NAME_ICON_IDS[BUTTON_POWER_OFF] = R.drawable.button_power;
+		NAME_ICON_IDS[BUTTON_POWER_ON] = R.drawable.button_power_on;
+		NAME_ICON_IDS[BUTTON_POWER_OFF] = R.drawable.button_power_off;
 		NAME_ICON_IDS[BUTTON_CH_UP] = R.drawable.button_plus;
 		NAME_ICON_IDS[BUTTON_CH_DOWN] = R.drawable.button_minus;
 		NAME_ICON_IDS[BUTTON_MENU] = R.drawable.button_menu;
@@ -222,7 +222,7 @@ public class ButtonIdentifier {
 		NAME_ICON_IDS[BUTTON_CANCEL] = R.drawable.button_cancel;
 		//NAME_ICON_IDS[BUTTON_OK] = R.drawable.button_ok;
 		//NAME_ICON_IDS[BUTTON_ENTER] = R.drawable.button_enter;
-		NAME_ICON_IDS[BUTTON_RETURN] = R.drawable.button_return;
+		//NAME_ICON_IDS[BUTTON_RETURN] = R.drawable.button_return;
 		NAME_ICON_IDS[BUTTON_HELP] = R.drawable.button_help;
 		//NAME_ICON_IDS[BUTTON_GUIDE] = R.drawable.button_guide;
 		//NAME_ICON_IDS[BUTTON_HOME] = R.drawable.button_home;
