@@ -12,73 +12,73 @@ import android.widget.TextView;
 import com.doubtech.universalremote.R;
 
 public class TextAdapter extends CursorAdapter {
-	public static interface RequestChildAdapterListener {
-		Object onRequestChild(String authority, int parentTable, String id);
-	}
+    public static interface RequestChildAdapterListener {
+        Object onRequestChild(String authority, int parentTable, String id);
+    }
 
-	private int mIdColIndex = -1;
-	private int mLabelColIndex = -1;
-	private int mAuthorityIndex = -1;
+    private int mIdColIndex = -1;
+    private int mLabelColIndex = -1;
+    private int mAuthorityIndex = -1;
 
-	private String mIdColumn;
-	private String mLabelColumn;
-	private String mAuthorityColumn;
-	
-	private RequestChildAdapterListener mRequestChildListener;
-	private int mTable;
+    private String mIdColumn;
+    private String mLabelColumn;
+    private String mAuthorityColumn;
 
-	private static class EmptyCursor extends MatrixCursor {
+    private RequestChildAdapterListener mRequestChildListener;
+    private int mTable;
 
-		public EmptyCursor(String idColumn, String labelColumn) {
-			super(new String[] { idColumn, labelColumn });
-		}
-	}
-	
-	public TextAdapter(Context context, int table, Cursor c, String authorityColumn, String idColumn, String labelColumn, RequestChildAdapterListener listener) {
-		super(context, null == c ? new EmptyCursor(idColumn, labelColumn) : c, true);
-		mTable = table;
-		mLabelColumn = labelColumn;
-		mIdColumn = idColumn;
-		mRequestChildListener = listener;
-		mAuthorityColumn = authorityColumn;
-	}
-	
-	public int getChildTable() {
-		return mTable;
-	}
-	
-	@Override
-	public Object getItem(int position) {
-		if(-1 == mIdColIndex) {
-			mIdColIndex  = getCursor().getColumnIndex(mIdColumn);
-		}
-		if(-1 == mAuthorityIndex) {
-			mAuthorityIndex = getCursor().getColumnIndex(mAuthorityColumn);
-		}
-		
-		getCursor().moveToPosition(position);
-		
-		String authority = getCursor().getString(mAuthorityIndex);
-		String id = getCursor().getString(mIdColIndex);
+    private static class EmptyCursor extends MatrixCursor {
 
-		return mRequestChildListener.onRequestChild(authority, mTable, id);
-	}
+        public EmptyCursor(String idColumn, String labelColumn) {
+            super(new String[] { idColumn, labelColumn });
+        }
+    }
 
-	@Override
-	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		return LayoutInflater.from(context).inflate(R.layout.text_view, null);
-	}
+    public TextAdapter(Context context, int table, Cursor c, String authorityColumn, String idColumn, String labelColumn, RequestChildAdapterListener listener) {
+        super(context, null == c ? new EmptyCursor(idColumn, labelColumn) : c, true);
+        mTable = table;
+        mLabelColumn = labelColumn;
+        mIdColumn = idColumn;
+        mRequestChildListener = listener;
+        mAuthorityColumn = authorityColumn;
+    }
 
-	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
-		TextView tv = (TextView) view;
-		if(null != mLabelColumn) {
-			if(-1 == mLabelColIndex) {
-				mLabelColIndex = cursor.getColumnIndex(mLabelColumn);
-			}
-			tv.setText(cursor.getString(mLabelColIndex));
-		} else {
-			tv.setText("UNDEFINED LABEL COLUMN");
-		}
-	}
+    public int getChildTable() {
+        return mTable;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        if (-1 == mIdColIndex) {
+            mIdColIndex  = getCursor().getColumnIndex(mIdColumn);
+        }
+        if (-1 == mAuthorityIndex) {
+            mAuthorityIndex = getCursor().getColumnIndex(mAuthorityColumn);
+        }
+
+        getCursor().moveToPosition(position);
+
+        String authority = getCursor().getString(mAuthorityIndex);
+        String id = getCursor().getString(mIdColIndex);
+
+        return mRequestChildListener.onRequestChild(authority, mTable, id);
+    }
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        return LayoutInflater.from(context).inflate(R.layout.text_view, null);
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        TextView tv = (TextView) view;
+        if (null != mLabelColumn) {
+            if (-1 == mLabelColIndex) {
+                mLabelColIndex = cursor.getColumnIndex(mLabelColumn);
+            }
+            tv.setText(cursor.getString(mLabelColIndex));
+        } else {
+            tv.setText("UNDEFINED LABEL COLUMN");
+        }
+    }
 }

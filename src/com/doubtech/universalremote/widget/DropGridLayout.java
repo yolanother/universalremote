@@ -63,13 +63,13 @@ public class DropGridLayout extends RelativeLayout {
 
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
-        
+
 
         mCellWidth = (width  - getPaddingLeft() - getPaddingRight()) / getColumnCount();
         mCellHeight = (height - getPaddingTop() - getPaddingBottom()) / getRowCount();
 
-        if(height == 0) {
-        	mCellHeight = mCellWidth;
+        if (height == 0) {
+            mCellHeight = mCellWidth;
         }
 
         for (int i = 0; i < getChildCount(); i++) {
@@ -78,10 +78,10 @@ public class DropGridLayout extends RelativeLayout {
             child.measure((int) (spec.colspan * mCellWidth), (int) (spec.rowspan * mCellHeight));
         }
 
-        if(MeasureSpec.EXACTLY == MeasureSpec.getMode(heightMeasureSpec) && height != 0) {
-        	setMeasuredDimension(width, height);
+        if (MeasureSpec.EXACTLY == MeasureSpec.getMode(heightMeasureSpec) && height != 0) {
+            setMeasuredDimension(width, height);
         } else {
-        	setMeasuredDimension(width, (int) (mOccupiedCells.size() * mCellHeight));
+            setMeasuredDimension(width, (int) (mOccupiedCells.size() * mCellHeight));
         }
     }
 
@@ -139,15 +139,15 @@ public class DropGridLayout extends RelativeLayout {
             mDragShadow = null;
             invalidate();
             ChildSpec spec = getChildSpec(view);
-            if(null == spec) {
-            	int width = view.getMeasuredWidth();
-            	int height = view.getMeasuredHeight();
-            	width = (int) Math.max(Math.ceil(width / (float) mCellWidth), 1);
-            	height = (int) Math.max(Math.ceil(height / (float) mCellHeight), 1);
-            	spec = new ChildSpec(cell.y, cell.x, width, height);
+            if (null == spec) {
+                int width = view.getMeasuredWidth();
+                int height = view.getMeasuredHeight();
+                width = (int) Math.max(Math.ceil(width / (float) mCellWidth), 1);
+                height = (int) Math.max(Math.ceil(height / (float) mCellHeight), 1);
+                spec = new ChildSpec(cell.y, cell.x, width, height);
             } else {
-	            spec.row = cell.y;
-	            spec.col = cell.x;
+                spec.row = cell.y;
+                spec.col = cell.x;
             }
             addView(view, spec);
             break;
@@ -191,10 +191,10 @@ public class DropGridLayout extends RelativeLayout {
     public void removeView(View view) {
         super.removeView(view);
         ChildSpec spec = mChildSpecs.remove(view);
-        for(int row = spec.row; row < spec.row + spec.rowspan; row++) {
-        	for(int col = spec.col; col <= spec.col + spec.colspan; col++) {
-        		setOccupied(row, col, false);        		
-        	}
+        for (int row = spec.row; row < spec.row + spec.rowspan; row++) {
+            for (int col = spec.col; col <= spec.col + spec.colspan; col++) {
+                setOccupied(row, col, false);
+            }
         }
     }
 
@@ -233,77 +233,77 @@ public class DropGridLayout extends RelativeLayout {
             this.rowspan = 1;
             this.colspan = 1;
         }
-        
-        public int getRow() {
-			return row;
-		}
-        public int getCol() {
-			return col;
-		}
-        public int getColSpan() {
-			return colspan;
-		}
-        public int getRowSpan() {
-			return rowspan;
-		}
 
-    	public void writeXml(XmlSerializer xml) throws IllegalArgumentException, IllegalStateException, IOException {
-    		xml.attribute("", "row", Integer.toString(getRow()));
-    		xml.attribute("", "col", Integer.toString(getCol()));
-    		xml.attribute("", "rowspan", Integer.toString(getRowSpan()));
-    		xml.attribute("", "colspan", Integer.toString(getColSpan()));
-    	}
+        public int getRow() {
+            return row;
+        }
+        public int getCol() {
+            return col;
+        }
+        public int getColSpan() {
+            return colspan;
+        }
+        public int getRowSpan() {
+            return rowspan;
+        }
+
+        public void writeXml(XmlSerializer xml) throws IllegalArgumentException, IllegalStateException, IOException {
+            xml.attribute("", "row", Integer.toString(getRow()));
+            xml.attribute("", "col", Integer.toString(getCol()));
+            xml.attribute("", "rowspan", Integer.toString(getRowSpan()));
+            xml.attribute("", "colspan", Integer.toString(getColSpan()));
+        }
     }
 
     private HashMap<View, ChildSpec> mChildSpecs = new HashMap<View, DropGridLayout.ChildSpec>();
     private SparseArray<SparseArray<Boolean>> mOccupiedCells = new SparseArray<SparseArray<Boolean>>();
 
     public void addView(View child, ChildSpec spec) {
-    	child.setPadding(10, 10, 10, 10);
-        for(int row = spec.row; row < spec.row + spec.rowspan; row++) {
-        	for(int col = spec.col; col < spec.col + spec.colspan; col++) {
-        		if(isOccupied(row, col)) {
-        			ChildSpec ns = new ChildSpec(spec.row + 1, spec.col, spec.rowspan, spec.colspan);
-        			addView(child, ns);
-        			return;
-        		}
-        	}
+        child.setPadding(10, 10, 10, 10);
+        for (int row = spec.row; row < spec.row + spec.rowspan; row++) {
+            for (int col = spec.col; col < spec.col + spec.colspan; col++) {
+                if (isOccupied(row, col)) {
+                    ChildSpec ns = new ChildSpec(spec.row + 1, spec.col, spec.rowspan, spec.colspan);
+                    addView(child, ns);
+                    return;
+                }
+            }
         }
 
-        for(int row = spec.row; row < spec.row + spec.rowspan; row++) {
-        	for(int col = spec.col; col < spec.col + spec.colspan; col++) {
-        		setOccupied(row, col, true);        		
-        	}
+        for (int row = spec.row; row < spec.row + spec.rowspan; row++) {
+            for (int col = spec.col; col < spec.col + spec.colspan; col++) {
+                setOccupied(row, col, true);
+            }
         }
 
         super.addView(child);
         mChildSpecs.put(child, spec);
     }
-    
+
     public int getMaxRow() {
-    	// TODO Fix for when cells are removed
-    	return mOccupiedCells.size();
+        // TODO Fix for when cells are removed
+        return mOccupiedCells.size();
     }
 
     private void setOccupied(int row, int col, boolean occupied) {
-    	SparseArray<Boolean> cols = mOccupiedCells.get(row);
-    	if(null == cols) {
-    		cols = new SparseArray<Boolean>();
-    		mOccupiedCells.put(row, cols);
-    	}
-    	cols.put(col, occupied);
-	}
+        SparseArray<Boolean> cols = mOccupiedCells.get(row);
+        if (null == cols) {
+            cols = new SparseArray<Boolean>();
+            mOccupiedCells.put(row, cols);
+        }
+        cols.put(col, occupied);
+    }
 
-	public boolean isOccupied(int row, int col) {
-    	SparseArray<Boolean> cols = mOccupiedCells.get(row);
-    	if(null == cols) {
-    		return false;
-    	}
-    	Boolean occupied = cols.get(col);
-		return null != occupied && occupied;
-	}
+    public boolean isOccupied(int row, int col) {
+        SparseArray<Boolean> cols = mOccupiedCells.get(row);
+        if (null == cols) {
+            return false;
+        }
+        Boolean occupied = cols.get(col);
+        return null != occupied && occupied;
+    }
 
-	public ChildSpec getChildSpec(View v) {
+    public ChildSpec getChildSpec(View v) {
         return mChildSpecs.get(v);
     }
 }

@@ -7,6 +7,6 @@ import org.xmlpull.v1.XmlSerializer;
 import com.doubtech.universalremote.widget.DropGridLayout.ChildSpec;
 
 public interface IRemoteView {
-	void writeXml(XmlSerializer xml, ChildSpec childSpec) throws IllegalArgumentException,
-			IllegalStateException, IOException;
+    void writeXml(XmlSerializer xml, ChildSpec childSpec) throws IllegalArgumentException,
+            IllegalStateException, IOException;
 }

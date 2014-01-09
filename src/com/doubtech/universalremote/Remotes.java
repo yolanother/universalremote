@@ -29,7 +29,7 @@ public class Remotes extends FragmentActivity {
 
     private static final int REQUEST_CONFIGURE = 0;
 
-	/**
+    /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
      * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
@@ -58,12 +58,12 @@ public class Remotes extends FragmentActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
     }
-    
+
     @Override
     protected void onResume() {
-    	super.onResume();
-        if(Constants.REMOTE_FILE.exists()) {
-        	mSectionsPagerAdapter.open(Constants.REMOTE_FILE);
+        super.onResume();
+        if (Constants.REMOTE_FILE.exists()) {
+            mSectionsPagerAdapter.open(Constants.REMOTE_FILE);
         }
     }
 
@@ -81,13 +81,13 @@ public class Remotes extends FragmentActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if(requestCode == REQUEST_CONFIGURE && resultCode == RESULT_OK) {
-    		// TODO switch to data.getData() uri for opening the remote.
-    		mSectionsPagerAdapter.open(Constants.REMOTE_FILE);
-    	}
+        if (requestCode == REQUEST_CONFIGURE && resultCode == RESULT_OK) {
+            // TODO switch to data.getData() uri for opening the remote.
+            mSectionsPagerAdapter.open(Constants.REMOTE_FILE);
+        }
     }
 
     /**
@@ -95,31 +95,31 @@ public class Remotes extends FragmentActivity {
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
-    	List<RemotePage> mPages = new ArrayList<RemotePage>();
+        List<RemotePage> mPages = new ArrayList<RemotePage>();
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         public void open(File file) {
-        	mPages.clear();
-			RemoteConfigurationReader reader = new RemoteConfigurationReader();
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(file);
-				mPages.addAll(reader.read(Remotes.this, fis));
-				notifyDataSetChanged();
-			} catch(IOException e) {
-				IOUtil.closeQuietly(fis);
-			}
-		}
+            mPages.clear();
+            RemoteConfigurationReader reader = new RemoteConfigurationReader();
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(file);
+                mPages.addAll(reader.read(Remotes.this, fis));
+                notifyDataSetChanged();
+            } catch(IOException e) {
+                IOUtil.closeQuietly(fis);
+            }
+        }
 
-		@Override
+        @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a DummySectionFragment (defined as a static inner class
             // below) with the page number as its lone argument.
-			SectionFragment fragment = new SectionFragment();
+            SectionFragment fragment = new SectionFragment();
             fragment.setPage(mPages.get(position));
             return fragment;
         }
@@ -140,26 +140,26 @@ public class Remotes extends FragmentActivity {
      * displays dummy text.
      */
     public static class SectionFragment extends Fragment {
-		private ScrollView mRootView;
-		private RemotePage mPage;
+        private ScrollView mRootView;
+        private RemotePage mPage;
 
         public SectionFragment() {
         }
 
         public void setPage(RemotePage remotePage) {
-			mPage = remotePage;
-			if(null != mRootView) {
-				mRootView.removeAllViews();
-				mRootView.addView(mPage);
-			}
-		}
+            mPage = remotePage;
+            if (null != mRootView) {
+                mRootView.removeAllViews();
+                mRootView.addView(mPage);
+            }
+        }
 
-		@Override
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             mRootView = new ScrollView(getActivity());
-            if(null != mPage) {
-            	mRootView.addView(mPage);
+            if (null != mPage) {
+                mRootView.addView(mPage);
             }
             return mRootView;
         }

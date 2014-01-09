@@ -13,7 +13,7 @@ import com.doubtech.universalremote.providers.irremotes.o1r.O1rDataProviderContr
 public class O1rDatabaseHelper extends SQLiteOpenHelper {
     private static final int VERSION = 1;
     @SuppressWarnings("unused")
-	private static final String TAG = "UniversalRemote : O1rDatabaseHelper";
+    private static final String TAG = "UniversalRemote : O1rDatabaseHelper";
     private Context mContext;
 
     private static O1rDatabaseHelper sInstance;

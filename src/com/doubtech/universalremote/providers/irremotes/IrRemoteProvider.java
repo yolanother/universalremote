@@ -18,164 +18,164 @@ import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tab
 public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
     private static final String TAG = "UniversalRemote : IrRemoteProvider";
 
-	public static final String AUTHORITY = "com.doubtech.universalremote.providers.irremotes";
-	
-	private DatabaseHelper mHelper;
+    public static final String AUTHORITY = "com.doubtech.universalremote.providers.irremotes";
 
-	@Override
-	public boolean onCreate() {
-		mHelper = DatabaseHelper.getInstance(getContext());
-		return super.onCreate();
-	}
-	
-	@Override
-	public String getAuthority() {
-		return AUTHORITY;
-	}
-	
-	@Override
-	protected Cursor getBrands(String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		return compileQuery(Brands.TABLE_NAME, projection, selection, selectionArgs, Brands.Columns.BrandName);
-	}
-	
-	@Override
-	protected String getBrandColNameBrandName() {
-		return Brands.Columns.BrandName;
-	}
-	
-	@Override
-	protected String getBrandColNameId() {
-		return Brands.Columns.BrandID;
-	}
-	
-	@Override
-	protected Cursor getModels(String[] projection, String selection,
-			String[] selectionArgs, String sortOrder) {
-		return compileQuery(Remotes.TABLE_NAME, projection, null != selection ? Remotes.Columns.BrandId + " = " + selection : selection, selectionArgs, Remotes.Columns.RemoteName);
-	}
+    private DatabaseHelper mHelper;
 
-	@Override
-	protected String getModelColNameBrandId() {
-		return Remotes.Columns.BrandId;
-	}
-	
-	@Override
-	protected String getModelColNameModelName() {
-		return Remotes.Columns.RemoteName;
-	}
-	
-	@Override
-	protected String getModelColNameId() {
-		return Remotes.Columns.RemoteId;
-	}
+    @Override
+    public boolean onCreate() {
+        mHelper = DatabaseHelper.getInstance(getContext());
+        return super.onCreate();
+    }
 
-	@Override
-	protected Cursor getButtons(String[] projection, String modelId,
-			String[] buttons, String sortOrder) {
+    @Override
+    public String getAuthority() {
+        return AUTHORITY;
+    }
+
+    @Override
+    protected Cursor getBrands(String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        return compileQuery(Brands.TABLE_NAME, projection, selection, selectionArgs, Brands.Columns.BrandName);
+    }
+
+    @Override
+    protected String getBrandColNameBrandName() {
+        return Brands.Columns.BrandName;
+    }
+
+    @Override
+    protected String getBrandColNameId() {
+        return Brands.Columns.BrandID;
+    }
+
+    @Override
+    protected Cursor getModels(String[] projection, String selection,
+            String[] selectionArgs, String sortOrder) {
+        return compileQuery(Remotes.TABLE_NAME, projection, null != selection ? Remotes.Columns.BrandId + " = " + selection : selection, selectionArgs, Remotes.Columns.RemoteName);
+    }
+
+    @Override
+    protected String getModelColNameBrandId() {
+        return Remotes.Columns.BrandId;
+    }
+
+    @Override
+    protected String getModelColNameModelName() {
+        return Remotes.Columns.RemoteName;
+    }
+
+    @Override
+    protected String getModelColNameId() {
+        return Remotes.Columns.RemoteId;
+    }
+
+    @Override
+    protected Cursor getButtons(String[] projection, String modelId,
+            String[] buttons, String sortOrder) {
         final SQLiteDatabase db = mHelper.getReadableDatabase();
         StringBuilder query = new StringBuilder("select ");
-        for(int i = 0; i < projection.length; i++) {
-        	query.append(projection[i]);
-        	if(i + 1 < projection.length) {
-        		query.append(", ");
-        	}
+        for (int i = 0; i < projection.length; i++) {
+            query.append(projection[i]);
+            if (i + 1 < projection.length) {
+                query.append(", ");
+            }
         }
-        if(projection.length > 0) {
-        	query.append(", ");
+        if (projection.length > 0) {
+            query.append(", ");
         }
         query.append("ButtonCode");
         query.append(" from ");
         query.append(Buttons.TABLE_NAME);
-        if(null != modelId || null != buttons && buttons.length > 0) {
+        if (null != modelId || null != buttons && buttons.length > 0) {
             query.append(" where ");
 
-	        if(null != modelId) {
-	        	query.append(Buttons.Columns.RemoteId);
-	        	query.append(" = ");
-	        	query.append(modelId);
-        	}
-	        
-	        if(null != buttons && buttons.length > 0) {
-	        	if(null != modelId) {
-	        		query.append(" and ");
-	        	}
-	        	query.append("(");
-	        	for(int i = 0; i < buttons.length; i++) {
-	        		String button = buttons[i];
-	        		query.append(Buttons.Columns.ButtonId);
-	        		query.append("=");
-	        		query.append(button);
-	        		if(i + 1 < buttons.length) {
-	        			query.append(" or ");
-	        		}
-	        	}
-	        	query.append(")");
-	        }
+            if (null != modelId) {
+                query.append(Buttons.Columns.RemoteId);
+                query.append(" = ");
+                query.append(modelId);
+            }
+
+            if (null != buttons && buttons.length > 0) {
+                if (null != modelId) {
+                    query.append(" and ");
+                }
+                query.append("(");
+                for (int i = 0; i < buttons.length; i++) {
+                    String button = buttons[i];
+                    query.append(Buttons.Columns.ButtonId);
+                    query.append("=");
+                    query.append(button);
+                    if (i + 1 < buttons.length) {
+                        query.append(" or ");
+                    }
+                }
+                query.append(")");
+            }
         }
         query.append(" order by " + Buttons.Columns.ButtonLabel);
         Cursor cursor = db.rawQuery(query.toString(), null);
         String[] columns = new String[cursor.getColumnCount()];
-        for(int i = 0; i < cursor.getColumnCount(); i++) {
-        	columns[i] = cursor.getColumnName(i);
+        for (int i = 0; i < cursor.getColumnCount(); i++) {
+            columns[i] = cursor.getColumnName(i);
         }
         MatrixCursor modifiedCursor = new MatrixCursor(columns);
-        if(cursor.moveToFirst()) {
-        	do {
-        		Object[] row = new Object[cursor.getColumnCount()];
-        		for(int i = 0; i < cursor.getColumnCount(); i++) {        			
-        			switch(i) {
-        			case URPContract.Buttons.COLIDX_NAME:
-        				row[i] = ButtonIdentifier.getLabel(getContext().getResources(), cursor.getString(URPContract.Buttons.COLIDX_NAME));
-        				break;
-        			case URPContract.Buttons.COLIDX_ID:
-        			case URPContract.Buttons.COLIDX_MODEL_ID:
-        				row[i] = cursor.getInt(i);
-        				break;
-        			case URPContract.Buttons.COLIDX_BUTTON_IDENTIFIER:
-        				row[i] = ButtonIdentifier.getKnownButton(cursor.getString(URPContract.Buttons.COLIDX_NAME));
-        			default:
-        				row[i] = cursor.getString(i);
-        				break;
-        			}
-        		}
-        		modifiedCursor.addRow(row);
-        	} while(cursor.moveToNext());
+        if (cursor.moveToFirst()) {
+            do {
+                Object[] row = new Object[cursor.getColumnCount()];
+                for (int i = 0; i < cursor.getColumnCount(); i++) {
+                    switch(i) {
+                    case URPContract.Buttons.COLIDX_NAME:
+                        row[i] = ButtonIdentifier.getLabel(getContext().getResources(), cursor.getString(URPContract.Buttons.COLIDX_NAME));
+                        break;
+                    case URPContract.Buttons.COLIDX_ID:
+                    case URPContract.Buttons.COLIDX_MODEL_ID:
+                        row[i] = cursor.getInt(i);
+                        break;
+                    case URPContract.Buttons.COLIDX_BUTTON_IDENTIFIER:
+                        row[i] = ButtonIdentifier.getKnownButton(cursor.getString(URPContract.Buttons.COLIDX_NAME));
+                    default:
+                        row[i] = cursor.getString(i);
+                        break;
+                    }
+                }
+                modifiedCursor.addRow(row);
+            } while (cursor.moveToNext());
         }
-    	return modifiedCursor;
-	}
+        return modifiedCursor;
+    }
 
-	@Override
-	protected String getButtonsColNameModelId() {
-		return Buttons.Columns.RemoteId;
-	}
-	
-	@Override
-	protected String getButtonsColNameId() {
-		return Buttons.Columns.ButtonId;
-	}
-	
-	@Override
-	protected String getButtonsColNameButtonName() {
-		return Buttons.Columns.ButtonName;
-	}
+    @Override
+    protected String getButtonsColNameModelId() {
+        return Buttons.Columns.RemoteId;
+    }
 
-	@Override
-	public Cursor sendButtons(Cursor buttons) {
-		IrManager ir = IrManager.getInstance(getContext());
-		int buttonCodeColumn = buttons.getColumnIndex("ButtonCode");
-		if(-1 == buttonCodeColumn) {
-			Log.d(TAG, "Query didn't include button column.");
-			throw new IllegalArgumentException();
-		}
-		if(buttons.moveToFirst()) {
-			int limit = 0;
-			do {
-				Log.i(TAG, "Sending pronto code " + buttons.getString(buttonCodeColumn));
-				ir.transmitPronto(buttons.getString(buttonCodeColumn));
-			} while(buttons.moveToNext() && limit++ < 50);
-		}
-		return buttons;
-	}
+    @Override
+    protected String getButtonsColNameId() {
+        return Buttons.Columns.ButtonId;
+    }
+
+    @Override
+    protected String getButtonsColNameButtonName() {
+        return Buttons.Columns.ButtonName;
+    }
+
+    @Override
+    public Cursor sendButtons(Cursor buttons) {
+        IrManager ir = IrManager.getInstance(getContext());
+        int buttonCodeColumn = buttons.getColumnIndex("ButtonCode");
+        if (-1 == buttonCodeColumn) {
+            Log.d(TAG, "Query didn't include button column.");
+            throw new IllegalArgumentException();
+        }
+        if (buttons.moveToFirst()) {
+            int limit = 0;
+            do {
+                Log.i(TAG, "Sending pronto code " + buttons.getString(buttonCodeColumn));
+                ir.transmitPronto(buttons.getString(buttonCodeColumn));
+            } while (buttons.moveToNext() && limit++ < 50);
+        }
+        return buttons;
+    }
 
     private Cursor compileQuery(String table, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
@@ -211,7 +211,7 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
                 }
             }
         } else {
-        	query.append("*");
+            query.append("*");
         }
 
         query.append(" FROM ");
@@ -233,25 +233,25 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
         return query.toString();
     }
 
-	@Override
-	public ParcelFileDescriptor openButtonIcon(Cursor button) {
-		return null;
-	}
-	
-	@Override
-	public AssetFileDescriptor openButtonIconAsset(Cursor button) {
-		button.moveToFirst();
-		String name = button.getString(URPContract.Buttons.COLIDX_NAME);
-		int iconId = ButtonIdentifier.getIconId(name);
-		try {
-			if(0 != iconId) {
-				return getContext()
-						.getResources()
-						.openRawResourceFd(iconId);
-			}
-		} catch (Exception e) {
-			Log.d(TAG, "Could not open icon file.", e);
-		}
-		return null;
-	}
+    @Override
+    public ParcelFileDescriptor openButtonIcon(Cursor button) {
+        return null;
+    }
+
+    @Override
+    public AssetFileDescriptor openButtonIconAsset(Cursor button) {
+        button.moveToFirst();
+        String name = button.getString(URPContract.Buttons.COLIDX_NAME);
+        int iconId = ButtonIdentifier.getIconId(name);
+        try {
+            if (0 != iconId) {
+                return getContext()
+                        .getResources()
+                        .openRawResourceFd(iconId);
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Could not open icon file.", e);
+        }
+        return null;
+    }
 }

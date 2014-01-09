@@ -22,17 +22,17 @@ import android.widget.ListView;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 public class HierarchicalListView extends FrameLayout {
-	public static interface OnItemClickListener {
-		boolean onItemClick(AdapterView<?> adapterView, View view, int position,
+    public static interface OnItemClickListener {
+        boolean onItemClick(AdapterView<?> adapterView, View view, int position,
                 long id);
-	}
-	
+    }
+
     private List<Adapter> mAdapters;
     private OnItemClickListener mItemClickListener;
     private View mInterceptView;
     private int mOffsetWidth;
     private TimeInterpolator mInterpolator;
-	private OnItemLongClickListener mItemLongClickListener;
+    private OnItemLongClickListener mItemLongClickListener;
 
     public HierarchicalListView(Context context) {
         super(context);
@@ -154,42 +154,42 @@ public class HierarchicalListView extends FrameLayout {
             notifyDataSetChanged();
         }
     }
-    
+
     private void drawHighlights(Canvas canvas, View view) {
         Paint p = new Paint();
         p.setColor(getContext().getResources().getColor(android.R.color.holo_blue_dark));
         p.setStrokeWidth(4);
 
-        if(view instanceof ListView) {
-	        View selected = ((SelectionAdapter) ((ListView) view).getAdapter()).getSelection();
-	        if (null != selected) {
-	            canvas.drawLine(0, selected.getTop(), canvas.getWidth(), selected.getTop(), p);
-	            canvas.drawLine(0, selected.getBottom(), canvas.getWidth(), selected.getBottom(), p);
-	
-	            canvas.drawLine(0, selected.getTop(), 0, selected.getBottom(), p);
-	        } else {
-	            canvas.drawLine(0, 0, 0, canvas.getHeight(), p);
-	        }
+        if (view instanceof ListView) {
+            View selected = ((SelectionAdapter) ((ListView) view).getAdapter()).getSelection();
+            if (null != selected) {
+                canvas.drawLine(0, selected.getTop(), canvas.getWidth(), selected.getTop(), p);
+                canvas.drawLine(0, selected.getBottom(), canvas.getWidth(), selected.getBottom(), p);
+
+                canvas.drawLine(0, selected.getTop(), 0, selected.getBottom(), p);
+            } else {
+                canvas.drawLine(0, 0, 0, canvas.getHeight(), p);
+            }
         } else {
-        	canvas.drawLine(0, 0, 0, canvas.getHeight(), p);
+            canvas.drawLine(0, 0, 0, canvas.getHeight(), p);
         }
     }
-    
+
     public void addHierarchyView(View view) {
-    	final FrameLayout layout = new FrameLayout(getContext()) {
-    		@Override
-    		protected void onDraw(Canvas canvas) {
-    			drawHighlights(canvas, this);
-    			super.onDraw(canvas);
-    		}
+        final FrameLayout layout = new FrameLayout(getContext()) {
+            @Override
+            protected void onDraw(Canvas canvas) {
+                drawHighlights(canvas, this);
+                super.onDraw(canvas);
+            }
             @Override
             protected void dispatchDraw(Canvas canvas) {
                 super.dispatchDraw(canvas);
                 drawHighlights(canvas, this);
             }
-    	};
-    	layout.addView(view);
-    	completeAddHierarchyView(layout);
+        };
+        layout.addView(view);
+        completeAddHierarchyView(layout);
     }
 
     public void addAdapter(BaseAdapter adapter) {
@@ -210,37 +210,37 @@ public class HierarchicalListView extends FrameLayout {
             public void onItemClick(AdapterView<?> adapterView, View view, int position,
                     long id) {
                 Object item = adapterView.getItemAtPosition(position);
-                if(null != mItemClickListener && mItemClickListener.onItemClick(
-                		listView, view, position, id)) {
-                	return;
+                if (null != mItemClickListener && mItemClickListener.onItemClick(
+                        listView, view, position, id)) {
+                    return;
                 }
                 if (item instanceof BaseAdapter) {
                     ((SelectionAdapter)adapterView.getAdapter()).setSelectedPosition(position);
                     addAdapter((BaseAdapter) item);
                 } else if (item instanceof View) {
-                	addHierarchyView((View) item);
+                    addHierarchyView((View) item);
                 }
             }
         });
 
         listView.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				if(null != mItemLongClickListener) {
-					return mItemLongClickListener.onItemLongClick(arg0, arg1, arg2, arg3);
-				}
-				return false;
-			}
-		});
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                    int arg2, long arg3) {
+                if (null != mItemLongClickListener) {
+                    return mItemLongClickListener.onItemLongClick(arg0, arg1, arg2, arg3);
+                }
+                return false;
+            }
+        });
 
         listView.setAdapter(new SelectionAdapter(adapter));
         completeAddHierarchyView(listView);
     }
 
     private void completeAddHierarchyView(View view) {
-    	int width = getMeasuredWidth();
+        int width = getMeasuredWidth();
         if (getChildCount() >= 2) {
             int offset = (getChildCount() - 1) * mOffsetWidth;
             width = getMeasuredWidth() - offset;
@@ -273,9 +273,9 @@ public class HierarchicalListView extends FrameLayout {
                     .start();
             }
         }
-	}
+    }
 
-	public void closeTopView() {
+    public void closeTopView() {
         if (getChildCount() > 2) {
             final View v = getChildAt(getChildCount() - 1);
             v.animate()
@@ -298,8 +298,8 @@ public class HierarchicalListView extends FrameLayout {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         removeView(v);
-                        if(v instanceof ListView) {
-                        	mAdapters.remove(((ListView)v).getAdapter());
+                        if (v instanceof ListView) {
+                            mAdapters.remove(((ListView)v).getAdapter());
                         }
                         ListView listview = (ListView) getChildAt(getChildCount() - 2);
                         listview.bringToFront();
@@ -339,8 +339,8 @@ public class HierarchicalListView extends FrameLayout {
     public void setOnItemClickListener(OnItemClickListener listener) {
         mItemClickListener = listener;
     }
-    
+
     public void setOnItemLongClickListener(OnItemLongClickListener listener) {
-    	mItemLongClickListener = listener;
+        mItemLongClickListener = listener;
     }
 }

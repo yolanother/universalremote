@@ -18,7 +18,7 @@ public class SamsungIrManager extends IrManager {
 
     SamsungIrManager(Context context) {
         mService = context.getSystemService(IRDA_SERVICE);
-        if(null == mService) throw new IRNotSupportedException();
+        if (null == mService) throw new IRNotSupportedException();
         if (!context.getPackageManager().hasSystemFeature(FEATURE_IRDA_SERVICE)) {
             Log.w(TAG, "This is not a Samsung built IR service, your IR service milage may vary.");
         }
@@ -41,14 +41,14 @@ public class SamsungIrManager extends IrManager {
 
     @Override
     void transmitImpl(int carrierFrequency, int[] pattern)
-    		throws InvalidIrCodeException {
+            throws InvalidIrCodeException {
         try {
-        	StringBuilder data = new StringBuilder(Integer.toString(carrierFrequency));
-        	for(int timing : pattern) {
-        		data.append(" ");
-        		data.append(timing);
-        	}
-        	Log.d(TAG, "Sending " + data);
+            StringBuilder data = new StringBuilder(Integer.toString(carrierFrequency));
+            for (int timing : pattern) {
+                data.append(" ");
+                data.append(timing);
+            }
+            Log.d(TAG, "Sending " + data);
             mWriteIrsendMethod.invoke(mService, data.toString());
 
             // Catch blocks should be unnecessary, if we have properly checked

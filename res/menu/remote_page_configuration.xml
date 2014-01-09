@@ -5,12 +5,12 @@
         android:showAsAction="always"
         android:title="@string/action_remote"
         android:icon="@drawable/ic_action_add_remote"/>
- 
+
     <item
         android:id="@+id/action_save"
         android:orderInCategory="100"
         android:showAsAction="always"
         android:title="@string/action_save"
-        android:icon="@drawable/ic_action_save"/>   
+        android:icon="@drawable/ic_action_save"/>
 
 </menu>

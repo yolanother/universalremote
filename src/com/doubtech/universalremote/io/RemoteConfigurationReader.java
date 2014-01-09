@@ -20,28 +20,28 @@ import android.util.Log;
 import com.doubtech.universalremote.RemotePage;
 
 public class RemoteConfigurationReader {
-	private static final String TAG = "UniversalRemote :: RemoteConfigurationReader";
+    private static final String TAG = "UniversalRemote :: RemoteConfigurationReader";
 
-	public List<RemotePage> read(Context context, InputStream stream) {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		List<RemotePage> pages = new ArrayList<RemotePage>();
-		DocumentBuilder builder;
-		try {
-			builder = factory.newDocumentBuilder();
-			Document dom = builder.parse(stream);
-			Element root = dom.getDocumentElement();
-			NodeList nodes = root.getElementsByTagName(RemotePage.XMLTAG);
-			for(int i = 0; i < nodes.getLength(); i++) {
-				pages.add(RemotePage.fromXml(context, (Element) nodes.item(i)));
-			}
-		} catch (ParserConfigurationException e) {
-			Log.d(TAG, e.getMessage(), e);
-		} catch (SAXException e) {
-			Log.d(TAG, e.getMessage(), e);
-		} catch (IOException e) {
-			Log.d(TAG, e.getMessage(), e);
-		}
-		
-		return pages;
-	}
+    public List<RemotePage> read(Context context, InputStream stream) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        List<RemotePage> pages = new ArrayList<RemotePage>();
+        DocumentBuilder builder;
+        try {
+            builder = factory.newDocumentBuilder();
+            Document dom = builder.parse(stream);
+            Element root = dom.getDocumentElement();
+            NodeList nodes = root.getElementsByTagName(RemotePage.XMLTAG);
+            for (int i = 0; i < nodes.getLength(); i++) {
+                pages.add(RemotePage.fromXml(context, (Element) nodes.item(i)));
+            }
+        } catch (ParserConfigurationException e) {
+            Log.d(TAG, e.getMessage(), e);
+        } catch (SAXException e) {
+            Log.d(TAG, e.getMessage(), e);
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage(), e);
+        }
+
+        return pages;
+    }
 }

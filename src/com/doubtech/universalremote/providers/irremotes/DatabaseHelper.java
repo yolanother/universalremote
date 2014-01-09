@@ -30,10 +30,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             boolean importDb = !remotesDb.exists();
             sInstance = new DatabaseHelper(context);
             if (importDb) {
-                if(!sInstance.importDatabase( new File(context.getCacheDir(), "temp.db"))) {
-                	// TODO REMOVE. This is to make debugging faster.
-                	Log.d(TAG, "REMOVE ME.", new Exception());
-                	remotesDb.delete();
+                if (!sInstance.importDatabase( new File(context.getCacheDir(), "temp.db"))) {
+                    // TODO REMOVE. This is to make debugging faster.
+                    Log.d(TAG, "REMOVE ME.", new Exception());
+                    remotesDb.delete();
                 }
             }
         }
@@ -85,8 +85,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private boolean importDatabase(File tempFile) {
-    	if(!extractSourceDatabase(mContext, "remotes.db", tempFile)) return false;
-    	boolean success = true;
+        if (!extractSourceDatabase(mContext, "remotes.db", tempFile)) return false;
+        boolean success = true;
 
         SQLiteDatabase db = getWritableDatabase();
         try {
@@ -104,8 +104,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
             }
         } catch (SQLException e) {
-        	Log.d(TAG, e.getMessage(), e);
-        	success = false;
+            Log.d(TAG, e.getMessage(), e);
+            success = false;
         } finally {
             if (null != tempFile && tempFile.exists()) {
                 tempFile.delete();
@@ -116,32 +116,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public static boolean extractSourceDatabase(Context context, String assetName, File file) {
-    	boolean success = true;
-    	InputStream is = null;
-    	FileOutputStream fos = null;
-		try {
-			for(String f : context.getResources().getAssets().list("")) {
-				Log.d("AARON", f);
-			}
-			is = context.getResources().getAssets().open(assetName);
-	    	
-	    	fos = new FileOutputStream(file);
-	    	byte[] buffer = new byte[1024];
-	    	int len;
-	        while ((len = is.read(buffer)) > 0) {
-	        	fos.write(buffer, 0, len);
-	        }
-		} catch (IOException e) {
-			Log.e(TAG, e.getMessage(), e);
-			success = false;
-		} finally {
-			IOUtil.closeQuietly(is);
-			IOUtil.closeQuietly(fos);
-		}
-		return success;
-	}
+        boolean success = true;
+        InputStream is = null;
+        FileOutputStream fos = null;
+        try {
+            for (String f : context.getResources().getAssets().list("")) {
+                Log.d("AARON", f);
+            }
+            is = context.getResources().getAssets().open(assetName);
 
-	@Override
+            fos = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = is.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            success = false;
+        } finally {
+            IOUtil.closeQuietly(is);
+            IOUtil.closeQuietly(fos);
+        }
+        return success;
+    }
+
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }

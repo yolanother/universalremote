@@ -70,10 +70,10 @@ public final class DataProviderContract implements BaseColumns {
                 public static String Frequency = "Frequency";
 
                 public static final String[] ALL = new String[] {
-                	RemoteId,
-                	BrandId,
-                	RemoteName,
-                	Frequency
+                    RemoteId,
+                    BrandId,
+                    RemoteName,
+                    Frequency
                 };
 
                 public static final String[] ALL_TYPES = new String[] {
@@ -108,13 +108,13 @@ public final class DataProviderContract implements BaseColumns {
                 public static String ButtonIcon = "ButtonIcon";
 
                 public static final String[] ALL = new String[] {
-                	ButtonId,
-                	RemoteId,
-                	BrandId,
-                	ButtonName,
-                	ButtonCode,
-                	ButtonLabel,
-                	ButtonIcon
+                    ButtonId,
+                    RemoteId,
+                    BrandId,
+                    ButtonName,
+                    ButtonCode,
+                    ButtonLabel,
+                    ButtonIcon
                 };
 
                 public static final String[] ALL_TYPES = new String[] {
