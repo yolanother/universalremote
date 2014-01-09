@@ -282,7 +282,9 @@ public class RemotePage extends DropGridLayout {
             }
             unusedIdentifiedButtons.remove(toggleButton.getButtonIdentifier());
             for (ButtonFunction function : states) {
-                unusedIdentifiedButtons.remove(function.getButtonIdentifier());
+                if (null != function) {
+                    unusedIdentifiedButtons.remove(function.getButtonIdentifier());
+                }
             }
             return this;
         }
