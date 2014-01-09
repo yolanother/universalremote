@@ -213,8 +213,8 @@ public class ButtonIdentifier {
 		NAME_ICON_IDS[BUTTON_POWER_TOGGLE] = R.drawable.button_power;
 		NAME_ICON_IDS[BUTTON_POWER_ON] = R.drawable.button_power;
 		NAME_ICON_IDS[BUTTON_POWER_OFF] = R.drawable.button_power;
-		//NAME_ICON_IDS[BUTTON_CH_UP] = R.drawable.button_ch_up;
-		//NAME_ICON_IDS[BUTTON_CH_DOWN] = R.drawable.button_ch_down;
+		NAME_ICON_IDS[BUTTON_CH_UP] = R.drawable.button_plus;
+		NAME_ICON_IDS[BUTTON_CH_DOWN] = R.drawable.button_minus;
 		NAME_ICON_IDS[BUTTON_MENU] = R.drawable.button_menu;
 		//NAME_ICON_IDS[BUTTON_SETTINGS] = R.drawable.button_settings;
 		NAME_ICON_IDS[BUTTON_BRIGHTNESS_UP] = R.drawable.button_brightness_up;

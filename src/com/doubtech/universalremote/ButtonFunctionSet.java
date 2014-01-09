@@ -9,6 +9,7 @@ import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Context;
 
+import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 
 public class ButtonFunctionSet extends ArrayList<ButtonFunction> {
@@ -47,6 +48,14 @@ public class ButtonFunctionSet extends ArrayList<ButtonFunction> {
 	public void writeXml(XmlSerializer xml) throws IllegalArgumentException, IllegalStateException, IOException {
 		for(ButtonFunction function : this) {
 			function.writeXml(xml);
+		}
+	}
+
+	public void getIcon(Context context, IconLoaderListener listener) {
+		if(size() > 0) {
+			get(0).getIcon(context, listener);
+		} else {
+			listener.onIconLoaded(null);
 		}
 	}
 }

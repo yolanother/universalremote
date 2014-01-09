@@ -136,9 +136,9 @@ public class RemotePage extends DropGridLayout {
 			
 			addButton(colCount - 1, ButtonIdentifier.BUTTON_SOURCE);
 	
-			addRocker(colCount - 1, ButtonIdentifier.BUTTON_VOLUME_UP, ButtonIdentifier.BUTTON_VOLUME_DOWN);
+			addRocker(colCount - 1, ButtonIdentifier.BUTTON_VOLUME_UP, ButtonIdentifier.BUTTON_VOLUME_DOWN, true);
 			addButton(colCount - 1, ButtonIdentifier.BUTTON_MUTE);
-			addRocker(0, ButtonIdentifier.BUTTON_CH_UP, ButtonIdentifier.BUTTON_CH_DOWN);
+			addRocker(0, ButtonIdentifier.BUTTON_CH_UP, ButtonIdentifier.BUTTON_CH_DOWN, false);
 			addButton(colCount - 1, ButtonIdentifier.BUTTON_MENU);
 			
 			int middle = (int) (colCount / 2.0f);
@@ -146,7 +146,7 @@ public class RemotePage extends DropGridLayout {
 			if(identifiedButtons.indexOfKey(ButtonIdentifier.BUTTON_PREVIOUS) >= 0 || identifiedButtons.indexOfKey(ButtonIdentifier.BUTTON_NEXT) >= 0); {
 				playctlheight = 3;
 			}
-			addRocker(new ChildSpec(0, middle, playctlheight, 1), ButtonIdentifier.BUTTON_PLAY, ButtonIdentifier.BUTTON_PAUSE);
+			addRocker(new ChildSpec(0, middle, playctlheight, 1), ButtonIdentifier.BUTTON_PLAY, ButtonIdentifier.BUTTON_PAUSE, false);
 			addButton(middle - 1, ButtonIdentifier.BUTTON_REW);
 			addButton(middle + 1, ButtonIdentifier.BUTTON_FFWD);
 			addButton(middle - 1, ButtonIdentifier.BUTTON_PREVIOUS);
@@ -212,26 +212,26 @@ public class RemotePage extends DropGridLayout {
 			mPage.addView(dpad, spec);
 		}
 
-		private boolean addRocker(int column, int upIdentifier, int downIdentifier) {
+		private boolean addRocker(int column, int upIdentifier, int downIdentifier, boolean repeating) {
 			ChildSpec spec = new ChildSpec(0, column, 2, 1);
-			return addRocker(spec, upIdentifier, downIdentifier);
+			return addRocker(spec, upIdentifier, downIdentifier, repeating);
 		}
 
-		private boolean addRocker(ChildSpec spec, int upIdentifier, int downIdentifier) {
+		private boolean addRocker(ChildSpec spec, int upIdentifier, int downIdentifier, boolean repeating) {
 			ButtonFunction up = identifiedButtons.get(upIdentifier);
 			ButtonFunction down = identifiedButtons.get(downIdentifier);
-			addRocker(spec, up, down);
+			addRocker(spec, up, down, repeating);
 			return null != up && null != down;
 		}
-		
-		public RemotePageBuilder addRocker(int column, ButtonFunction up, ButtonFunction down) {
+
+		public RemotePageBuilder addRocker(int column, ButtonFunction up, ButtonFunction down, boolean repeating) {
 			ChildSpec spec = new ChildSpec(0, column, 2, 1);
-			return addRocker(spec, up, down);
+			return addRocker(spec, up, down, repeating);
 		}
 
-		public RemotePageBuilder addRocker(ChildSpec spec, ButtonFunction up, ButtonFunction down) {
+		public RemotePageBuilder addRocker(ChildSpec spec, ButtonFunction up, ButtonFunction down, boolean repeating) {
 			if(null != up && null != down) {
-				mPage.addView(new RemoteRocker(mPage.getContext(), up, down), spec);
+				mPage.addView(new RemoteRocker(mPage.getContext(), up, down, repeating), spec);
 				unusedIdentifiedButtons.remove(up.getButtonIdentifier());
 				unusedIdentifiedButtons.remove(down.getButtonIdentifier());
 			}
