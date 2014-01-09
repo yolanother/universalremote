@@ -419,13 +419,19 @@ public class TextDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
+        canvas.translate(mTextBounds.left, mTextBounds.top);
         if (mTextPath == null) {
+            float cx = mTextBounds.width() / 2.0f - mTextLayout.getWidth() / 2.0f;
+            float cy = mTextBounds.height() / 2.0f - mTextLayout.getHeight() / 2.0f;
+            canvas.translate(cx, cy);
             //Allow the layout to draw the text
             mTextLayout.draw(canvas);
+            canvas.translate(-cx, -cy);
         } else {
             //Draw directly on the canvas using the supplied path
             canvas.drawTextOnPath(mText.toString(), mTextPath, 0, 0, mTextPaint);
         }
+        canvas.translate(-mTextBounds.left, -mTextBounds.top);
     }
 
     @Override

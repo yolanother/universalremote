@@ -113,26 +113,10 @@ public class RemotePage extends DropGridLayout {
             if (numberButtons == 10) {
                 spec = new ChildSpec(0, (int) (colCount / 2.0f - 1), 4, 3);
                 RemoteNumberpad numberPad = new RemoteNumberpad(mPage.getContext());
-                numberPad.set0(identifiedButtons.get(ButtonIdentifier.BUTTON_0));
-                numberPad.set1(identifiedButtons.get(ButtonIdentifier.BUTTON_1));
-                numberPad.set2(identifiedButtons.get(ButtonIdentifier.BUTTON_2));
-                numberPad.set3(identifiedButtons.get(ButtonIdentifier.BUTTON_3));
-                numberPad.set4(identifiedButtons.get(ButtonIdentifier.BUTTON_4));
-                numberPad.set5(identifiedButtons.get(ButtonIdentifier.BUTTON_5));
-                numberPad.set6(identifiedButtons.get(ButtonIdentifier.BUTTON_6));
-                numberPad.set7(identifiedButtons.get(ButtonIdentifier.BUTTON_7));
-                numberPad.set8(identifiedButtons.get(ButtonIdentifier.BUTTON_8));
-                numberPad.set9(identifiedButtons.get(ButtonIdentifier.BUTTON_9));
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_0);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_1);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_2);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_3);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_4);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_5);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_6);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_7);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_8);
-                unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_9);
+                for (int i = 0; i <= 10; i++) {
+                    numberPad.setButtonFunction(i, identifiedButtons.get(ButtonIdentifier.BUTTON_0 + i));
+                    unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_0 + i);
+                }
                 mPage.addView(numberPad, spec);
             }
 
