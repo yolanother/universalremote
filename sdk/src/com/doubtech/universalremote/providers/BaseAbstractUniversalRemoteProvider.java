@@ -5,25 +5,36 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.doubtech.universalremote.ButtonIdentifier;
-import com.doubtech.universalremote.listeners.IconLoaderListener;
-
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
+import com.doubtech.universalremote.listeners.IconLoaderListener;
+import com.doubtech.universalremote.providers.URPContract.Brands;
+import com.doubtech.universalremote.providers.URPContract.Buttons;
+import com.doubtech.universalremote.providers.URPContract.Models;
+import com.doubtech.universalremote.providers.providerdo.ProviderDetails;
+import com.doubtech.universalremote.utils.ButtonIdentifier;
+import com.doubtech.universalremote.utils.ButtonIds;
+
+/**
+ * @hide
+ * @author a1.jackson
+ *
+ */
+public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvider {
     private UriMatcher mUriMatcher;
 
-    public AbstractUniversalRemoteProvider() {
+    public BaseAbstractUniversalRemoteProvider() {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
         mUriMatcher.addURI(getAuthority(), URPContract.TABLE_BRANDS_PATH, URPContract.TABLE_BRANDS);
@@ -31,6 +42,7 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         mUriMatcher.addURI(getAuthority(), URPContract.TABLE_BUTTONS_PATH, URPContract.TABLE_BUTTONS);
         mUriMatcher.addURI(getAuthority(), URPContract.TABLE_BUTTONS_PATH + "/*", URPContract.TABLE_BUTTONS);
         mUriMatcher.addURI(getAuthority(), URPContract.TABLE_BUTTON_LAYOUT_PATH, URPContract.TABLE_BUTTON_LAYOUT);
+        mUriMatcher.addURI(getAuthority(), URPContract.TABLE_PROVIDER_DETAILS_PATH, URPContract.TABLE_PROVIDER_DETAILS);
     }
 
     @Override
@@ -86,13 +98,30 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         return null;
     }
 
-    public abstract ParcelFileDescriptor openButtonIcon(Cursor button);
+    public ParcelFileDescriptor openButtonIcon(Cursor button) {
+        return null;
+    }
 
-    public abstract AssetFileDescriptor openButtonIconAsset(Cursor button);
+    public AssetFileDescriptor openButtonIconAsset(Cursor button) {
+        button.moveToFirst();
+        String name = button.getString(URPContract.Buttons.COLIDX_NAME);
+        int iconId = ButtonIdentifier.getIconId(name);
+        try {
+            if (0 != iconId) {
+                return getContext()
+                        .getResources()
+                        .openRawResourceFd(iconId);
+            }
+        } catch (Exception e) {
+            Log.d("UniversalRemote", "Could not open icon file.", e);
+        }
+        return null;
+    }
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
+    	Log.d("AARON", "Running query for " + uri + ": " + mUriMatcher.match(uri));
         switch(mUriMatcher.match(uri)) {
         case URPContract.TABLE_BRANDS:
             return getBrands(uri);
@@ -108,10 +137,25 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             return getButtons(uri, selectionArgs);
         case URPContract.TABLE_BUTTON_LAYOUT:
             return getButtonLayouts(uri);
+        case URPContract.TABLE_PROVIDER_DETAILS:
+        	Log.d("AARON", "Getting details for " + getAuthority());
+        	MatrixCursor cursor = new MatrixCursor(URPContract.ProviderDetails.ALL);
+        	cursor.addRow(new Object[] {
+        		getAuthority(),
+        		getProviderName(),
+        		getProviderDescription(),
+        		isProviderEnabled() ? 1 : 0
+        	});
+        	cursor.moveToFirst();
+        	return cursor;
         default:
              throw new IllegalArgumentException("Invalid uri " + uri.toString());
         }
     }
+    
+    public abstract String getProviderName();
+    public abstract String getProviderDescription();
+    public abstract boolean isProviderEnabled();
 
     public abstract Cursor sendButtons(Cursor buttons);
 
@@ -125,7 +169,8 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         if (null != buttons && buttons.size() > 0) {
             selections = buttons.toArray(new String[buttons.size()]);
         }
-        String modelId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_PARENT);
+        String modelId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
+        String remoteId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_MODELID);
         Cursor cursor = getButtons(new String[] {
                 "'" + getAuthority() + "' as " + URPContract.Buttons.COLUMN_AUTHORITY,
                 getButtonsColNameId() + " as " + URPContract.Buttons.COLUMN_ID,
@@ -134,26 +179,37 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
                 getButtonsColNameButtonIdentifier() + " as " + URPContract.Buttons.COLUMN_BUTTON_IDENTIFIER
             },
             modelId,
+            remoteId,
             selections,
             null);
         cursor.moveToFirst();
         return cursor;
     }
 
-    protected String getButtonsColNameButtonIdentifier() {
-        return Integer.toString(ButtonIdentifier.BUTTON_UNKNOWN);
+    public String getButtonsColNameButtonIdentifier() {
+        return Buttons.COLUMN_BUTTON_IDENTIFIER;
     }
 
-    protected abstract String getButtonsColNameButtonName();
+    public String getButtonsColNameButtonName() {
+    	return Buttons.COLUMN_NAME;
+    }
 
-    protected abstract String getButtonsColNameModelId();
+	public String getButtonsColNameBrandId() {
+		return Buttons.COLUMN_BRAND_ID;
+	}
 
-    protected abstract String getButtonsColNameId();
+    public String getButtonsColNameModelId() {
+    	return Buttons.COLUMN_MODEL_ID;
+    }
 
-    protected abstract Cursor getButtons(String[] projection, String modelId, String[] buttons, String sortOrder);
+    public String getButtonsColNameId() {
+    	return Buttons.COLUMN_ID;
+    }
+
+    protected abstract Cursor getButtons(String[] projection, String modelId, String remoteId, String[] buttons, String sortOrder);
 
     private Cursor getModels(Uri uri) {
-        String brandId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_PARENT);
+        String brandId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
         return getModels(new String[] {
                 "'" + getAuthority() + "' as " + URPContract.Models.COLUMN_AUTHORITY,
                 getModelColNameId() + " as " + URPContract.Models.COLUMN_ID,
@@ -181,17 +237,27 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         return "null";
     }
 
-    protected abstract String getBrandColNameBrandName();
+    public String getBrandColNameBrandName() {
+    	return Brands.COLUMN_NAME;
+    }
 
-    protected abstract String getBrandColNameId();
+    public String getBrandColNameId() {
+    	return Brands.COLUMN_ID;
+    }
 
     protected abstract Cursor getBrands(String[] projection, String selection, String[] selectionArgs, String sortOrder);
 
-    protected abstract String getModelColNameModelName();
+    public String getModelColNameModelName() {
+    	return Models.COLUMN_NAME;
+    }
 
-    protected abstract String getModelColNameId();
+    public  String getModelColNameId() {
+    	return Models.COLUMN_ID;
+    }
 
-    protected abstract String getModelColNameBrandId();
+    public String getModelColNameBrandId() {
+    	return Models.COLUMN_BRAND_ID;
+    }
 
     protected abstract Cursor getModels(String[] projection, String selection, String[] selectionArgs, String sortOrder);
 
@@ -204,10 +270,11 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
 
     public abstract String getAuthority();
 
-    public static Cursor queryButtons(Context context, String authority, String modelId) {
+    public static Cursor queryButtons(Context context, String authority, String brandId, String modelId) {
         return context.getContentResolver().query(
                         URPContract.getButtonsUri(authority).buildUpon()
-                            .appendQueryParameter(URPContract.QUERY_PARAMETER_PARENT, modelId)
+                        .appendQueryParameter(URPContract.QUERY_PARAMETER_BRANDID, brandId)
+                        .appendQueryParameter(URPContract.QUERY_PARAMETER_MODELID, modelId)
                             .build(),
                         null,
                         null,
@@ -219,7 +286,7 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             String brandId) {
         return context.getContentResolver().query(
                 URPContract.getModelsUri(authority).buildUpon()
-                .appendQueryParameter(URPContract.QUERY_PARAMETER_PARENT, brandId)
+                .appendQueryParameter(URPContract.QUERY_PARAMETER_BRANDID, brandId)
                 .build(),
             null,
             null,
@@ -227,10 +294,30 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             null);
     }
 
-    public static Cursor sendButton(Context context, String authority, String id) {
+	public static Cursor queryBrands(Context context, String authority) {
+        return context.getContentResolver().query(
+                URPContract.getBrandsUri(authority),
+            null,
+            null,
+            null,
+            null);
+	}
+    
+    public static ProviderDetails queryProviderDetails(Context context, String authority) {
+    	return ProviderDetails.fromCursor(context.getContentResolver().query(
+    			URPContract.getProviderDetailsUri(authority),
+    			null,
+    			null,
+    			null,
+    			null));
+    }
+
+    public static Cursor sendButton(Context context, String authority, String brandId, String modelId, String id) {
         return context.getContentResolver().query(
                 URPContract.getButtonsUri(authority).buildUpon()
                 .appendEncodedPath(URPContract.BUTTON_COMMAND_SEND)
+                .appendQueryParameter(URPContract.QUERY_PARAMETER_BRANDID, brandId)
+                .appendQueryParameter(URPContract.QUERY_PARAMETER_MODELID, modelId)
                 .appendQueryParameter(URPContract.QUERY_PARAMETER_BUTTON_ID, id).build(),
             new String[] { id },
             null,

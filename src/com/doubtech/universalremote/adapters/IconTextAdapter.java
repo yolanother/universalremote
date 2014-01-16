@@ -15,10 +15,10 @@ public class IconTextAdapter extends TextAdapter {
     private String mResourceColumn;
     private int mIconColIndex = -1;
 
-    public IconTextAdapter(Context context, int table, Cursor c,
+    public IconTextAdapter(Context context, String id, int table, Cursor c,
             String authorityColumn, String idColumn, String labelColumn,
             RequestChildAdapterListener listener) {
-        super(context, table, c, authorityColumn, idColumn, labelColumn,
+        super(context, id, table, c, authorityColumn, idColumn, labelColumn,
                 listener);
     }
 

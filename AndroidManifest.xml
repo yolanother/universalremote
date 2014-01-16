@@ -6,6 +6,8 @@
 
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.doubtech.universalremote.PROVIDE_BUTTONS"/>
+    <permission android:name="com.doubtech.universalremote.PROVIDE_BUTTONS" />
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -42,9 +44,18 @@
 
         <provider
             android:name="com.doubtech.universalremote.providers.irremotes.IrRemoteProvider"
-            android:authorities="com.doubtech.universalremote.providers.irremotes"
+            android:authorities="com.doubtech.universalremote.providers.irremotes.LircProvider"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="true"
+            android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
+        </provider>
+
+        <provider
+            android:name="com.doubtech.universalremote.providers.irremotes.RemoteCentralProvider"
+            android:authorities="com.doubtech.universalremote.providers.irremotes.RemoteCentral"
+            android:enabled="true"
+            android:exported="true"
+            android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
         </provider>
     </application>
 

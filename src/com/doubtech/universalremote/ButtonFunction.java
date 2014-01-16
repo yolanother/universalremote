@@ -13,12 +13,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
-import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
+import com.doubtech.universalremote.utils.ButtonIdentifier;
 
 public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
     private static final long serialVersionUID = 1L;
     private String mAuthority;
+    private String mBrandId;
+    private String mModelId;
     private String mId;
     private String mLabel;
     private int mButtonIdentifier;
@@ -27,6 +30,8 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
 
     public ButtonFunction(Context context, String authority, Cursor buttonCursor) {
         mAuthority = authority;
+        mBrandId = buttonCursor.getString(URPContract.Buttons.COLIDX_BRAND_ID);
+        mModelId = buttonCursor.getString(URPContract.Buttons.COLIDX_MODEL_ID);
         mId = buttonCursor.getString(URPContract.Buttons.COLIDX_ID);
         mLabel = buttonCursor.getString(URPContract.Buttons.COLIDX_NAME);
 
@@ -42,6 +47,8 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
 
     public ButtonFunction(Parcel parcel) {
         mAuthority = parcel.readString();
+        mBrandId = parcel.readString();
+        mModelId = parcel.readString();
         mId = parcel.readString();
         mLabel = parcel.readString();
         mButtonIdentifier = parcel.readInt();
@@ -53,7 +60,7 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
 
     public void getIcon(final Context context, final IconLoaderListener listener) {
         if (null == mButtonIcon) {
-            AbstractUniversalRemoteProvider.loadIcon(context, mAuthority, mId, new IconLoaderListener() {
+            BaseAbstractUniversalRemoteProvider.loadIcon(context, mAuthority, mId, new IconLoaderListener() {
                 @Override
                 public void onIconLoaded(Bitmap bitmap) {
                     mButtonIcon = bitmap;
@@ -92,6 +99,8 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mAuthority);
+        dest.writeString(mBrandId);
+        dest.writeString(mModelId);
         dest.writeString(mId);
         dest.writeString(mLabel);
         dest.writeInt(mButtonIdentifier);
@@ -116,6 +125,8 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
     @Override
     public void writeXml(XmlSerializer xml) throws IllegalArgumentException, IllegalStateException, IOException {
         xml.startTag("", XMLTAG);
+        xml.attribute("", "brandId", mId);
+        xml.attribute("", "modelId", mId);
         xml.attribute("", "id", mId);
         xml.attribute("", "authority", mAuthority);
         xml.attribute("", "label", mLabel);
@@ -126,9 +137,19 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
 
     public static ButtonFunction fromXml(Context context, Element item) {
         ButtonFunction details = new ButtonFunction();
+        details.mBrandId = item.getAttribute("brandId");
+        details.mModelId = item.getAttribute("modelId");
         details.mId = item.getAttribute("id");
         details.mAuthority = item.getAttribute("authority");
         details.mLabel = item.getAttribute("label");
         return details;
     }
+
+	public String getBrandId() {
+		return mBrandId;
+	}
+
+	public String getModelId() {
+		return mModelId;
+	}
 }

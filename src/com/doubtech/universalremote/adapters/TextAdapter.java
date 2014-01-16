@@ -7,13 +7,14 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.TextView;
 
 import com.doubtech.universalremote.R;
 
 public class TextAdapter extends CursorAdapter {
     public static interface RequestChildAdapterListener {
-        Object onRequestChild(String authority, int parentTable, String id);
+        Object onRequestChild(Adapter parent, String authority, int parentTable, String id);
     }
 
     private int mIdColIndex = -1;
@@ -26,6 +27,8 @@ public class TextAdapter extends CursorAdapter {
 
     private RequestChildAdapterListener mRequestChildListener;
     private int mTable;
+	private Adapter mParentAdapter;
+	private String mId;
 
     private static class EmptyCursor extends MatrixCursor {
 
@@ -34,13 +37,27 @@ public class TextAdapter extends CursorAdapter {
         }
     }
 
-    public TextAdapter(Context context, int table, Cursor c, String authorityColumn, String idColumn, String labelColumn, RequestChildAdapterListener listener) {
+    public TextAdapter(Context context, String id, int table, Cursor c, String authorityColumn, String idColumn, String labelColumn, RequestChildAdapterListener listener) {
         super(context, null == c ? new EmptyCursor(idColumn, labelColumn) : c, true);
+        mId = id;
         mTable = table;
         mLabelColumn = labelColumn;
         mIdColumn = idColumn;
         mRequestChildListener = listener;
         mAuthorityColumn = authorityColumn;
+    }
+    
+    public String getAdapterId() {
+    	return mId;
+    }
+    
+    public TextAdapter setParentAdapter(Adapter adapter) {
+    	mParentAdapter = adapter;
+    	return this;
+    }
+    
+    public Adapter getParentAdapter() {
+    	return mParentAdapter;
     }
 
     public int getChildTable() {
@@ -61,7 +78,7 @@ public class TextAdapter extends CursorAdapter {
         String authority = getCursor().getString(mAuthorityIndex);
         String id = getCursor().getString(mIdColIndex);
 
-        return mRequestChildListener.onRequestChild(authority, mTable, id);
+        return mRequestChildListener.onRequestChild(this, authority, mTable, id);
     }
 
     @Override

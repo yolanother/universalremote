@@ -26,6 +26,8 @@ import com.doubtech.universalremote.ui.RemoteDpad;
 import com.doubtech.universalremote.ui.RemoteNumberpad;
 import com.doubtech.universalremote.ui.RemoteRocker;
 import com.doubtech.universalremote.ui.RemoteToggleButton;
+import com.doubtech.universalremote.utils.ButtonIdentifier;
+import com.doubtech.universalremote.utils.ButtonIds;
 import com.doubtech.universalremote.widget.DropGridLayout;
 
 public class RemotePage extends DropGridLayout {
@@ -77,7 +79,7 @@ public class RemotePage extends DropGridLayout {
                     String authority = buttonCursor.getString(Buttons.COLIDX_AUTHORITY);
                     ButtonFunction button = new ButtonFunction(mPage.getContext(), authority, buttonCursor);
                     int buttonIdentifier = button.getButtonIdentifier();
-                    if (ButtonIdentifier.BUTTON_UNKNOWN != buttonIdentifier) {
+                    if (ButtonIds.BUTTON_UNKNOWN != buttonIdentifier) {
                         identifiedButtons.put(buttonIdentifier, button);
                         unusedIdentifiedButtons.put(buttonIdentifier, button);
                         if (ButtonIdentifier.isNumber(buttonIdentifier)) {
@@ -97,48 +99,48 @@ public class RemotePage extends DropGridLayout {
 
             ChildSpec spec;
 
-            addToggleButton(0, ButtonIdentifier.BUTTON_POWER_TOGGLE, ButtonIdentifier.BUTTON_POWER_ON, ButtonIdentifier.BUTTON_POWER_OFF);
+            addToggleButton(0, ButtonIds.BUTTON_POWER_TOGGLE, ButtonIds.BUTTON_POWER_ON, ButtonIds.BUTTON_POWER_OFF);
 
             if (arrowButtons == 4) {
                 addDpad((int) (colCount / 2.0f - 1),
-                        ButtonIdentifier.BUTTON_UP,
-                        ButtonIdentifier.BUTTON_DOWN,
-                        ButtonIdentifier.BUTTON_LEFT,
-                        ButtonIdentifier.BUTTON_RIGHT,
-                        identifiedButtons.indexOfKey(ButtonIdentifier.BUTTON_OK) >= 0 ?
-                                ButtonIdentifier.BUTTON_OK :
-                                ButtonIdentifier.BUTTON_ENTER);
+                        ButtonIds.BUTTON_UP,
+                        ButtonIds.BUTTON_DOWN,
+                        ButtonIds.BUTTON_LEFT,
+                        ButtonIds.BUTTON_RIGHT,
+                        identifiedButtons.indexOfKey(ButtonIds.BUTTON_OK) >= 0 ?
+                                ButtonIds.BUTTON_OK :
+                                ButtonIds.BUTTON_ENTER);
             }
 
             if (numberButtons == 10) {
                 spec = new ChildSpec(0, (int) (colCount / 2.0f - 1), 4, 3);
                 RemoteNumberpad numberPad = new RemoteNumberpad(mPage.getContext());
                 for (int i = 0; i <= 10; i++) {
-                    numberPad.setButtonFunction(i, identifiedButtons.get(ButtonIdentifier.BUTTON_0 + i));
-                    unusedIdentifiedButtons.remove(ButtonIdentifier.BUTTON_0 + i);
+                    numberPad.setButtonFunction(i, identifiedButtons.get(ButtonIds.BUTTON_0 + i));
+                    unusedIdentifiedButtons.remove(ButtonIds.BUTTON_0 + i);
                 }
                 mPage.addView(numberPad, spec);
             }
 
-            addButton(colCount - 1, ButtonIdentifier.BUTTON_SOURCE);
+            addButton(colCount - 1, ButtonIds.BUTTON_SOURCE);
 
-            addRocker(colCount - 1, ButtonIdentifier.BUTTON_VOLUME_UP, ButtonIdentifier.BUTTON_VOLUME_DOWN, true);
-            addButton(colCount - 1, ButtonIdentifier.BUTTON_MUTE);
-            addRocker(0, ButtonIdentifier.BUTTON_CH_UP, ButtonIdentifier.BUTTON_CH_DOWN, false);
-            addButton(colCount - 1, ButtonIdentifier.BUTTON_MENU);
+            addRocker(colCount - 1, ButtonIds.BUTTON_VOLUME_UP, ButtonIds.BUTTON_VOLUME_DOWN, true);
+            addButton(colCount - 1, ButtonIds.BUTTON_MUTE);
+            addRocker(0, ButtonIds.BUTTON_CH_UP, ButtonIds.BUTTON_CH_DOWN, false);
+            addButton(colCount - 1, ButtonIds.BUTTON_MENU);
 
             int middle = (int) (colCount / 2.0f);
             int playctlheight = 2;
-            if (identifiedButtons.indexOfKey(ButtonIdentifier.BUTTON_PREVIOUS) >= 0 || identifiedButtons.indexOfKey(ButtonIdentifier.BUTTON_NEXT) >= 0); {
+            if (identifiedButtons.indexOfKey(ButtonIds.BUTTON_PREVIOUS) >= 0 || identifiedButtons.indexOfKey(ButtonIds.BUTTON_NEXT) >= 0); {
                 playctlheight = 3;
             }
-            addRocker(new ChildSpec(0, middle, playctlheight, 1), ButtonIdentifier.BUTTON_PLAY, ButtonIdentifier.BUTTON_PAUSE, false);
-            addButton(middle - 1, ButtonIdentifier.BUTTON_REW);
-            addButton(middle + 1, ButtonIdentifier.BUTTON_FFWD);
-            addButton(middle - 1, ButtonIdentifier.BUTTON_PREVIOUS);
-            addButton(middle + 1, ButtonIdentifier.BUTTON_NEXT);
-            addButton(middle - 1, ButtonIdentifier.BUTTON_RECORD);
-            addButton(middle + 1, ButtonIdentifier.BUTTON_STOP);
+            addRocker(new ChildSpec(0, middle, playctlheight, 1), ButtonIds.BUTTON_PLAY, ButtonIds.BUTTON_PAUSE, false);
+            addButton(middle - 1, ButtonIds.BUTTON_REW);
+            addButton(middle + 1, ButtonIds.BUTTON_FFWD);
+            addButton(middle - 1, ButtonIds.BUTTON_PREVIOUS);
+            addButton(middle + 1, ButtonIds.BUTTON_NEXT);
+            addButton(middle - 1, ButtonIds.BUTTON_RECORD);
+            addButton(middle + 1, ButtonIds.BUTTON_STOP);
 
             // Fill in the rest of the buttons
             int col = 0;

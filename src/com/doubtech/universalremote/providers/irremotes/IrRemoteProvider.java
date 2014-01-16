@@ -1,24 +1,23 @@
 package com.doubtech.universalremote.providers.irremotes;
 
-import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.doubtech.universalremote.ButtonIdentifier;
+import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.ir.IrManager;
-import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Brands;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Buttons;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Remotes;
+import com.doubtech.universalremote.providers.providerdo.Button;
 
-public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
+public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
     private static final String TAG = "UniversalRemote : IrRemoteProvider";
 
-    public static final String AUTHORITY = "com.doubtech.universalremote.providers.irremotes";
+    public static final String AUTHORITY = "com.doubtech.universalremote.providers.irremotes.LircProvider";
 
     private DatabaseHelper mHelper;
 
@@ -39,41 +38,42 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
     }
 
     @Override
-    protected String getBrandColNameBrandName() {
+    public String getBrandColNameBrandName() {
         return Brands.Columns.BrandName;
     }
 
     @Override
-    protected String getBrandColNameId() {
+    public String getBrandColNameId() {
         return Brands.Columns.BrandID;
     }
 
     @Override
-    protected Cursor getModels(String[] projection, String selection,
+    protected Cursor getModels(String[] projection, String brandId,
             String[] selectionArgs, String sortOrder) {
-        return compileQuery(Remotes.TABLE_NAME, projection, null != selection ? Remotes.Columns.BrandId + " = " + selection : selection, selectionArgs, Remotes.Columns.RemoteName);
+        return compileQuery(Remotes.TABLE_NAME, projection, null != brandId ? Remotes.Columns.BrandId + " = " + brandId : brandId, selectionArgs, Remotes.Columns.RemoteName);
     }
 
     @Override
-    protected String getModelColNameBrandId() {
+    public String getModelColNameBrandId() {
         return Remotes.Columns.BrandId;
     }
 
     @Override
-    protected String getModelColNameModelName() {
+    public String getModelColNameModelName() {
         return Remotes.Columns.RemoteName;
     }
 
     @Override
-    protected String getModelColNameId() {
+    public String getModelColNameId() {
         return Remotes.Columns.RemoteId;
     }
 
     @Override
-    protected Cursor getButtons(String[] projection, String modelId,
+    protected Cursor getButtons(String[] projection, String brandId, String modelId,
             String[] buttons, String sortOrder) {
         final SQLiteDatabase db = mHelper.getReadableDatabase();
         StringBuilder query = new StringBuilder("select ");
+        projection = Buttons.Columns.ALL;
         for (int i = 0; i < projection.length; i++) {
             query.append(projection[i]);
             if (i + 1 < projection.length) {
@@ -114,48 +114,28 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
         }
         query.append(" order by " + Buttons.Columns.ButtonLabel);
         Cursor cursor = db.rawQuery(query.toString(), null);
-        String[] columns = new String[cursor.getColumnCount()];
-        for (int i = 0; i < cursor.getColumnCount(); i++) {
-            columns[i] = cursor.getColumnName(i);
-        }
-        MatrixCursor modifiedCursor = new MatrixCursor(columns);
+
+        MatrixCursor modifiedCursor = new MatrixCursor(URPContract.Buttons.ALL);
         if (cursor.moveToFirst()) {
-            do {
-                Object[] row = new Object[cursor.getColumnCount()];
-                for (int i = 0; i < cursor.getColumnCount(); i++) {
-                    switch(i) {
-                    case URPContract.Buttons.COLIDX_NAME:
-                        row[i] = ButtonIdentifier.getLabel(getContext().getResources(), cursor.getString(URPContract.Buttons.COLIDX_NAME));
-                        break;
-                    case URPContract.Buttons.COLIDX_ID:
-                    case URPContract.Buttons.COLIDX_MODEL_ID:
-                        row[i] = cursor.getInt(i);
-                        break;
-                    case URPContract.Buttons.COLIDX_BUTTON_IDENTIFIER:
-                        row[i] = ButtonIdentifier.getKnownButton(cursor.getString(URPContract.Buttons.COLIDX_NAME));
-                    default:
-                        row[i] = cursor.getString(i);
-                        break;
-                    }
-                }
-                modifiedCursor.addRow(row);
+        	do {
+                modifiedCursor.addRow(Button.fromCursor(this, getAuthority(), cursor).toRow());
             } while (cursor.moveToNext());
         }
         return modifiedCursor;
     }
 
     @Override
-    protected String getButtonsColNameModelId() {
+    public String getButtonsColNameModelId() {
         return Buttons.Columns.RemoteId;
     }
 
     @Override
-    protected String getButtonsColNameId() {
+    public String getButtonsColNameId() {
         return Buttons.Columns.ButtonId;
     }
 
     @Override
-    protected String getButtonsColNameButtonName() {
+    public String getButtonsColNameButtonName() {
         return Buttons.Columns.ButtonName;
     }
 
@@ -234,24 +214,17 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
     }
 
     @Override
-    public ParcelFileDescriptor openButtonIcon(Cursor button) {
-        return null;
+    public String getProviderName() {
+    	return getContext().getResources().getString(R.string.lirc_provider_name);
     }
 
     @Override
-    public AssetFileDescriptor openButtonIconAsset(Cursor button) {
-        button.moveToFirst();
-        String name = button.getString(URPContract.Buttons.COLIDX_NAME);
-        int iconId = ButtonIdentifier.getIconId(name);
-        try {
-            if (0 != iconId) {
-                return getContext()
-                        .getResources()
-                        .openRawResourceFd(iconId);
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Could not open icon file.", e);
-        }
-        return null;
+    public String getProviderDescription() {
+    	return getContext().getResources().getString(R.string.lirc_provider_desc);
+    }
+
+    @Override
+    public boolean isProviderEnabled() {
+    	return IrManager.isSupported(getContext());
     }
 }
