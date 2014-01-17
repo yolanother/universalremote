@@ -16,155 +16,155 @@ import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 
 public class Button {
-	protected String mAuthority;
-	protected String mBrandId;
-	protected String mModelId;
-	protected String mButtonId;
-	protected String mName = "";
-	protected int mButtonIdentifier = 0;
-	protected HashMap<String, String> mInternalData = new HashMap<String, String>();
-	
-	protected Button() {
+    protected String mAuthority;
+    protected String mBrandId;
+    protected String mModelId;
+    protected String mButtonId;
+    protected String mName = "";
+    protected int mButtonIdentifier = 0;
+    protected HashMap<String, String> mInternalData = new HashMap<String, String>();
 
-	}
+    protected Button() {
 
-	public Button(String authority, String brandId, String modelId, String buttonId) {
-		mAuthority = authority;
-		mBrandId = brandId;
-		mModelId = modelId;
-		mButtonId = buttonId;
-	}
+    }
 
-	public static Button fromUri(Uri uri) {
-		Button button = new Button();
-		button.mAuthority = uri.getAuthority();
-		button.mBrandId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
-		button.mModelId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_MODELID);
-		button.mButtonId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BUTTON_ID);
-		return button;
-	}
-	
-	public static Button fromCursor(BaseAbstractUniversalRemoteProvider provider, String authority, Cursor cursor) {
-		Button button = new Button();
-		int idx;
-		idx = cursor.getColumnIndex(Buttons.COLUMN_AUTHORITY);
-		if(idx >= 0) {
-			button.mAuthority = cursor.getString(idx);
-		} else {
-			button.mAuthority = authority;
-		}
+    public Button(String authority, String brandId, String modelId, String buttonId) {
+        mAuthority = authority;
+        mBrandId = brandId;
+        mModelId = modelId;
+        mButtonId = buttonId;
+    }
 
-		idx = cursor.getColumnIndex(provider.getButtonsColNameBrandId());
-		if(idx >= 0) {
-			button.mBrandId = cursor.getString(idx);
-		}
+    public static Button fromUri(Uri uri) {
+        Button button = new Button();
+        button.mAuthority = uri.getAuthority();
+        button.mBrandId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
+        button.mModelId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_MODELID);
+        button.mButtonId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BUTTON_ID);
+        return button;
+    }
 
-		idx = cursor.getColumnIndex(provider.getButtonsColNameModelId());
-		if(idx >= 0) {
-			button.mModelId = cursor.getString(idx);
-		}
+    public static Button fromCursor(BaseAbstractUniversalRemoteProvider provider, String authority, Cursor cursor) {
+        Button button = new Button();
+        int idx;
+        idx = cursor.getColumnIndex(Buttons.COLUMN_AUTHORITY);
+        if (idx >= 0) {
+            button.mAuthority = cursor.getString(idx);
+        } else {
+            button.mAuthority = authority;
+        }
 
-		idx = cursor.getColumnIndex(provider.getButtonsColNameId());
-		if(idx >= 0) {
-			button.mButtonId = cursor.getString(idx);
-		}
+        idx = cursor.getColumnIndex(provider.getButtonsColNameBrandId());
+        if (idx >= 0) {
+            button.mBrandId = cursor.getString(idx);
+        }
 
-		idx = cursor.getColumnIndex(provider.getButtonsColNameButtonName());
-		if(idx >= 0) {
-			button.mName = ButtonIdentifier.getLabel(provider.getContext().getResources(), cursor.getString(idx));
-		}
+        idx = cursor.getColumnIndex(provider.getButtonsColNameModelId());
+        if (idx >= 0) {
+            button.mModelId = cursor.getString(idx);
+        }
 
-		idx = cursor.getColumnIndex(provider.getButtonsColNameButtonIdentifier());
-		if(idx >= 0) {
-			button.mButtonIdentifier = ButtonIdentifier.getKnownButton(cursor.getString(idx));
-		}
+        idx = cursor.getColumnIndex(provider.getButtonsColNameId());
+        if (idx >= 0) {
+            button.mButtonId = cursor.getString(idx);
+        }
 
-		return button;
-	}
+        idx = cursor.getColumnIndex(provider.getButtonsColNameButtonName());
+        if (idx >= 0) {
+            button.mName = ButtonIdentifier.getLabel(provider.getContext().getResources(), cursor.getString(idx));
+        }
 
-	public static Button[] fromJson(AbstractJsonUniversalRemoteProvider provider, String authority, String json) throws JSONException {
-		if(null == json || json.length() == 0) return new Button[0];
-		JSONObject obj = new JSONObject(json);
-		JSONArray array = obj.getJSONArray("buttons");
-		Button[] buttons = new Button[array.length()];
-		for(int i = 0; i < array.length(); i++) {
-			obj = array.getJSONObject(i);
-			Button button = new Button();
-			button.mAuthority = authority;
-			button.mBrandId = obj.getString("brandId");
-			button.mModelId = obj.getString("modelId");
-			button.mButtonId = obj.getString("buttonId");
-			button.mName = ButtonIdentifier.getLabel(provider.getContext().getResources(), obj.getString("buttonName"));
-			button.mButtonIdentifier = ButtonIdentifier.getKnownButton(obj.getString("buttonName"));
-			provider.onPutExtras(button, obj);
-			buttons[i] = button;
-		}
-		return buttons;
-	}
+        idx = cursor.getColumnIndex(provider.getButtonsColNameButtonIdentifier());
+        if (idx >= 0) {
+            button.mButtonIdentifier = ButtonIdentifier.getKnownButton(cursor.getString(idx));
+        }
 
-	public Object[] toRow() {
-		Object[] row = new Object[URPContract.Buttons.ALL.length];
-		row[Buttons.COLIDX_ID] = getButtonId().hashCode();
-		row[Buttons.COLIDX_AUTHORITY] = getAuthority();
-		row[Buttons.COLIDX_BRAND_ID] = getBrandId();
-		row[Buttons.COLIDX_MODEL_ID] = getModelId();
-		row[Buttons.COLIDX_BUTTON_ID] = getButtonId();
-		row[Buttons.COLIDX_NAME] = getName();
-		row[Buttons.COLIDX_BUTTON_IDENTIFIER] = getButtonIdentifier();
-		return row;
-	}
+        return button;
+    }
 
-	public int getButtonIdentifier() {
-		return mButtonIdentifier;
-	}
+    public static Button[] fromJson(AbstractJsonUniversalRemoteProvider provider, String authority, String json) throws JSONException {
+        if (null == json || json.length() == 0) return new Button[0];
+        JSONObject obj = new JSONObject(json);
+        JSONArray array = obj.getJSONArray("buttons");
+        Button[] buttons = new Button[array.length()];
+        for (int i = 0; i < array.length(); i++) {
+            obj = array.getJSONObject(i);
+            Button button = new Button();
+            button.mAuthority = authority;
+            button.mBrandId = obj.getString("brandId");
+            button.mModelId = obj.getString("modelId");
+            button.mButtonId = obj.getString("buttonId");
+            button.mName = ButtonIdentifier.getLabel(provider.getContext().getResources(), obj.getString("buttonName"));
+            button.mButtonIdentifier = ButtonIdentifier.getKnownButton(obj.getString("buttonName"));
+            provider.onPutExtras(button, obj);
+            buttons[i] = button;
+        }
+        return buttons;
+    }
 
-	public String getName() {
-		return mName;
-	}
+    public Object[] toRow() {
+        Object[] row = new Object[URPContract.Buttons.ALL.length];
+        row[Buttons.COLIDX_ID] = getButtonId().hashCode();
+        row[Buttons.COLIDX_AUTHORITY] = getAuthority();
+        row[Buttons.COLIDX_BRAND_ID] = getBrandId();
+        row[Buttons.COLIDX_MODEL_ID] = getModelId();
+        row[Buttons.COLIDX_BUTTON_ID] = getButtonId();
+        row[Buttons.COLIDX_NAME] = getName();
+        row[Buttons.COLIDX_BUTTON_IDENTIFIER] = getButtonIdentifier();
+        return row;
+    }
 
-	public String getButtonId() {
-		return mButtonId;
-	}
+    public int getButtonIdentifier() {
+        return mButtonIdentifier;
+    }
 
-	public String getModelId() {
-		return mModelId;
-	}
+    public String getName() {
+        return mName;
+    }
 
-	public String getBrandId() {
-		return mBrandId;
-	}
+    public String getButtonId() {
+        return mButtonId;
+    }
 
-	public String getAuthority() {
-		return mAuthority;
-	}
+    public String getModelId() {
+        return mModelId;
+    }
 
-	/**
-	 * Extra data that is private to the local provider that might be needed
-	 * to send the button
-	 * @return
-	 */
-	public String getInternalData(String name) {
-		return mInternalData.get(name);
-	}
-	
-	public Button putExtra(String name, String data) {
-		mInternalData.put(name, data);
-		return this;
-	}
+    public String getBrandId() {
+        return mBrandId;
+    }
 
-	@Override
-	public int hashCode() {
-		return mBrandId.hashCode() | mModelId.hashCode() | mButtonId.hashCode();
-	}
+    public String getAuthority() {
+        return mAuthority;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if(o instanceof Button) {
-			Button b = (Button) o;
-			return (mBrandId == b.mBrandId || mBrandId.equals(b.mBrandId)) &&
-				    (mModelId == b.mModelId || mModelId.equals(b.mModelId)) &&
-					mButtonId.equals(b.mButtonId);
-		}
-		return false;
-	}
+    /**
+     * Extra data that is private to the local provider that might be needed
+     * to send the button
+     * @return
+     */
+    public String getInternalData(String name) {
+        return mInternalData.get(name);
+    }
+
+    public Button putExtra(String name, String data) {
+        mInternalData.put(name, data);
+        return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return mBrandId.hashCode() | mModelId.hashCode() | mButtonId.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Button) {
+            Button b = (Button) o;
+            return (mBrandId == b.mBrandId || mBrandId.equals(b.mBrandId)) &&
+                    (mModelId == b.mModelId || mModelId.equals(b.mModelId)) &&
+                    mButtonId.equals(b.mButtonId);
+        }
+        return false;
+    }
 }

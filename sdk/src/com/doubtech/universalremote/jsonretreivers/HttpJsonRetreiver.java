@@ -16,106 +16,106 @@ import com.jakewharton.disklrucache.DiskLruCache.Editor;
 import com.jakewharton.disklrucache.DiskLruCache.Snapshot;
 
 public abstract class HttpJsonRetreiver implements JsonRetreiver {
-	public static final String TAG = "UniversalRemote::HttpJsonRetreiver";
-	
-	// TODO replace with restful version...
-	
-	private static final int VERSION = 1;
-	private DiskLruCache mCache;
+    public static final String TAG = "UniversalRemote::HttpJsonRetreiver";
 
-	public HttpJsonRetreiver(Context context, File cache) {
-		cache.mkdirs();
-		try {
-			mCache = DiskLruCache.open(cache, VERSION, 1, 1024 * 1024 * 2 /* 2MB */);
-		} catch (IOException e) {
-			Log.w(TAG, "Could not initialize disk cache, button access may be slow.", e);
-		}
-	}
-	
-	private String get(final URL url) throws IOException {
-		Log.d(TAG, "Getting " + url);
-		final String key = getUrlKey(url);
-		Snapshot snapshot = mCache.get(key);
-		String json = "";
-		if(null == mCache || null == snapshot) {
-			try {
-				json = doHttpGet(url);
-				if(null == json) {
-					json = "";
-				} else if(null != mCache) {
-					Editor editor = mCache.edit(key);
-					if(null != editor) {
-						editor.set(0, json);
-						editor.commit();
-					}
-				}
-			} catch (IOException e) {
-				Log.w(TAG, e.getMessage(), e);
-			}
-		} else {
-			json = snapshot.getString(0);
-		}
-		return json;
-	}
+    // TODO replace with restful version...
 
-	private String getUrlKey(URL url) {
-		return url.toString().replaceAll("[^a-zA-Z0-9_-]", "_");
-	}
+    private static final int VERSION = 1;
+    private DiskLruCache mCache;
 
-	private String doHttpGet(URL url) throws IOException {
-        return doReadStream(url.openStream());
-	}
-
-	private String doReadStream(InputStream stream) throws IOException {
-		String json = "";
-        BufferedReader in = null;
+    public HttpJsonRetreiver(Context context, File cache) {
+        cache.mkdirs();
         try {
-        	in = new BufferedReader(
-        			new InputStreamReader(stream));
-        
-	        String inputLine;
-	        while ((inputLine = in.readLine()) != null)
-	            json += inputLine;
-        } finally {
-            IOUtil.closeQuietly(in);        	
+            mCache = DiskLruCache.open(cache, VERSION, 1, 1024 * 1024 * 2 /* 2MB */);
+        } catch (IOException e) {
+            Log.w(TAG, "Could not initialize disk cache, button access may be slow.", e);
+        }
+    }
+
+    private String get(final URL url) throws IOException {
+        Log.d(TAG, "Getting " + url);
+        final String key = getUrlKey(url);
+        Snapshot snapshot = mCache.get(key);
+        String json = "";
+        if (null == mCache || null == snapshot) {
+            try {
+                json = doHttpGet(url);
+                if (null == json) {
+                    json = "";
+                } else if (null != mCache) {
+                    Editor editor = mCache.edit(key);
+                    if (null != editor) {
+                        editor.set(0, json);
+                        editor.commit();
+                    }
+                }
+            } catch (IOException e) {
+                Log.w(TAG, e.getMessage(), e);
+            }
+        } else {
+            json = snapshot.getString(0);
         }
         return json;
-	}
+    }
 
-	@Override
-	public String getButtonsJson(String brandId, String modelId) {
-		try {
-			return get(getButtonsUrl(brandId, modelId));
-		} catch (IOException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-		return "";
-	}
+    private String getUrlKey(URL url) {
+        return url.toString().replaceAll("[^a-zA-Z0-9_-]", "_");
+    }
 
-	protected abstract URL getButtonsUrl(String brandId, String modelId);
+    private String doHttpGet(URL url) throws IOException {
+        return doReadStream(url.openStream());
+    }
 
-	@Override
-	public String getModelsJson(String brandId) {
-		try {
-			return get(getModelsUrl(brandId));
-		} catch (IOException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-		return "";
-	}
+    private String doReadStream(InputStream stream) throws IOException {
+        String json = "";
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(
+                    new InputStreamReader(stream));
 
-	public abstract URL getModelsUrl(String brandId);
+            String inputLine;
+            while ((inputLine = in.readLine()) != null)
+                json += inputLine;
+        } finally {
+            IOUtil.closeQuietly(in);
+        }
+        return json;
+    }
 
-	@Override
-	public String getBrandsJson() {
-		try {
-			return get(getBrandsUrl());
-		} catch (IOException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-		return "";
-	}
+    @Override
+    public String getButtonsJson(String brandId, String modelId) {
+        try {
+            return get(getButtonsUrl(brandId, modelId));
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return "";
+    }
 
-	public abstract URL getBrandsUrl();
+    protected abstract URL getButtonsUrl(String brandId, String modelId);
+
+    @Override
+    public String getModelsJson(String brandId) {
+        try {
+            return get(getModelsUrl(brandId));
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return "";
+    }
+
+    public abstract URL getModelsUrl(String brandId);
+
+    @Override
+    public String getBrandsJson() {
+        try {
+            return get(getBrandsUrl());
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return "";
+    }
+
+    public abstract URL getBrandsUrl();
 
 }

@@ -28,8 +28,8 @@ public class TextAdapter extends CursorAdapter {
 
     private RequestChildAdapterListener mRequestChildListener;
     private int mTable;
-	private Adapter mParentAdapter;
-	private String mId;
+    private Adapter mParentAdapter;
+    private String mId;
 
     private static class EmptyCursor extends MatrixCursor {
 
@@ -40,23 +40,23 @@ public class TextAdapter extends CursorAdapter {
     }
 
     public static interface SimpleCursorLoader {
-    	Cursor loadCursor();
+        Cursor loadCursor();
     }
-    
+
     AsyncTask<SimpleCursorLoader, Void, Cursor> mLoader = new AsyncTask<SimpleCursorLoader, Void, Cursor>() {
-    	@Override
-    	protected Cursor doInBackground(SimpleCursorLoader... params) {
-    		return params[0].loadCursor();
-    	}
-    	
-    	protected void onPostExecute(Cursor result) {
-    		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.GINGERBREAD){
-    		    swapCursor(result);
-    		} else {
-    		    changeCursor(result);
-    		}
-    		notifyDataSetChanged();
-    	};
+        @Override
+        protected Cursor doInBackground(SimpleCursorLoader... params) {
+            return params[0].loadCursor();
+        }
+
+        protected void onPostExecute(Cursor result) {
+            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.GINGERBREAD){
+                swapCursor(result);
+            } else {
+                changeCursor(result);
+            }
+            notifyDataSetChanged();
+        };
     };
 
     public TextAdapter(Context context, String id, int table, Cursor cursor, String authorityColumn, String idColumn, String labelColumn, RequestChildAdapterListener listener) {
@@ -76,37 +76,37 @@ public class TextAdapter extends CursorAdapter {
     }
 
     public String getAdapterId() {
-    	return mId;
+        return mId;
     }
-    
+
     public TextAdapter setParentAdapter(Adapter adapter) {
-    	mParentAdapter = adapter;
-    	return this;
+        mParentAdapter = adapter;
+        return this;
     }
-    
+
     public Adapter getParentAdapter() {
-    	return mParentAdapter;
+        return mParentAdapter;
     }
 
     public int getChildTable() {
         return mTable;
     }
-    
+
     public String getActualId(int position) {
         getCursor().moveToPosition(position);
-        return getCursor().getString(mIdColIndex);    	
+        return getCursor().getString(mIdColIndex);
     }
-    
+
     public String getTargetAuthority(int position) {
-    	initializeColumns(getCursor());
+        initializeColumns(getCursor());
         getCursor().moveToPosition(position);
         return getCursor().getString(mAuthorityIndex);
     }
 
     @Override
     public Object getItem(int position) {
-    	Cursor cursor = getCursor();
-    	initializeColumns(cursor);
+        Cursor cursor = getCursor();
+        initializeColumns(cursor);
 
         cursor.moveToPosition(position);
 
@@ -125,13 +125,13 @@ public class TextAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         TextView tv = (TextView) view;
         if (null != mLabelColumn) {
-        	initializeColumns(cursor);
+            initializeColumns(cursor);
             tv.setText(cursor.getString(mLabelColIndex));
         } else {
             tv.setText("UNDEFINED LABEL COLUMN");
         }
     }
-    
+
     private void initializeColumns(Cursor cursor) {
         if (-1 == mLabelColIndex) {
             mLabelColIndex = cursor.getColumnIndex(mLabelColumn);
@@ -142,19 +142,19 @@ public class TextAdapter extends CursorAdapter {
         if (-1 == mAuthorityIndex) {
             mAuthorityIndex = getCursor().getColumnIndex(mAuthorityColumn);
         }
-	}
+    }
 
-	@Override
+    @Override
     public void changeCursor(Cursor cursor) {
-    	mLabelColIndex = -1;
-    	mIdColIndex = -1;
-    	super.changeCursor(cursor);
+        mLabelColIndex = -1;
+        mIdColIndex = -1;
+        super.changeCursor(cursor);
     }
 
     @Override
     public Cursor swapCursor(Cursor newCursor) {
-    	mLabelColIndex = -1;
-    	mIdColIndex = -1;
-    	return super.swapCursor(newCursor);
+        mLabelColIndex = -1;
+        mIdColIndex = -1;
+        return super.swapCursor(newCursor);
     }
 }

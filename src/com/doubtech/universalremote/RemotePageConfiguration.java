@@ -181,17 +181,17 @@ public class RemotePageConfiguration extends Activity {
             SimpleCursorLoader loader;
             switch(parentTable) {
             case URPContract.TABLE_BRANDS:
-            	loader = new SimpleCursorLoader() {
-					
-					@Override
-					public Cursor loadCursor() {
-						// TODO Auto-generated method stub
-						return BaseAbstractUniversalRemoteProvider.queryModels(
+                loader = new SimpleCursorLoader() {
+
+                    @Override
+                    public Cursor loadCursor() {
+                        // TODO Auto-generated method stub
+                        return BaseAbstractUniversalRemoteProvider.queryModels(
                                 (Context) RemotePageConfiguration.this,
                                 authority,
                                 id);
-					}
-				};
+                    }
+                };
                 return new TextAdapter(
                         RemotePageConfiguration.this,
                         id,
@@ -201,20 +201,20 @@ public class RemotePageConfiguration extends Activity {
                         URPContract.Models.COLUMN_MODEL_ID,
                         URPContract.Models.COLUMN_NAME,
                         mRequestChildListener)
-                	.setParentAdapter(parent);
+                    .setParentAdapter(parent);
             case URPContract.TABLE_MODELS:
-            	loader = new SimpleCursorLoader() {
-					
-					@Override
-					public Cursor loadCursor() {
-						// TODO Auto-generated method stub
-						return BaseAbstractUniversalRemoteProvider.queryButtons(
-		                                RemotePageConfiguration.this,
-		                                authority,
-		                                ((TextAdapter)parent).getAdapterId(),
-		                                id);
-					}
-				};
+                loader = new SimpleCursorLoader() {
+
+                    @Override
+                    public Cursor loadCursor() {
+                        // TODO Auto-generated method stub
+                        return BaseAbstractUniversalRemoteProvider.queryButtons(
+                                        RemotePageConfiguration.this,
+                                        authority,
+                                        ((TextAdapter)parent).getAdapterId(),
+                                        id);
+                    }
+                };
                 return new TextAdapter(
                         RemotePageConfiguration.this,
                         id,
@@ -227,13 +227,13 @@ public class RemotePageConfiguration extends Activity {
 
                             @Override
                             public Object onRequestChild(Adapter parent, String authority, int parentTable, String id) {
-                            	TextAdapter modelAdapter = ((TextAdapter)parent);
-                            	
+                                TextAdapter modelAdapter = ((TextAdapter)parent);
+
                                 return new ButtonInfo(
-                                		authority,
-                                		((TextAdapter) modelAdapter.getParentAdapter()).getAdapterId(),
-                                		modelAdapter.getAdapterId(),
-                                		id);
+                                        authority,
+                                        ((TextAdapter) modelAdapter.getParentAdapter()).getAdapterId(),
+                                        modelAdapter.getAdapterId(),
+                                        id);
                             }
                         });
                 /*return new ButtonLayout.Builder(RemotePageConfiguration.this)
@@ -283,30 +283,30 @@ public class RemotePageConfiguration extends Activity {
             public boolean onItemLongClick(AdapterView<?> adapterView, final View view,
                     final int position, long id) {
                 Adapter adapter = ((ListView) adapterView).getAdapter();
-                if(adapter instanceof TextAdapter) {
-                	final TextAdapter ta = (TextAdapter) adapter;
-                	if(ta.getChildTable() == URPContract.TABLE_MODELS) {
-                		new Thread() {
-                			public void run() {
-                        		String authority = ta.getTargetAuthority(position);
-                        		String brandId = ta.getAdapterId();
-                        		String modelId = ta.getActualId(position);
-                        		final Cursor cursor = BaseAbstractUniversalRemoteProvider.queryButtons(RemotePageConfiguration.this, authority, brandId, modelId);   
+                if (adapter instanceof TextAdapter) {
+                    final TextAdapter ta = (TextAdapter) adapter;
+                    if (ta.getChildTable() == URPContract.TABLE_MODELS) {
+                        new Thread() {
+                            public void run() {
+                                String authority = ta.getTargetAuthority(position);
+                                String brandId = ta.getAdapterId();
+                                String modelId = ta.getActualId(position);
+                                final Cursor cursor = BaseAbstractUniversalRemoteProvider.queryButtons(RemotePageConfiguration.this, authority, brandId, modelId);
                                 final RemotePageBuilder builder = new RemotePageBuilder(RemotePageConfiguration.this);
                                 builder.setTitle(((TextView) view).getText());
                                 runOnUiThread(new Runnable() {
-									
-									@Override
-									public void run() {
-		                                mRemotePageAdapter.add(builder.build(cursor));
-		                                mRemotePageAdapter.notifyDataSetChanged();
-									}
-								});          				
-                			};
-                		}.start();
-                		Toast.makeText(RemotePageConfiguration.this, "Adding " + ((TextView) view).getText(), Toast.LENGTH_LONG).show();
-                		return true;
-                	}
+
+                                    @Override
+                                    public void run() {
+                                        mRemotePageAdapter.add(builder.build(cursor));
+                                        mRemotePageAdapter.notifyDataSetChanged();
+                                    }
+                                });
+                            };
+                        }.start();
+                        Toast.makeText(RemotePageConfiguration.this, "Adding " + ((TextView) view).getText(), Toast.LENGTH_LONG).show();
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -421,14 +421,14 @@ public class RemotePageConfiguration extends Activity {
         mRemotes.addAdapter(mBrandsAdapter);
     }
 
-	public RequestChildAdapterListener getRequestChildListener() {
-		return mRequestChildListener;
-	}
-	
-	@Override
-	public void onBackPressed() {
-		if(!mRemotes.closeTopView()) {
-			super.onBackPressed();
-		}
-	}
+    public RequestChildAdapterListener getRequestChildListener() {
+        return mRequestChildListener;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!mRemotes.closeTopView()) {
+            super.onBackPressed();
+        }
+    }
 }

@@ -69,41 +69,41 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
     public String getModelColNameId() {
         return Remotes.Columns.RemoteId;
     }
-    
+
     @Override
     public Button[] sendButtons(Button[] buttons) {
-    	SparseArray<Button> map = new SparseArray<Button>();
-    	StringBuilder query = new StringBuilder("select ");
-    	StringUtils.implode(",", query, Buttons.Columns.ALL);
-    	query.append(" from ");
-    	query.append(Buttons.TABLE_NAME);
-    	query.append(" where ");
-    	query.append(Buttons.Columns.ButtonId);
-    	query.append(" in (");
-    	for(int i = 0; i < buttons.length; i++) {
-    		query.append(buttons[i].getButtonId());
-    		if(i + 1 < buttons.length) {
-    			query.append(", ");
-    		}
-    		map.put(Integer.parseInt(buttons[i].getButtonId()), buttons[i]);
-    	}
-    	query.append(")");
+        SparseArray<Button> map = new SparseArray<Button>();
+        StringBuilder query = new StringBuilder("select ");
+        StringUtils.implode(",", query, Buttons.Columns.ALL);
+        query.append(" from ");
+        query.append(Buttons.TABLE_NAME);
+        query.append(" where ");
+        query.append(Buttons.Columns.ButtonId);
+        query.append(" in (");
+        for (int i = 0; i < buttons.length; i++) {
+            query.append(buttons[i].getButtonId());
+            if (i + 1 < buttons.length) {
+                query.append(", ");
+            }
+            map.put(Integer.parseInt(buttons[i].getButtonId()), buttons[i]);
+        }
+        query.append(")");
         final SQLiteDatabase db = mHelper.getReadableDatabase();
-    	Cursor cursor = db.rawQuery(query.toString(), null);
-    	if(cursor.moveToFirst()) {
-    		do {
-    			Button button = map.get(cursor.getInt(Buttons.Columns.PROJECTION_BUTTON_ID));
-    			button.putExtra(Buttons.Columns.ButtonCode,
-    					cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE));
-    		} while(cursor.moveToNext());
-    	}
+        Cursor cursor = db.rawQuery(query.toString(), null);
+        if (cursor.moveToFirst()) {
+            do {
+                Button button = map.get(cursor.getInt(Buttons.Columns.PROJECTION_BUTTON_ID));
+                button.putExtra(Buttons.Columns.ButtonCode,
+                        cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE));
+            } while (cursor.moveToNext());
+        }
 
-    	IrManager ir = IrManager.getInstance(getContext());
-    	for(Button button : buttons) {
-    		ir.transmitPronto(button.getInternalData(Buttons.Columns.ButtonCode));
-    	}
-    	
-    	return buttons;
+        IrManager ir = IrManager.getInstance(getContext());
+        for (Button button : buttons) {
+            ir.transmitPronto(button.getInternalData(Buttons.Columns.ButtonCode));
+        }
+
+        return buttons;
     }
 
     @Override
@@ -155,11 +155,11 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
 
         MatrixCursor modifiedCursor = new MatrixCursor(URPContract.Buttons.ALL);
         if (cursor.moveToFirst()) {
-        	do {
-        		Button button = Button.fromCursor(this, getAuthority(), cursor);
-        		button.putExtra(Buttons.Columns.ButtonCode, cursor.getString(cursor.getColumnIndex(Buttons.Columns.ButtonCode)));
+            do {
+                Button button = Button.fromCursor(this, getAuthority(), cursor);
+                button.putExtra(Buttons.Columns.ButtonCode, cursor.getString(cursor.getColumnIndex(Buttons.Columns.ButtonCode)));
                 modifiedCursor.addRow(button.toRow());
-                
+
             } while (cursor.moveToNext());
         }
         return modifiedCursor;
@@ -238,16 +238,16 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
 
     @Override
     public String getProviderName() {
-    	return getContext().getResources().getString(R.string.lirc_provider_name);
+        return getContext().getResources().getString(R.string.lirc_provider_name);
     }
 
     @Override
     public String getProviderDescription() {
-    	return getContext().getResources().getString(R.string.lirc_provider_desc);
+        return getContext().getResources().getString(R.string.lirc_provider_desc);
     }
 
     @Override
     public boolean isProviderEnabled() {
-    	return IrManager.isSupported(getContext());
+        return IrManager.isSupported(getContext());
     }
 }

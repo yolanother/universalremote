@@ -38,7 +38,7 @@ public class RemoteButton extends ImageView implements IRemoteView {
     }
 
     private void init() {
-    	setPadding(10, 10, 10, 10);
+        setPadding(10, 10, 10, 10);
         setBackgroundResource(R.drawable.rounded_button);
         mButtonDetails = new ButtonFunctionSet();
         setOnClickListener(null);

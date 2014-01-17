@@ -30,10 +30,10 @@ public class DropGridLayout extends RelativeLayout {
     private RectF mDragBounds;
     private int ROW_COUNT = 11;
     private int COL_COUNT = 9;
-	private int mCellSpaceLeft;
-	private int mCellSpaceTop;
-	private int mCellSpaceRight;
-	private int mCellSpaceBottom;
+    private int mCellSpaceLeft;
+    private int mCellSpaceTop;
+    private int mCellSpaceRight;
+    private int mCellSpaceBottom;
 
     public DropGridLayout(Context context) {
         super(context);
@@ -102,12 +102,12 @@ public class DropGridLayout extends RelativeLayout {
             child.layout(left + mCellSpaceLeft, top + mCellSpaceTop, right - mCellSpaceRight, bottom - mCellSpaceBottom);
         }
     }
-    
+
     public void setCellSpacing(int spacing) {
-    	mCellSpaceLeft = spacing;
-    	mCellSpaceTop = spacing;
-    	mCellSpaceRight = spacing;
-    	mCellSpaceBottom = spacing;
+        mCellSpaceLeft = spacing;
+        mCellSpaceTop = spacing;
+        mCellSpaceRight = spacing;
+        mCellSpaceBottom = spacing;
     }
 
     /*@Override

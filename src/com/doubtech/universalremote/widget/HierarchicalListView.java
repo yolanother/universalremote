@@ -81,12 +81,12 @@ public class HierarchicalListView extends FrameLayout {
             mAdapter = adapter;
             mSelectedPosition = -1;
             adapter.registerDataSetObserver(new DataSetObserver() {
-            	@Override
-            	public void onChanged() {
-            		super.onChanged();
-            		notifyDataSetChanged();
-            	}
-			});
+                @Override
+                public void onChanged() {
+                    super.onChanged();
+                    notifyDataSetChanged();
+                }
+            });
         }
 
         @Override
@@ -174,7 +174,7 @@ public class HierarchicalListView extends FrameLayout {
         p.setStrokeWidth(4);
 
         if (view instanceof ListView) {
-        	SelectionAdapter adapter = ((InternalListView) view).getSelectionAdapter();
+            SelectionAdapter adapter = ((InternalListView) view).getSelectionAdapter();
             View selected = null != adapter ? adapter.getSelection() : null;
             if (null != selected) {
                 canvas.drawLine(0, selected.getTop(), canvas.getWidth(), selected.getTop(), p);
@@ -205,12 +205,12 @@ public class HierarchicalListView extends FrameLayout {
         layout.addView(view);
         completeAddHierarchyView(layout);
     }
-    
+
     private class InternalListView extends ListView {
          public InternalListView(Context context) {
-			super(context);
-		}
-		@Override
+            super(context);
+        }
+        @Override
          protected void onDraw(Canvas canvas) {
              super.onDraw(canvas);
          }
@@ -221,15 +221,15 @@ public class HierarchicalListView extends FrameLayout {
          }
          @Override
          public ListAdapter getAdapter() {
-         	ListAdapter adapter = super.getAdapter();
-         	if(null != adapter) {
-         		adapter = ((SelectionAdapter)adapter).mAdapter;
-         	}
-         	return adapter;
+             ListAdapter adapter = super.getAdapter();
+             if (null != adapter) {
+                 adapter = ((SelectionAdapter)adapter).mAdapter;
+             }
+             return adapter;
          }
-         
+
          public SelectionAdapter getSelectionAdapter() {
-        	 return (SelectionAdapter) super.getAdapter();
+             return (SelectionAdapter) super.getAdapter();
          }
     }
 
@@ -246,7 +246,7 @@ public class HierarchicalListView extends FrameLayout {
                     return;
                 }
                 if (item instanceof BaseAdapter) {
-                	((InternalListView) adapterView).getSelectionAdapter().setSelectedPosition(position);
+                    ((InternalListView) adapterView).getSelectionAdapter().setSelectedPosition(position);
                     addAdapter((BaseAdapter) item);
                 } else if (item instanceof View) {
                     addHierarchyView((View) item);
@@ -254,32 +254,32 @@ public class HierarchicalListView extends FrameLayout {
             }
         });
         listView.setAdapter(new SelectionAdapter(new BaseAdapter() {
-			
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
-				if(null == convertView) {
-					convertView = LayoutInflater.from(getContext()).inflate(R.layout.loading, null);
-				}
-				return convertView;
-			}
-			
-			@Override
-			public long getItemId(int position) {
-				// TODO Auto-generated method stub
-				return 1;
-			}
-			
-			@Override
-			public Object getItem(int position) {
-				// TODO Auto-generated method stub
-				return 1;
-			}
-			
-			@Override
-			public int getCount() {
-				return 1;
-			}
-		}));
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if (null == convertView) {
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.loading, null);
+                }
+                return convertView;
+            }
+
+            @Override
+            public long getItemId(int position) {
+                // TODO Auto-generated method stub
+                return 1;
+            }
+
+            @Override
+            public Object getItem(int position) {
+                // TODO Auto-generated method stub
+                return 1;
+            }
+
+            @Override
+            public int getCount() {
+                return 1;
+            }
+        }));
         listView.setOnItemLongClickListener(new OnItemLongClickListener() {
 
             @Override
@@ -291,17 +291,17 @@ public class HierarchicalListView extends FrameLayout {
                 return false;
             }
         });
-        
-        if(!(adapter instanceof CursorAdapter) || null != ((CursorAdapter)adapter).getCursor()) {
-        	listView.setAdapter(new SelectionAdapter(adapter));
+
+        if (!(adapter instanceof CursorAdapter) || null != ((CursorAdapter)adapter).getCursor()) {
+            listView.setAdapter(new SelectionAdapter(adapter));
         }
         adapter.registerDataSetObserver(new DataSetObserver() {
-        	@Override
-        	public void onChanged() {
-        		super.onChanged();
-        		listView.setAdapter(new SelectionAdapter(adapter));
-        	}
-		});
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                listView.setAdapter(new SelectionAdapter(adapter));
+            }
+        });
         completeAddHierarchyView(listView);
     }
 
@@ -342,7 +342,7 @@ public class HierarchicalListView extends FrameLayout {
     }
 
     public boolean closeTopView() {
-    	boolean closed = false;
+        boolean closed = false;
         if (getChildCount() > 2) {
             final View v = getChildAt(getChildCount() - 1);
             v.animate()

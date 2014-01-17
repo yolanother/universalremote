@@ -21,8 +21,8 @@ public final class URPContract {
     public static final String QUERY_PARAMETER_BUTTON_ID = "button";
 
     public static final String BUTTON_COMMAND_SEND = "send";
-	public static final String QUERY_PARAMETER_BRANDID = "brandId";
-	public static final String QUERY_PARAMETER_MODELID = "modelId";
+    public static final String QUERY_PARAMETER_BRANDID = "brandId";
+    public static final String QUERY_PARAMETER_MODELID = "modelId";
 
     public static final class ProviderDetails {
         public static final int COLIDX_AUTHORITY = 0;
@@ -44,7 +44,7 @@ public final class URPContract {
     }
 
     public static final class Brands {
-    	public static final int COLIDX_ID = 0;
+        public static final int COLIDX_ID = 0;
         public static final int COLIDX_AUTHORITY = 1;
         public static final int COLIDX_BRAND_ID = 2;
         public static final int COLIDX_NAME = 3;
@@ -57,7 +57,7 @@ public final class URPContract {
         public static final String COLUMN_LOGO = "logo";
 
         public static final String[] ALL = new String[] {
-        	COLUMN_ID,
+            COLUMN_ID,
             COLUMN_AUTHORITY,
             COLUMN_BRAND_ID,
             COLUMN_NAME,
@@ -66,7 +66,7 @@ public final class URPContract {
     }
 
     public static final class Models {
-    	public static final int COLIDX_ID = 0;
+        public static final int COLIDX_ID = 0;
         public static final int COLIDX_AUTHORITY = 1;
         public static final int COLIDX_MODEL_ID = 2;
         public static final int COLIDX_BRAND_ID = 3;
@@ -79,7 +79,7 @@ public final class URPContract {
         public static final String COLUMN_NAME = "name";
 
         public static final String[] ALL = new String[] {
-        	COLUMN_ID,
+            COLUMN_ID,
             COLUMN_AUTHORITY,
             COLUMN_MODEL_ID,
             COLUMN_BRAND_ID,
@@ -98,7 +98,7 @@ public final class URPContract {
          */
         public static final int ICON_RESOURCE_TYPE_PROVIDER_URI = 2;
 
-    	public static final int COLIDX_ID = 0;
+        public static final int COLIDX_ID = 0;
         public static final int COLIDX_AUTHORITY = 1;
         public static final int COLIDX_BRAND_ID = 2;
         public static final int COLIDX_MODEL_ID = 3;
@@ -115,7 +115,7 @@ public final class URPContract {
         public static final String COLUMN_BUTTON_IDENTIFIER = "button_identifier";
 
         public static final String[] ALL = new String[] {
-        	COLUMN_ID,
+            COLUMN_ID,
             COLUMN_AUTHORITY,
             COLUMN_BRAND_ID,
             COLUMN_MODEL_ID,
@@ -143,8 +143,8 @@ public final class URPContract {
                 .appendQueryParameter(QUERY_PARAMETER_BUTTON_ID, id)
                 .build();
     }
-    
+
     public static Uri getProviderDetailsUri(String authority) {
-    	return Uri.parse("content://" + authority + "/" + URPContract.TABLE_PROVIDER_DETAILS_PATH);
+        return Uri.parse("content://" + authority + "/" + URPContract.TABLE_PROVIDER_DETAILS_PATH);
     }
 }

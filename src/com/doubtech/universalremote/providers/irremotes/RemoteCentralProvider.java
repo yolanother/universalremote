@@ -13,64 +13,64 @@ import com.doubtech.universalremote.jsonretreivers.JsonRetreiver;
 import com.doubtech.universalremote.providers.AbstractJsonIRUniversalRemoteProvider;
 
 public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider {
-	private static class Retreiver extends HttpJsonRetreiver {
+    private static class Retreiver extends HttpJsonRetreiver {
 
-		public Retreiver(Context context, File cache) {
-			super(context, cache);
-		}
+        public Retreiver(Context context, File cache) {
+            super(context, cache);
+        }
 
-		@Override
-		protected URL getButtonsUrl(String brandId, String modelId) {
-			try {
-				return new URL("http://ir.doubtech.com/json.php?provider=remotecentral&brandId=" + Uri.encode(brandId) + "&modelId=" + Uri.encode(modelId));
-			} catch (MalformedURLException e) {
-				throw new IllegalArgumentException("Bad url generated for " + brandId + ", " + modelId);
-			}
-		}
+        @Override
+        protected URL getButtonsUrl(String brandId, String modelId) {
+            try {
+                return new URL("http://ir.doubtech.com/json.php?provider=remotecentral&brandId=" + Uri.encode(brandId) + "&modelId=" + Uri.encode(modelId));
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Bad url generated for " + brandId + ", " + modelId);
+            }
+        }
 
-		@Override
-		public URL getModelsUrl(String brandId) {
-			try {
-				return new URL("http://ir.doubtech.com/json.php?provider=remotecentral&brandId=" + Uri.encode(brandId));
-			} catch (MalformedURLException e) {
-				throw new IllegalArgumentException("Bad url generated for " + brandId);
-			}
-		}
+        @Override
+        public URL getModelsUrl(String brandId) {
+            try {
+                return new URL("http://ir.doubtech.com/json.php?provider=remotecentral&brandId=" + Uri.encode(brandId));
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Bad url generated for " + brandId);
+            }
+        }
 
-		@Override
-		public URL getBrandsUrl() {
-			try {
-				return new URL("http://ir.doubtech.com/json.php?provider=remotecentral");
-			} catch (MalformedURLException e) {
-				throw new IllegalArgumentException("Bad url generated. Should never get here.");
-			}
-		}
-		
-	}
+        @Override
+        public URL getBrandsUrl() {
+            try {
+                return new URL("http://ir.doubtech.com/json.php?provider=remotecentral");
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Bad url generated. Should never get here.");
+            }
+        }
 
-	private Retreiver mRetreiver;
+    }
 
-	@Override
-	public String getProviderName() {
-		return getContext().getString(R.string.remote_central_provider_name);
-	}
+    private Retreiver mRetreiver;
 
-	@Override
-	public String getProviderDescription() {
-		return getContext().getString(R.string.remote_central_provider_desc);
-	}
+    @Override
+    public String getProviderName() {
+        return getContext().getString(R.string.remote_central_provider_name);
+    }
 
-	@Override
-	public String getAuthority() {
-		return "com.doubtech.universalremote.providers.irremotes.RemoteCentral";
-	}
+    @Override
+    public String getProviderDescription() {
+        return getContext().getString(R.string.remote_central_provider_desc);
+    }
 
-	@Override
-	public JsonRetreiver getJsonRetreiver() {
-		if(null == mRetreiver) {
-			mRetreiver = new Retreiver(getContext(), new File(getContext().getCacheDir(), "remotecentral"));
-		}
-		return mRetreiver;
-	}
+    @Override
+    public String getAuthority() {
+        return "com.doubtech.universalremote.providers.irremotes.RemoteCentral";
+    }
+
+    @Override
+    public JsonRetreiver getJsonRetreiver() {
+        if (null == mRetreiver) {
+            mRetreiver = new Retreiver(getContext(), new File(getContext().getCacheDir(), "remotecentral"));
+        }
+        return mRetreiver;
+    }
 
 }

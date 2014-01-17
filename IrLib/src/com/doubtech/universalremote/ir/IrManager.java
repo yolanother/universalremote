@@ -27,10 +27,10 @@ public abstract class IrManager {
         }
         throw new IRNotSupportedException();
     }
-    
+
     public static boolean isSupported(Context context) {
-        return KitKatIrManager.isIrSupported(context) || 
-        		SamsungIrManager.isIrSupported(context);
+        return KitKatIrManager.isIrSupported(context) ||
+                SamsungIrManager.isIrSupported(context);
     }
 
     public IrManager() {

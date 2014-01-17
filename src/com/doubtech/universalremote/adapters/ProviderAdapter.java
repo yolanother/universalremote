@@ -19,39 +19,39 @@ import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.providerdo.ProviderDetails;
 
 public class ProviderAdapter extends BaseAdapter {
-	private static final String TAG = "UniversalRemote : ProviderAdapter";
-	private ArrayList<ProviderDetails> mProviders;
-	private Context mContext;
+    private static final String TAG = "UniversalRemote : ProviderAdapter";
+    private ArrayList<ProviderDetails> mProviders;
+    private Context mContext;
 
-	public ProviderAdapter(Context context) {
-		mContext = context;
-		List<ProviderInfo> providers = context.getPackageManager()
-			    .queryContentProviders(null, 0, 0);
-		mProviders = new ArrayList<ProviderDetails>();
-		for(ProviderInfo provider : providers) {
-			if("com.doubtech.universalremote.PROVIDE_BUTTONS".equals(provider.readPermission)) {
-				try {
-					ProviderDetails details = BaseAbstractUniversalRemoteProvider.queryProviderDetails(context, provider.authority);
+    public ProviderAdapter(Context context) {
+        mContext = context;
+        List<ProviderInfo> providers = context.getPackageManager()
+                .queryContentProviders(null, 0, 0);
+        mProviders = new ArrayList<ProviderDetails>();
+        for (ProviderInfo provider : providers) {
+            if ("com.doubtech.universalremote.PROVIDE_BUTTONS".equals(provider.readPermission)) {
+                try {
+                    ProviderDetails details = BaseAbstractUniversalRemoteProvider.queryProviderDetails(context, provider.authority);
 
-					Log.d("AARON", "" + details);
-					if(null != details && details.isEnabled()) {
-						mProviders.add(details);
-					}
-				} catch (Exception e) {
-					Log.d(TAG, "Error retreiving provider info for " + provider.authority + " (" + e.getMessage() + ")");
-				}
-			}
-		}
-	}
+                    Log.d("AARON", "" + details);
+                    if (null != details && details.isEnabled()) {
+                        mProviders.add(details);
+                    }
+                } catch (Exception e) {
+                    Log.d(TAG, "Error retreiving provider info for " + provider.authority + " (" + e.getMessage() + ")");
+                }
+            }
+        }
+    }
 
-	@Override
-	public int getCount() {
-		return mProviders.size();
-	}
+    @Override
+    public int getCount() {
+        return mProviders.size();
+    }
 
-	@Override
-	public Object getItem(int position) {
-		String authority = mProviders.get(position).getAuthority();
+    @Override
+    public Object getItem(int position) {
+        String authority = mProviders.get(position).getAuthority();
         return new TextAdapter(
                 mContext,
                 null,
@@ -61,38 +61,38 @@ public class ProviderAdapter extends BaseAdapter {
                 URPContract.Brands.COLUMN_BRAND_ID,
                 URPContract.Brands.COLUMN_NAME,
                 ((RemotePageConfiguration)mContext).getRequestChildListener());
-	}
+    }
 
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
-	
-	private class ViewHolder {
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
-		private TextView mLabel;
-		private TextView mDescription;
+    private class ViewHolder {
 
-		public ViewHolder(View convertView) {
-			mLabel = (TextView) convertView.findViewById(R.id.label);
-			mDescription = (TextView) convertView.findViewById(R.id.description);
-		}
-	}
+        private TextView mLabel;
+        private TextView mDescription;
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder holder;
-		if(null == convertView) {
-			convertView = LayoutInflater.from(mContext).inflate(R.layout.descriptive_text_view, null);
-			holder = new ViewHolder(convertView);
-			convertView.setTag(holder);
-		} else {
-			holder = (ViewHolder) convertView.getTag();
-		}
-		ProviderDetails provider = mProviders.get(position);
-		holder.mLabel.setText(provider.getName());
-		holder.mDescription.setText(provider.getDescription());
-		return convertView;
-	}
+        public ViewHolder(View convertView) {
+            mLabel = (TextView) convertView.findViewById(R.id.label);
+            mDescription = (TextView) convertView.findViewById(R.id.description);
+        }
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (null == convertView) {
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.descriptive_text_view, null);
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        ProviderDetails provider = mProviders.get(position);
+        holder.mLabel.setText(provider.getName());
+        holder.mDescription.setText(provider.getDescription());
+        return convertView;
+    }
 
 }

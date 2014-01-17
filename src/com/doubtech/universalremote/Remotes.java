@@ -159,7 +159,7 @@ public class Remotes extends FragmentActivity {
                 Bundle savedInstanceState) {
             mRootView = new ScrollView(getActivity());
             if (null != mPage) {
-            	mPage.setCellSpacing(getResources().getDimensionPixelSize(R.dimen.cell_padding));
+                mPage.setCellSpacing(getResources().getDimensionPixelSize(R.dimen.cell_padding));
                 mRootView.addView(mPage);
             }
             return mRootView;

@@ -146,11 +146,11 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
         return details;
     }
 
-	public String getBrandId() {
-		return mBrandId;
-	}
+    public String getBrandId() {
+        return mBrandId;
+    }
 
-	public String getModelId() {
-		return mModelId;
-	}
+    public String getModelId() {
+        return mModelId;
+    }
 }

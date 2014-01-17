@@ -53,15 +53,15 @@ public class RemoteDpad extends View implements IRemoteView {
     public void setUpButton(ButtonFunctionSet button) {
         mUpButton = button;
         mUpDrawable = new TextDrawable(getContext());
-        if(null != button) {
-	        ((TextDrawable) mUpDrawable).setText(button.getLabel());
-	        mUpButton.getIcon(getContext(), new IconLoaderListener() {
-	            @Override
-	            public void onIconLoaded(Bitmap bitmap) {
-	                mUpDrawable = new BitmapDrawable(getResources(), bitmap);
-	                postInvalidate();
-	            }
-	        });
+        if (null != button) {
+            ((TextDrawable) mUpDrawable).setText(button.getLabel());
+            mUpButton.getIcon(getContext(), new IconLoaderListener() {
+                @Override
+                public void onIconLoaded(Bitmap bitmap) {
+                    mUpDrawable = new BitmapDrawable(getResources(), bitmap);
+                    postInvalidate();
+                }
+            });
         }
         postInvalidate();
     }
@@ -69,15 +69,15 @@ public class RemoteDpad extends View implements IRemoteView {
     public void setDownButton(ButtonFunctionSet button) {
         mDownButton = button;
         mDownDrawable = new TextDrawable(getContext());
-        if(null != button) {
-	        ((TextDrawable) mDownDrawable).setText(button.getLabel());
-	        mDownButton.getIcon(getContext(), new IconLoaderListener() {
-	            @Override
-	            public void onIconLoaded(Bitmap bitmap) {
-	                mDownDrawable = new BitmapDrawable(getResources(), bitmap);
-	                postInvalidate();
-	            }
-	        });
+        if (null != button) {
+            ((TextDrawable) mDownDrawable).setText(button.getLabel());
+            mDownButton.getIcon(getContext(), new IconLoaderListener() {
+                @Override
+                public void onIconLoaded(Bitmap bitmap) {
+                    mDownDrawable = new BitmapDrawable(getResources(), bitmap);
+                    postInvalidate();
+                }
+            });
         }
         postInvalidate();
     }
@@ -85,15 +85,15 @@ public class RemoteDpad extends View implements IRemoteView {
     public void setRightButton(ButtonFunctionSet button) {
         mRightButton = button;
         mRightDrawable = new TextDrawable(getContext());
-        if(null != button) {
-	        ((TextDrawable) mRightDrawable).setText(button.getLabel());
-	        mRightButton.getIcon(getContext(), new IconLoaderListener() {
-	            @Override
-	            public void onIconLoaded(Bitmap bitmap) {
-	                mRightDrawable = new BitmapDrawable(getResources(), bitmap);
-	                postInvalidate();
-	            }
-	        });
+        if (null != button) {
+            ((TextDrawable) mRightDrawable).setText(button.getLabel());
+            mRightButton.getIcon(getContext(), new IconLoaderListener() {
+                @Override
+                public void onIconLoaded(Bitmap bitmap) {
+                    mRightDrawable = new BitmapDrawable(getResources(), bitmap);
+                    postInvalidate();
+                }
+            });
         }
         postInvalidate();
     }
@@ -101,15 +101,15 @@ public class RemoteDpad extends View implements IRemoteView {
     public void setLeftButton(ButtonFunctionSet button) {
         mLeftButton = button;
         mLeftDrawable = new TextDrawable(getContext());
-        if(null != button) {
-	        ((TextDrawable) mLeftDrawable).setText(button.getLabel());
-	        mLeftButton.getIcon(getContext(), new IconLoaderListener() {
-	            @Override
-	            public void onIconLoaded(Bitmap bitmap) {
-	                mLeftDrawable = new BitmapDrawable(getResources(), bitmap);
-	                postInvalidate();
-	            }
-	        });
+        if (null != button) {
+            ((TextDrawable) mLeftDrawable).setText(button.getLabel());
+            mLeftButton.getIcon(getContext(), new IconLoaderListener() {
+                @Override
+                public void onIconLoaded(Bitmap bitmap) {
+                    mLeftDrawable = new BitmapDrawable(getResources(), bitmap);
+                    postInvalidate();
+                }
+            });
         }
         postInvalidate();
     }
@@ -117,15 +117,15 @@ public class RemoteDpad extends View implements IRemoteView {
     public void setOkButton(ButtonFunctionSet button) {
         mButtonOk = button;
         mOkDrawable = new TextDrawable(getContext());
-        if(null != button) {
-	        ((TextDrawable) mOkDrawable).setText(button.getLabel());
-	        mButtonOk.getIcon(getContext(), new IconLoaderListener() {
-	            @Override
-	            public void onIconLoaded(Bitmap bitmap) {
-	                mOkDrawable = new BitmapDrawable(getResources(), bitmap);
-	                postInvalidate();
-	            }
-	        });
+        if (null != button) {
+            ((TextDrawable) mOkDrawable).setText(button.getLabel());
+            mButtonOk.getIcon(getContext(), new IconLoaderListener() {
+                @Override
+                public void onIconLoaded(Bitmap bitmap) {
+                    mOkDrawable = new BitmapDrawable(getResources(), bitmap);
+                    postInvalidate();
+                }
+            });
         }
         postInvalidate();
     }
