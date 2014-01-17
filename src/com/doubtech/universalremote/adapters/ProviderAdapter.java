@@ -58,7 +58,7 @@ public class ProviderAdapter extends BaseAdapter {
                 URPContract.TABLE_BRANDS,
                 BaseAbstractUniversalRemoteProvider.queryBrands(mContext, authority),
                 URPContract.COLUMN_AUTHORITY,
-                URPContract.Brands.COLUMN_ID,
+                URPContract.Brands.COLUMN_BRAND_ID,
                 URPContract.Brands.COLUMN_NAME,
                 ((RemotePageConfiguration)mContext).getRequestChildListener());
 	}

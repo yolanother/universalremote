@@ -16,7 +16,7 @@ import com.jakewharton.disklrucache.DiskLruCache.Editor;
 import com.jakewharton.disklrucache.DiskLruCache.Snapshot;
 
 public abstract class HttpJsonRetreiver implements JsonRetreiver {
-	public static final String TAG = "HttpJsonRetreiver";
+	public static final String TAG = "UniversalRemote::HttpJsonRetreiver";
 	
 	// TODO replace with restful version...
 	
@@ -33,22 +33,25 @@ public abstract class HttpJsonRetreiver implements JsonRetreiver {
 	}
 	
 	private String get(final URL url) throws IOException {
+		Log.d(TAG, "Getting " + url);
 		final String key = getUrlKey(url);
 		Snapshot snapshot = mCache.get(key);
 		String json = "";
 		if(null == mCache || null == snapshot) {
-			new Thread() {
-				public void run() {
-					try {
-						String json = doHttpGet(url);
-						Editor editor = mCache.edit(key);
+			try {
+				json = doHttpGet(url);
+				if(null == json) {
+					json = "";
+				} else if(null != mCache) {
+					Editor editor = mCache.edit(key);
+					if(null != editor) {
 						editor.set(0, json);
 						editor.commit();
-					} catch (IOException e) {
-						Log.w(TAG, e.getMessage(), e);
 					}
-				};
-			}.start();
+				}
+			} catch (IOException e) {
+				Log.w(TAG, e.getMessage(), e);
+			}
 		} else {
 			json = snapshot.getString(0);
 		}

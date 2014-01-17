@@ -10,6 +10,7 @@ import android.net.Uri;
 
 import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.URPContract.Brands;
+import com.doubtech.universalremote.providers.URPContract.Buttons;
 
 public class Brand {
 	protected String mAuthority;
@@ -42,7 +43,7 @@ public class Brand {
 			brand.mAuthority = authority;
 		}
 
-		idx = cursor.getColumnIndex(Brands.COLUMN_ID);
+		idx = cursor.getColumnIndex(Brands.COLUMN_BRAND_ID);
 		if(idx >= 0) {
 			brand.mBrandId = cursor.getString(idx);
 		}
@@ -56,6 +57,7 @@ public class Brand {
 	}
 
 	public static Brand[] fromJson(Context context, String authority, String json) throws JSONException {
+		if(null == json || json.length() == 0) return new Brand[0];
 		JSONObject obj = new JSONObject(json);
 		JSONArray array = obj.getJSONArray("brands");
 		Brand[] brands = new Brand[array.length()];
@@ -66,14 +68,16 @@ public class Brand {
 			brand.mAuthority = authority;
 			brand.mBrandId = obj.getString("brandId");
 			brand.mName = obj.getString("brandName");
+			brands[i] = brand;
 		}
 		return brands;
 	}
 	
 	public Object[] toRow() {
 		Object[] row = new Object[URPContract.Brands.ALL.length];
+		row[Buttons.COLIDX_ID] = getBrandId().hashCode();
 		row[Brands.COLIDX_AUTHORITY] = getAuthority();
-		row[Brands.COLIDX_ID] = getBrandId();
+		row[Brands.COLIDX_BRAND_ID] = getBrandId();
 		row[Brands.COLIDX_NAME] = getName();
 		return row;
 	}

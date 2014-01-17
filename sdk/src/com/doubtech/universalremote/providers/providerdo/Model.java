@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import com.doubtech.universalremote.providers.URPContract;
+import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Models;
 
 public class Model {
@@ -52,7 +53,7 @@ public class Model {
 			model.mBrandId = cursor.getString(idx);
 		}
 
-		idx = cursor.getColumnIndex(Models.COLUMN_ID);
+		idx = cursor.getColumnIndex(Models.COLUMN_MODEL_ID);
 		if(idx >= 0) {
 			model.mModelId = cursor.getString(idx);
 		}
@@ -66,6 +67,7 @@ public class Model {
 	}
 
 	public static Model[] fromJson(Context context, String authority, String json) throws JSONException {
+		if(null == json || json.length() == 0) return new Model[0];
 		JSONObject obj = new JSONObject(json);
 		JSONArray array = obj.getJSONArray("models");
 		Model[] models = new Model[array.length()];
@@ -78,15 +80,17 @@ public class Model {
 			model.mModelId = obj.getString("modelId");
 			model.mModelId = obj.getString("modelId");
 			model.mName = obj.getString("modelName");
+			models[i] = model;
 		}
 		return models;
 	}
-	
+
 	public Object[] toRow() {
 		Object[] row = new Object[URPContract.Models.ALL.length];
+		row[Buttons.COLIDX_ID] = getModelId().hashCode();
 		row[Models.COLIDX_AUTHORITY] = getAuthority();
 		row[Models.COLIDX_BRAND_ID] = getBrandId();
-		row[Models.COLIDX_ID] = getModelId();
+		row[Models.COLIDX_MODEL_ID] = getModelId();
 		row[Models.COLIDX_NAME] = getName();
 		return row;
 	}

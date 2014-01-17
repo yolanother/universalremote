@@ -30,6 +30,10 @@ public class DropGridLayout extends RelativeLayout {
     private RectF mDragBounds;
     private int ROW_COUNT = 11;
     private int COL_COUNT = 9;
+	private int mCellSpaceLeft;
+	private int mCellSpaceTop;
+	private int mCellSpaceRight;
+	private int mCellSpaceBottom;
 
     public DropGridLayout(Context context) {
         super(context);
@@ -78,11 +82,10 @@ public class DropGridLayout extends RelativeLayout {
             child.measure((int) (spec.colspan * mCellWidth), (int) (spec.rowspan * mCellHeight));
         }
 
-        if (MeasureSpec.EXACTLY == MeasureSpec.getMode(heightMeasureSpec) && height != 0) {
-            setMeasuredDimension(width, height);
-        } else {
-            setMeasuredDimension(width, (int) (mOccupiedCells.size() * mCellHeight));
+        if (MeasureSpec.EXACTLY != MeasureSpec.getMode(heightMeasureSpec) || height == 0) {
+            height = (int) (mOccupiedCells.size() * mCellHeight + getPaddingBottom() + mCellHeight);
         }
+        setMeasuredDimension(width, height);
     }
 
     @Override
@@ -96,8 +99,15 @@ public class DropGridLayout extends RelativeLayout {
             int right = (int) (left + mCellWidth * spec.colspan);
             int bottom = (int) (top + mCellHeight * spec.rowspan);
 
-            child.layout(left, top, right, bottom);
+            child.layout(left + mCellSpaceLeft, top + mCellSpaceTop, right - mCellSpaceRight, bottom - mCellSpaceBottom);
         }
+    }
+    
+    public void setCellSpacing(int spacing) {
+    	mCellSpaceLeft = spacing;
+    	mCellSpaceTop = spacing;
+    	mCellSpaceRight = spacing;
+    	mCellSpaceBottom = spacing;
     }
 
     /*@Override

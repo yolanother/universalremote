@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
@@ -32,7 +33,7 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
         mAuthority = authority;
         mBrandId = buttonCursor.getString(URPContract.Buttons.COLIDX_BRAND_ID);
         mModelId = buttonCursor.getString(URPContract.Buttons.COLIDX_MODEL_ID);
-        mId = buttonCursor.getString(URPContract.Buttons.COLIDX_ID);
+        mId = buttonCursor.getString(URPContract.Buttons.COLIDX_BUTTON_ID);
         mLabel = buttonCursor.getString(URPContract.Buttons.COLIDX_NAME);
 
         // TODO This is ugly and the label object isn't really needed anymore

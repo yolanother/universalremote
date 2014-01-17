@@ -29,11 +29,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.doubtech.universalremote.RemotePage.RemotePageBuilder;
 import com.doubtech.universalremote.adapters.ProviderAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter.RequestChildAdapterListener;
+import com.doubtech.universalremote.adapters.TextAdapter.SimpleCursorLoader;
 import com.doubtech.universalremote.io.RemoteConfigurationWriter;
 import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
@@ -174,35 +176,52 @@ public class RemotePageConfiguration extends Activity {
 
     private RequestChildAdapterListener mRequestChildListener = new RequestChildAdapterListener() {
 
-        public Object onRequestChild(Adapter parent, String authority, int parentTable, String id) {
+        public Object onRequestChild(final Adapter parent, final String authority, int parentTable, final String id) {
             mMenuItemAddRemote.setEnabled(false);
+            SimpleCursorLoader loader;
             switch(parentTable) {
             case URPContract.TABLE_BRANDS:
+            	loader = new SimpleCursorLoader() {
+					
+					@Override
+					public Cursor loadCursor() {
+						// TODO Auto-generated method stub
+						return BaseAbstractUniversalRemoteProvider.queryModels(
+                                (Context) RemotePageConfiguration.this,
+                                authority,
+                                id);
+					}
+				};
                 return new TextAdapter(
                         RemotePageConfiguration.this,
                         id,
                         URPContract.TABLE_MODELS,
-                        BaseAbstractUniversalRemoteProvider.queryModels(
-                                (Context) RemotePageConfiguration.this,
-                                authority,
-                                id),
+                        loader,
                         URPContract.COLUMN_AUTHORITY,
-                        URPContract.Brands.COLUMN_ID,
-                        URPContract.Brands.COLUMN_NAME,
+                        URPContract.Models.COLUMN_MODEL_ID,
+                        URPContract.Models.COLUMN_NAME,
                         mRequestChildListener)
                 	.setParentAdapter(parent);
             case URPContract.TABLE_MODELS:
+            	loader = new SimpleCursorLoader() {
+					
+					@Override
+					public Cursor loadCursor() {
+						// TODO Auto-generated method stub
+						return BaseAbstractUniversalRemoteProvider.queryButtons(
+		                                RemotePageConfiguration.this,
+		                                authority,
+		                                ((TextAdapter)parent).getAdapterId(),
+		                                id);
+					}
+				};
                 return new TextAdapter(
                         RemotePageConfiguration.this,
                         id,
                         URPContract.TABLE_BUTTONS,
-                        BaseAbstractUniversalRemoteProvider.queryButtons(
-                                RemotePageConfiguration.this,
-                                authority,
-                                ((TextAdapter)parent).getAdapterId(),
-                                id),
+                        loader,
                         URPContract.COLUMN_AUTHORITY,
-                        URPContract.Buttons.COLUMN_ID,
+                        URPContract.Buttons.COLUMN_BUTTON_ID,
                         URPContract.Buttons.COLUMN_NAME,
                         new RequestChildAdapterListener() {
 
@@ -261,19 +280,33 @@ public class RemotePageConfiguration extends Activity {
         mRemotes.setOnItemLongClickListener(new OnItemLongClickListener() {
 
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view,
-                    int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> adapterView, final View view,
+                    final int position, long id) {
                 Adapter adapter = ((ListView) adapterView).getAdapter();
-                Object item = adapter.getItem(position);
-                if (item instanceof TextAdapter) {
-                    TextAdapter ta = (TextAdapter) item;
-                    if (ta.getChildTable() == URPContract.TABLE_BUTTONS) {
-                        RemotePageBuilder builder = new RemotePageBuilder(RemotePageConfiguration.this);
-                        builder.setTitle(((TextView) view).getText());
-                        mRemotePageAdapter.add(builder.build(ta.getCursor()));
-                        mRemotePageAdapter.notifyDataSetChanged();
-                        return true;
-                    }
+                if(adapter instanceof TextAdapter) {
+                	final TextAdapter ta = (TextAdapter) adapter;
+                	if(ta.getChildTable() == URPContract.TABLE_MODELS) {
+                		new Thread() {
+                			public void run() {
+                        		String authority = ta.getTargetAuthority(position);
+                        		String brandId = ta.getAdapterId();
+                        		String modelId = ta.getActualId(position);
+                        		final Cursor cursor = BaseAbstractUniversalRemoteProvider.queryButtons(RemotePageConfiguration.this, authority, brandId, modelId);   
+                                final RemotePageBuilder builder = new RemotePageBuilder(RemotePageConfiguration.this);
+                                builder.setTitle(((TextView) view).getText());
+                                runOnUiThread(new Runnable() {
+									
+									@Override
+									public void run() {
+		                                mRemotePageAdapter.add(builder.build(cursor));
+		                                mRemotePageAdapter.notifyDataSetChanged();
+									}
+								});          				
+                			};
+                		}.start();
+                		Toast.makeText(RemotePageConfiguration.this, "Adding " + ((TextView) view).getText(), Toast.LENGTH_LONG).show();
+                		return true;
+                	}
                 }
                 return false;
             }
@@ -326,7 +359,6 @@ public class RemotePageConfiguration extends Activity {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             Uri uri;
-            Log.d("AARON", "Cursor Loader: " + id);
             switch(id) {
             case LOADER_BRAND:
                 uri = URPContract.getBrandsUri(IrRemoteProvider.AUTHORITY);
@@ -338,7 +370,6 @@ public class RemotePageConfiguration extends Activity {
                 return null;
             }
 
-            Log.d("AARON", "" + uri);
             return new CursorLoader(
                     RemotePageConfiguration.this,
                     uri,
@@ -384,7 +415,7 @@ public class RemotePageConfiguration extends Activity {
                 URPContract.TABLE_BRANDS,
                 cursor,
                 URPContract.COLUMN_AUTHORITY,
-                URPContract.Brands.COLUMN_ID,
+                URPContract.Brands.COLUMN_BRAND_ID,
                 URPContract.Brands.COLUMN_NAME,
                 mRequestChildListener);
         mRemotes.addAdapter(mBrandsAdapter);
@@ -392,5 +423,12 @@ public class RemotePageConfiguration extends Activity {
 
 	public RequestChildAdapterListener getRequestChildListener() {
 		return mRequestChildListener;
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if(!mRemotes.closeTopView()) {
+			super.onBackPressed();
+		}
 	}
 }

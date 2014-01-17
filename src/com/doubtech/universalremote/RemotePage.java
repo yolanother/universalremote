@@ -74,7 +74,7 @@ public class RemotePage extends DropGridLayout {
             int numberButtons = 0;
             int arrowButtons = 0;
 
-            if (buttonCursor.moveToFirst()) {
+            if (null != buttonCursor && buttonCursor.moveToFirst()) {
                 do {
                     String authority = buttonCursor.getString(Buttons.COLIDX_AUTHORITY);
                     ButtonFunction button = new ButtonFunction(mPage.getContext(), authority, buttonCursor);
@@ -90,7 +90,6 @@ public class RemotePage extends DropGridLayout {
                     } else {
                         unidentifiedButtons.add(button);
                     }
-                    Log.d("AARON", button.getLabel());
                 } while (buttonCursor.moveToNext());
             }
 
@@ -271,6 +270,7 @@ public class RemotePage extends DropGridLayout {
             ChildSpec spec = new ChildSpec(0, column);
             if (null != toggleButton) {
                 mPage.addView(new RemoteButton(mPage.getContext(), toggleButton), spec);
+                unusedIdentifiedButtons.remove(toggleButton.getButtonIdentifier());
             } else {
                 RemoteToggleButton button = new RemoteToggleButton(mPage.getContext());
                 for (ButtonFunction state : states) {
@@ -282,7 +282,6 @@ public class RemotePage extends DropGridLayout {
                     mPage.addView(button, spec);
                 }
             }
-            unusedIdentifiedButtons.remove(toggleButton.getButtonIdentifier());
             for (ButtonFunction function : states) {
                 if (null != function) {
                     unusedIdentifiedButtons.remove(function.getButtonIdentifier());
@@ -331,7 +330,8 @@ public class RemotePage extends DropGridLayout {
                     int colspan = Integer.parseInt(control.getAttribute("colspan"));
                     int rowspan = Integer.parseInt(control.getAttribute("rowspan"));
 
-                    page.addView((View) method.invoke(null, context, control), new ChildSpec(row, col, rowspan, colspan));
+                    View view = (View) method.invoke(null, context, control);
+                    page.addView(view, new ChildSpec(row, col, rowspan, colspan));
                 } catch (NoSuchMethodException e) {
                     Log.wtf(TAG, "Unknown control (no such method): " + control.getTagName());
                 } catch (IllegalAccessException e) {

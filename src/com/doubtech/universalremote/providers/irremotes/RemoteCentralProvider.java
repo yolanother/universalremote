@@ -22,7 +22,7 @@ public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider
 		@Override
 		protected URL getButtonsUrl(String brandId, String modelId) {
 			try {
-				return new URL("http://ir.doubtech.com/json?provider=remotecentral&brandId=" + Uri.encode(brandId) + "&modelId=" + Uri.encode(modelId));
+				return new URL("http://ir.doubtech.com/json.php?provider=remotecentral&brandId=" + Uri.encode(brandId) + "&modelId=" + Uri.encode(modelId));
 			} catch (MalformedURLException e) {
 				throw new IllegalArgumentException("Bad url generated for " + brandId + ", " + modelId);
 			}
@@ -31,7 +31,7 @@ public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider
 		@Override
 		public URL getModelsUrl(String brandId) {
 			try {
-				return new URL("http://ir.doubtech.com/json?provider=remotecentral&brandId=" + Uri.encode(brandId));
+				return new URL("http://ir.doubtech.com/json.php?provider=remotecentral&brandId=" + Uri.encode(brandId));
 			} catch (MalformedURLException e) {
 				throw new IllegalArgumentException("Bad url generated for " + brandId);
 			}
@@ -40,7 +40,7 @@ public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider
 		@Override
 		public URL getBrandsUrl() {
 			try {
-				return new URL("http://ir.doubtech.com/json?provider=remotecentral");
+				return new URL("http://ir.doubtech.com/json.php?provider=remotecentral");
 			} catch (MalformedURLException e) {
 				throw new IllegalArgumentException("Bad url generated. Should never get here.");
 			}

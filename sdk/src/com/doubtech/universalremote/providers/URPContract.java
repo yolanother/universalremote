@@ -44,38 +44,44 @@ public final class URPContract {
     }
 
     public static final class Brands {
-        public static final int COLIDX_AUTHORITY = 0;
-        public static final int COLIDX_ID = 1;
-        public static final int COLIDX_NAME = 2;
-        public static final int COLIDX_LOGO = 3;
+    	public static final int COLIDX_ID = 0;
+        public static final int COLIDX_AUTHORITY = 1;
+        public static final int COLIDX_BRAND_ID = 2;
+        public static final int COLIDX_NAME = 3;
+        public static final int COLIDX_LOGO = 4;
 
-        public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
         public static final String COLUMN_ID = "_id";
+        public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
+        public static final String COLUMN_BRAND_ID = "brand_id";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_LOGO = "logo";
 
         public static final String[] ALL = new String[] {
+        	COLUMN_ID,
             COLUMN_AUTHORITY,
-            COLUMN_ID,
+            COLUMN_BRAND_ID,
             COLUMN_NAME,
             COLUMN_LOGO
         };
     }
 
     public static final class Models {
-        public static final int COLIDX_AUTHORITY = 0;
-        public static final int COLIDX_ID = 1;
-        public static final int COLIDX_BRAND_ID = 2;
-        public static final int COLIDX_NAME = 2;
+    	public static final int COLIDX_ID = 0;
+        public static final int COLIDX_AUTHORITY = 1;
+        public static final int COLIDX_MODEL_ID = 2;
+        public static final int COLIDX_BRAND_ID = 3;
+        public static final int COLIDX_NAME = 4;
 
-        public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
         public static final String COLUMN_ID = "_id";
-        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
+        public static final String COLUMN_MODEL_ID = "model_id";
         public static final String COLUMN_BRAND_ID = "brand_id";
+        public static final String COLUMN_NAME = "name";
 
         public static final String[] ALL = new String[] {
+        	COLUMN_ID,
             COLUMN_AUTHORITY,
-            COLUMN_ID,
+            COLUMN_MODEL_ID,
             COLUMN_BRAND_ID,
             COLUMN_NAME
         };
@@ -92,25 +98,28 @@ public final class URPContract {
          */
         public static final int ICON_RESOURCE_TYPE_PROVIDER_URI = 2;
 
-        public static final int COLIDX_AUTHORITY = 0;
-        public static final int COLIDX_BRAND_ID = 1;
-        public static final int COLIDX_MODEL_ID = 2;
-        public static final int COLIDX_ID = 3;
-        public static final int COLIDX_NAME = 4;
-        public static final int COLIDX_BUTTON_IDENTIFIER = 5;
+    	public static final int COLIDX_ID = 0;
+        public static final int COLIDX_AUTHORITY = 1;
+        public static final int COLIDX_BRAND_ID = 2;
+        public static final int COLIDX_MODEL_ID = 3;
+        public static final int COLIDX_BUTTON_ID = 4;
+        public static final int COLIDX_NAME = 5;
+        public static final int COLIDX_BUTTON_IDENTIFIER = 6;
 
-        public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
         public static final String COLUMN_ID = "_id";
+        public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
+        public static final String COLUMN_BUTTON_ID = "remote_id";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_MODEL_ID = "model_id";
         public static final String COLUMN_BRAND_ID = "brand_id";
         public static final String COLUMN_BUTTON_IDENTIFIER = "button_identifier";
 
         public static final String[] ALL = new String[] {
+        	COLUMN_ID,
             COLUMN_AUTHORITY,
             COLUMN_BRAND_ID,
             COLUMN_MODEL_ID,
-            COLUMN_ID,
+            COLUMN_BUTTON_ID,
             COLUMN_NAME,
             COLUMN_BUTTON_IDENTIFIER
         };

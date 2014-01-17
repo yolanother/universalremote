@@ -1,7 +1,9 @@
 package com.doubtech.universalremote.providers;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,6 +15,7 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -22,9 +25,12 @@ import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.URPContract.Brands;
 import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Models;
+import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.ProviderDetails;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
-import com.doubtech.universalremote.utils.ButtonIds;
+import com.jakewharton.disklrucache.DiskLruCache;
+import com.jakewharton.disklrucache.DiskLruCache.Editor;
+import com.jakewharton.disklrucache.DiskLruCache.Snapshot;
 
 /**
  * @hide
@@ -121,7 +127,6 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
-    	Log.d("AARON", "Running query for " + uri + ": " + mUriMatcher.match(uri));
         switch(mUriMatcher.match(uri)) {
         case URPContract.TABLE_BRANDS:
             return getBrands(uri);
@@ -132,13 +137,28 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
                 if (uri.getQueryParameters(URPContract.QUERY_PARAMETER_BUTTON_ID).size() == 0) {
                     throw new IllegalArgumentException("No buttons were selected.");
                 }
-                return sendButtons(getButtons(uri, selectionArgs));
+                List<String> buttonIds = uri.getQueryParameters(URPContract.QUERY_PARAMETER_BUTTON_ID);
+                String brandId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
+                String modelId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_MODELID);
+                Button[] buttons = new Button[buttonIds.size()];
+                for(int i = 0; i < buttons.length; i++) {
+                	buttons[i] = new Button(
+                			getAuthority(),
+                			brandId,
+                			modelId,
+                			buttonIds.get(i));
+                }
+                
+                MatrixCursor cursor = new MatrixCursor(Buttons.ALL);
+                for(Button button : sendButtons(buttons)) {
+                	cursor.addRow(button.toRow());
+                }
+                return cursor;
             }
             return getButtons(uri, selectionArgs);
         case URPContract.TABLE_BUTTON_LAYOUT:
             return getButtonLayouts(uri);
         case URPContract.TABLE_PROVIDER_DETAILS:
-        	Log.d("AARON", "Getting details for " + getAuthority());
         	MatrixCursor cursor = new MatrixCursor(URPContract.ProviderDetails.ALL);
         	cursor.addRow(new Object[] {
         		getAuthority(),
@@ -157,7 +177,7 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
     public abstract String getProviderDescription();
     public abstract boolean isProviderEnabled();
 
-    public abstract Cursor sendButtons(Cursor buttons);
+    public abstract Button[] sendButtons(Button[] buttons);
 
     private Cursor getButtonLayouts(Uri uri) {
         // TODO Auto-generated method stub
@@ -172,8 +192,9 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
         String modelId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
         String remoteId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_MODELID);
         Cursor cursor = getButtons(new String[] {
+        		"rowid as " + URPContract.Buttons.COLUMN_ID,
                 "'" + getAuthority() + "' as " + URPContract.Buttons.COLUMN_AUTHORITY,
-                getButtonsColNameId() + " as " + URPContract.Buttons.COLUMN_ID,
+                getButtonsColNameId() + " as " + URPContract.Buttons.COLUMN_BUTTON_ID,
                 getButtonsColNameModelId() + " as " + URPContract.Buttons.COLUMN_MODEL_ID,
                 getButtonsColNameButtonName() + " as " + URPContract.Buttons.COLUMN_NAME,
                 getButtonsColNameButtonIdentifier() + " as " + URPContract.Buttons.COLUMN_BUTTON_IDENTIFIER
@@ -203,7 +224,7 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
     }
 
     public String getButtonsColNameId() {
-    	return Buttons.COLUMN_ID;
+    	return Buttons.COLUMN_BUTTON_ID;
     }
 
     protected abstract Cursor getButtons(String[] projection, String modelId, String remoteId, String[] buttons, String sortOrder);
@@ -211,8 +232,9 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
     private Cursor getModels(Uri uri) {
         String brandId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
         return getModels(new String[] {
+        		"rowid as " + URPContract.Buttons.COLUMN_ID,
                 "'" + getAuthority() + "' as " + URPContract.Models.COLUMN_AUTHORITY,
-                getModelColNameId() + " as " + URPContract.Models.COLUMN_ID,
+                getModelColNameId() + " as " + URPContract.Models.COLUMN_MODEL_ID,
                 getModelColNameBrandId() + " as " + URPContract.Models.COLUMN_BRAND_ID,
                 getModelColNameModelName() + " as " + URPContract.Models.COLUMN_NAME
             },
@@ -223,8 +245,9 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
 
     private Cursor getBrands(Uri uri) {
         return getBrands(new String[] {
+        		"rowid as " + URPContract.Buttons.COLUMN_ID,
                 "'" + getAuthority() + "' as " + URPContract.Brands.COLUMN_AUTHORITY,
-                getBrandColNameId() + " as " + URPContract.Brands.COLUMN_ID,
+                getBrandColNameId() + " as " + URPContract.Brands.COLUMN_BRAND_ID,
                 getBrandColNameBrandName() + " as " + URPContract.Brands.COLUMN_NAME,
                 getBrandColNameLogo() + " as " + URPContract.Brands.COLUMN_LOGO
             },
@@ -242,7 +265,7 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
     }
 
     public String getBrandColNameId() {
-    	return Brands.COLUMN_ID;
+    	return Brands.COLUMN_BRAND_ID;
     }
 
     protected abstract Cursor getBrands(String[] projection, String selection, String[] selectionArgs, String sortOrder);
@@ -252,7 +275,7 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
     }
 
     public  String getModelColNameId() {
-    	return Models.COLUMN_ID;
+    	return Models.COLUMN_MODEL_ID;
     }
 
     public String getModelColNameBrandId() {
@@ -326,35 +349,78 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
     }
 
     private static ConcurrentHashMap<String, Bitmap> mIconCache = new ConcurrentHashMap<String, Bitmap>();
+    private static DiskLruCache sIconDiskCache; 
+
+	private static String getIconCacheKey(String authority, String id) {
+		return authority + "." + id.replaceAll("[^a-zA-Z0-9_-]", "_");
+	}
+
     public static void loadIcon(final Context context, final String authority, final String id,
             final IconLoaderListener iconLoaderListener) {
-        Bitmap mButtonIcon = mIconCache.get(authority + "." + id);
+    	if(null == sIconDiskCache) {
+    		try {
+    			File cache = new File(context.getCacheDir(), "iconCache");
+    			cache.mkdirs();
+				sIconDiskCache = DiskLruCache.open(
+						cache,
+						1,
+						1,
+						1024 * 1024 * 2 /* 2MB */);
+			} catch (IOException e) {
+				Log.w("UniversalRemote", "Icon caching unavailable: " + e.getMessage());
+			}
+    	}
+    	final String key = getIconCacheKey(authority, id);
+        Bitmap mButtonIcon = mIconCache.get(key);
         if (null == mButtonIcon) {
             new Thread() {
                 @Override
                 public void run() {
                     try {
-                        AssetFileDescriptor desc = context.getContentResolver().openAssetFileDescriptor(URPContract.getButtonUri(authority, id), "r");
-                        if (null != desc) {
-                            Bitmap mButtonIcon = BitmapFactory.decodeStream(desc.createInputStream());
-                            if (null != mButtonIcon) {
-                                mIconCache.put(authority + "." + id, mButtonIcon);
-                                iconLoaderListener.onIconLoaded(mButtonIcon);
-                                return;
-                            }
-                        }
-                        ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(URPContract.getButtonUri(authority, id), "r");
-                        if (null != pfd) {
-                            Bitmap mButtonIcon = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
-                            if (null != mButtonIcon) {
-                                mIconCache.put(authority + "." + id, mButtonIcon);
-                            }
-                            iconLoaderListener.onIconLoaded(mButtonIcon);
-                        }
+                    	Uri uri = URPContract.getButtonUri(authority, id);
+    					Snapshot snapshot = sIconDiskCache.get(key);
+    					if(null == sIconDiskCache || null == snapshot) {
+                    	
+	                        AssetFileDescriptor desc = context.getContentResolver().openAssetFileDescriptor(uri, "r");
+	                        if (null != desc) {
+	                            Bitmap mButtonIcon = BitmapFactory.decodeStream(desc.createInputStream());
+	                            saveIconToCache(mButtonIcon, key);
+	                            if (null != mButtonIcon) {
+	                                mIconCache.put(key, mButtonIcon);
+	                                iconLoaderListener.onIconLoaded(mButtonIcon);
+	                                return;
+	                            }
+	                        }
+	                        ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(URPContract.getButtonUri(authority, id), "r");
+	                        if (null != pfd) {
+	                            Bitmap mButtonIcon = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
+	                            saveIconToCache(mButtonIcon, key);
+	                            if (null != mButtonIcon) {
+	                                mIconCache.put(key, mButtonIcon);
+	                            }
+	                            iconLoaderListener.onIconLoaded(mButtonIcon);
+	                        }
+    					} else {
+    						Bitmap icon = BitmapFactory.decodeStream(snapshot.getInputStream(0));
+    						if(null != icon) {
+    							mIconCache.put(key, icon);
+    						}
+    						iconLoaderListener.onIconLoaded(icon);
+    					}
                     } catch (IOException e) {
                         Log.w("ButtonDetails", e.getMessage(), e);
                     }
                 }
+
+                private void saveIconToCache(Bitmap icon, String key) throws IOException {
+                	if(null != sIconDiskCache && null != icon) {
+						Editor editor = sIconDiskCache.edit(key);
+						OutputStream stream = editor.newOutputStream(0);
+						icon.compress(CompressFormat.PNG, 9, stream);
+						stream.close();
+						editor.commit();
+                	}
+				}
             }.start();
         } else {
             iconLoaderListener.onIconLoaded(mButtonIcon);

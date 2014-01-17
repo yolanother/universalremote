@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.ir.IrManager;
@@ -13,6 +14,7 @@ import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tab
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Buttons;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Remotes;
 import com.doubtech.universalremote.providers.providerdo.Button;
+import com.doubtech.universalremote.utils.StringUtils;
 
 public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
     private static final String TAG = "UniversalRemote : IrRemoteProvider";
@@ -67,6 +69,42 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
     public String getModelColNameId() {
         return Remotes.Columns.RemoteId;
     }
+    
+    @Override
+    public Button[] sendButtons(Button[] buttons) {
+    	SparseArray<Button> map = new SparseArray<Button>();
+    	StringBuilder query = new StringBuilder("select ");
+    	StringUtils.implode(",", query, Buttons.Columns.ALL);
+    	query.append(" from ");
+    	query.append(Buttons.TABLE_NAME);
+    	query.append(" where ");
+    	query.append(Buttons.Columns.ButtonId);
+    	query.append(" in (");
+    	for(int i = 0; i < buttons.length; i++) {
+    		query.append(buttons[i].getButtonId());
+    		if(i + 1 < buttons.length) {
+    			query.append(", ");
+    		}
+    		map.put(Integer.parseInt(buttons[i].getButtonId()), buttons[i]);
+    	}
+    	query.append(")");
+        final SQLiteDatabase db = mHelper.getReadableDatabase();
+    	Cursor cursor = db.rawQuery(query.toString(), null);
+    	if(cursor.moveToFirst()) {
+    		do {
+    			Button button = map.get(cursor.getInt(Buttons.Columns.PROJECTION_BUTTON_ID));
+    			button.putExtra(Buttons.Columns.ButtonCode,
+    					cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE));
+    		} while(cursor.moveToNext());
+    	}
+
+    	IrManager ir = IrManager.getInstance(getContext());
+    	for(Button button : buttons) {
+    		ir.transmitPronto(button.getInternalData(Buttons.Columns.ButtonCode));
+    	}
+    	
+    	return buttons;
+    }
 
     @Override
     protected Cursor getButtons(String[] projection, String brandId, String modelId,
@@ -83,7 +121,7 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
         if (projection.length > 0) {
             query.append(", ");
         }
-        query.append("ButtonCode");
+        query.append(Buttons.Columns.ButtonCode);
         query.append(" from ");
         query.append(Buttons.TABLE_NAME);
         if (null != modelId || null != buttons && buttons.length > 0) {
@@ -118,7 +156,10 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
         MatrixCursor modifiedCursor = new MatrixCursor(URPContract.Buttons.ALL);
         if (cursor.moveToFirst()) {
         	do {
-                modifiedCursor.addRow(Button.fromCursor(this, getAuthority(), cursor).toRow());
+        		Button button = Button.fromCursor(this, getAuthority(), cursor);
+        		button.putExtra(Buttons.Columns.ButtonCode, cursor.getString(cursor.getColumnIndex(Buttons.Columns.ButtonCode)));
+                modifiedCursor.addRow(button.toRow());
+                
             } while (cursor.moveToNext());
         }
         return modifiedCursor;
@@ -137,24 +178,6 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
     @Override
     public String getButtonsColNameButtonName() {
         return Buttons.Columns.ButtonName;
-    }
-
-    @Override
-    public Cursor sendButtons(Cursor buttons) {
-        IrManager ir = IrManager.getInstance(getContext());
-        int buttonCodeColumn = buttons.getColumnIndex("ButtonCode");
-        if (-1 == buttonCodeColumn) {
-            Log.d(TAG, "Query didn't include button column.");
-            throw new IllegalArgumentException();
-        }
-        if (buttons.moveToFirst()) {
-            int limit = 0;
-            do {
-                Log.i(TAG, "Sending pronto code " + buttons.getString(buttonCodeColumn));
-                ir.transmitPronto(buttons.getString(buttonCodeColumn));
-            } while (buttons.moveToNext() && limit++ < 50);
-        }
-        return buttons;
     }
 
     private Cursor compileQuery(String table, String[] projection, String selection,

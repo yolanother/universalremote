@@ -83,13 +83,13 @@ public class Button {
 	}
 
 	public static Button[] fromJson(AbstractJsonUniversalRemoteProvider provider, String authority, String json) throws JSONException {
+		if(null == json || json.length() == 0) return new Button[0];
 		JSONObject obj = new JSONObject(json);
 		JSONArray array = obj.getJSONArray("buttons");
 		Button[] buttons = new Button[array.length()];
 		for(int i = 0; i < array.length(); i++) {
 			obj = array.getJSONObject(i);
 			Button button = new Button();
-			
 			button.mAuthority = authority;
 			button.mBrandId = obj.getString("brandId");
 			button.mModelId = obj.getString("modelId");
@@ -97,16 +97,18 @@ public class Button {
 			button.mName = ButtonIdentifier.getLabel(provider.getContext().getResources(), obj.getString("buttonName"));
 			button.mButtonIdentifier = ButtonIdentifier.getKnownButton(obj.getString("buttonName"));
 			provider.onPutExtras(button, obj);
+			buttons[i] = button;
 		}
 		return buttons;
 	}
 
 	public Object[] toRow() {
 		Object[] row = new Object[URPContract.Buttons.ALL.length];
+		row[Buttons.COLIDX_ID] = getButtonId().hashCode();
 		row[Buttons.COLIDX_AUTHORITY] = getAuthority();
 		row[Buttons.COLIDX_BRAND_ID] = getBrandId();
 		row[Buttons.COLIDX_MODEL_ID] = getModelId();
-		row[Buttons.COLIDX_ID] = getButtonId();
+		row[Buttons.COLIDX_BUTTON_ID] = getButtonId();
 		row[Buttons.COLIDX_NAME] = getName();
 		row[Buttons.COLIDX_BUTTON_IDENTIFIER] = getButtonIdentifier();
 		return row;

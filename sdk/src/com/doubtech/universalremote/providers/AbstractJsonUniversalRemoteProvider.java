@@ -21,12 +21,14 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
 	@Override
 	public Button[] getButtons(String brandId, String modelId) {
 		try {
-			for(Button button : Button.fromJson(
+			Button[] buttons = Button.fromJson(
 					this,
 					getAuthority(),
-					getJsonRetreiver().getButtonsJson(brandId, modelId))) {
+					getJsonRetreiver().getButtonsJson(brandId, modelId));
+			for(Button button : buttons) {
 				mCachedButtons.put(button, button);
 			}
+			return buttons;
 		} catch (JSONException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}
