@@ -10,6 +10,8 @@ import android.util.Log;
 
 public abstract class IrManager {
     public static final String TAG = "IrManager";
+    
+    public static final int PRONTO_HEADER_BLOCK_LENGTH = 4;
 
     private static IrManager mInstance;
     private ExecutorService mSendPool;
@@ -39,12 +41,12 @@ public abstract class IrManager {
 
     public void transmitPronto(String timings) {
         String[] timingStringSet = timings.split("[ ,]");
-        if (timingStringSet.length > 4) {
+        if (timingStringSet.length > PRONTO_HEADER_BLOCK_LENGTH) {
             int frequency = (int) (1000000/(Integer.parseInt(timingStringSet[1]) * .241246));
-            int[] timingIntSet = new int[timingStringSet.length - 4];
-            for (int i = 4; i < timingIntSet.length; i++) {
+            int[] timingIntSet = new int[timingStringSet.length - PRONTO_HEADER_BLOCK_LENGTH];
+            for (int i = 0; i < timingIntSet.length; i++) {
                 if (timingStringSet[i].length() > 0) {
-                    timingIntSet[i - 4] = Integer.parseInt(timingStringSet[i]);
+                    timingIntSet[i] = Integer.parseInt(timingStringSet[i + PRONTO_HEADER_BLOCK_LENGTH]);
                 }
             }
 
