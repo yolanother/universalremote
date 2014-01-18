@@ -6,7 +6,6 @@
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
-    <string name="title_activity_remote_page_configuration">RemotePageConfiguration</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_hierarcal_list_view_sample">HierarcalListViewSample</string>
     <string name="action_save">Save</string>
@@ -19,4 +18,9 @@
 
     <string name="remote_central_provider_name">Remote Central</string>
     <string name="remote_central_provider_desc">A collection of remotes hosted on Remote Central.</string>
+    
+    <!-- Remote Page Configuration -->
+    <string name="title_activity_remote_page_configuration">Page Configuration</string>
+    <string name="cfg_lbl_pages_label">Remote Pages</string>
+    <string name="cfg_lbl_sources_label">Remote/Button Sources</string>
 </resources>

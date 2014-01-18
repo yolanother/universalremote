@@ -1,106 +1,19 @@
 package com.doubtech.universalremote.utils;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.regex.Pattern;
-
-import android.content.res.Resources;
 
 import com.doubtech.universalremote.R;
 
-public class ButtonIdentifier {
+import android.content.res.Resources;
 
-    public static final String IGNORED_WORDS_STRING = "^(KEY|BUTTON|BTN|BUT|KP)";
-    private static final String NBR_LEAD = "(num|number|nr)?\\s*";
-    private static final String NPS_LEAD = IGNORED_WORDS_STRING + "?\\s*";
-    private static final String NPS_TAIL = "$";
+public class ButtonStyler {
+    public static final int[] NAME_LABEL_IDS = new int[ButtonIdentifier.NAME_PATTERN_STRINGS.length];
+    public static final int[] NAME_ICON_IDS = new int[ButtonIdentifier.NAME_PATTERN_STRINGS.length];
 
-    public static final String[] NAME_PATTERN_STRINGS = new String[] {
-        "UNKNOWN",
-        NPS_LEAD + "(vol(ume)?\\s*(up|[+^]|plus|inc))|([+]\\s*vol(ume)?)" + NPS_TAIL,
-        NPS_LEAD + "(vol(ume)?\\s*(down|-|minus|dec|dn|dwn))|([+]\\s*vol(ume)?)" + NPS_TAIL,
-        NPS_LEAD + "pow(er)?(\\s*toggle)?" + NPS_TAIL,
-        NPS_LEAD + "pow(er)?\\s*on" + NPS_TAIL,
-        NPS_LEAD + "pow(er)?\\s*off" + NPS_TAIL,
-        NPS_LEAD + "ch(an(nel)?)?\\s*(up|[+\\^]|inc|plus)|[+]\\s*ch(an(nel)?)?" + NPS_TAIL,
-        NPS_LEAD + "ch(an(nel)?)?\\s*(down|[-]|dn|dwn|dec|minus)|[-]\\s*ch(an(nel)?)?" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(0|zero)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(1|one)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(2|two)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(3|three)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(4|four)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(5|five)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(6|six)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(7|seven)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(8|eight)" + NPS_TAIL,
-        NPS_LEAD + NBR_LEAD + "(9|nine)" + NPS_TAIL,
-        NPS_LEAD + "(settings)" + NPS_TAIL,
-        NPS_LEAD + "((br|bri|brgt|bright|brighness|brightness|brt)\\s*(up|[+]|plus|inc))|((up|[+]|plus|inc)\\s*(br|bri|brgt|brt|bright|brightness|brighness))" + NPS_TAIL,
-        NPS_LEAD + "((br|bri|brgt|bright|brightness|brighness|brt)\\s*(dwn|down|-|minus|dec))|((dwn|down|-|minus|dec)\\s*(br|bri|brgt|brt|bright|brightness|brighness))" + NPS_TAIL,
-        NPS_LEAD + "(cancel)" + NPS_TAIL,
-        NPS_LEAD + "(ok)" + NPS_TAIL,
-        NPS_LEAD + "(enter)" + NPS_TAIL,
-        NPS_LEAD + "(return)" + NPS_TAIL,
-        NPS_LEAD + "(help)" + NPS_TAIL,
-        NPS_LEAD + "(guide)" + NPS_TAIL,
-        NPS_LEAD + "(home)" + NPS_TAIL,
-        NPS_LEAD + "(exit)" + NPS_TAIL,
-        NPS_LEAD + "(play)" + NPS_TAIL,
-        NPS_LEAD + "(pause)" + NPS_TAIL,
-        NPS_LEAD + "(ffwd|fast forward|FF|FFW|FFWRD|forwards|forward|fastforward|fastfwd|fforward|ffd)" + NPS_TAIL,
-        NPS_LEAD + "(rew|rewind|FFRW|FFWBack|fast rewind|fastrewind|fastbackward|fastbackwards|fastrew|fastrwd)" + NPS_TAIL,
-        NPS_LEAD + "(stop)" + NPS_TAIL,
-        NPS_LEAD + "((pg|page)\\s*(up|[+]|plus|inc))|([+]\\s*(pg|page))" + NPS_TAIL,
-        NPS_LEAD + "((pg|page)\\s*(down|-|minus|dec|dn|dwn))|([+]\\s*(pg|page))" + NPS_TAIL,
-        NPS_LEAD + "(rec|record)" + NPS_TAIL,
-        NPS_LEAD + "(up( arrow)?)" + NPS_TAIL,
-        NPS_LEAD + "(down|dwn|dn)( arrow)?" + NPS_TAIL,
-        NPS_LEAD + "(left( arrow)?)" + NPS_TAIL,
-        NPS_LEAD + "(right( arrow)?)" + NPS_TAIL,
-        NPS_LEAD + "(red)" + NPS_TAIL,
-        NPS_LEAD + "(blue)" + NPS_TAIL,
-        NPS_LEAD + "(green)" + NPS_TAIL,
-        NPS_LEAD + "(yellow)" + NPS_TAIL,
-        NPS_LEAD + "(back|bck)" + NPS_TAIL,
-        NPS_LEAD + "(backward|bwd)" + NPS_TAIL,
-        NPS_LEAD + "(mute|muting)" + NPS_TAIL,
-        NPS_LEAD + "(next|nxt|skip\\s*forward)" + NPS_TAIL,
-        NPS_LEAD + "(previous|prev|prv|skip\\s*back(ward)?)" + NPS_TAIL,
-        NPS_LEAD + "(source|input)" + NPS_TAIL,
-        NPS_LEAD + "(menu)" + NPS_TAIL,
-        NPS_LEAD + "(cc|closed\\s*caption(ing|s)|captions)" + NPS_TAIL,
-        NPS_LEAD + "(dot|[.])" + NPS_TAIL,
-    };
-
-    public static final int[] NAME_LABEL_IDS = new int[NAME_PATTERN_STRINGS.length];
-    public static final int[] NAME_ICON_IDS = new int[NAME_PATTERN_STRINGS.length];
-
-    public static final Pattern[] NAME_PATTERNS = new Pattern[NAME_PATTERN_STRINGS.length];
-
-    private static final HashMap<String, Integer> sKnownButtons = new HashMap<String, Integer>();
     private static final HashMap<String, String> sButtonLabels = new HashMap<String, String>();
-    private static final HashSet<String> sUnknownButtons = new HashSet<String>();
-
-    public static final Pattern ALL_MATCH_PATTERN;
-
-    static {
-        StringBuilder allMatchString = new StringBuilder();
-        for (int i = 1; i < NAME_PATTERN_STRINGS.length; i++) {
-            allMatchString.append("(");
-            allMatchString.append(NAME_PATTERN_STRINGS[i]);
-            allMatchString.append(")");
-            if (i + 1 < NAME_PATTERN_STRINGS.length) {
-                allMatchString.append("|");
-            }
-            NAME_PATTERNS[i] = Pattern.compile(NAME_PATTERN_STRINGS[i], Pattern.CASE_INSENSITIVE);
-        }
-
-        ALL_MATCH_PATTERN = Pattern.compile(allMatchString.toString(), Pattern.CASE_INSENSITIVE);
-
-        for (int i = 0; i < 10; i++) {
-            sKnownButtons.put(Integer.toString(i), ButtonIds.BUTTON_0 + i);
-        }
+	
+	static {
 
         NAME_LABEL_IDS[ButtonIds.BUTTON_VOLUME_UP] = R.string.button_volume_up;
         NAME_LABEL_IDS[ButtonIds.BUTTON_VOLUME_DOWN] = R.string.button_volume_down;
@@ -196,34 +109,17 @@ public class ButtonIdentifier {
         NAME_ICON_IDS[ButtonIds.BUTTON_PREVIOUS] = R.drawable.button_previous;
         NAME_ICON_IDS[ButtonIds.BUTTON_SOURCE] = R.drawable.button_input_source;
         NAME_ICON_IDS[ButtonIds.BUTTON_DOT] = R.drawable.button_dot;
-    }
-
-    public static Integer getKnownButton(String label) {
-        Integer button = sKnownButtons.get(label);
-        if (null == button && !sUnknownButtons.contains(label)) {
-            for (int i = 1; i < NAME_PATTERNS.length; i++) {
-                Pattern p = NAME_PATTERNS[i];
-                if (null != p && p.matcher(label).find()) {
-                    sKnownButtons.put(label, i);
-                    return i;
-                }
-            }
-
-            sUnknownButtons.add(label);
-        }
-
-        return null != button ? button : ButtonIds.BUTTON_UNKNOWN;
-    }
+	}
 
     public static String getLabel(Resources res, String label) {
-        Integer definedLabel = getKnownButton(label);
+        Integer definedLabel = ButtonIdentifier.getKnownButton(label);
         if (null != definedLabel && 0 != definedLabel) {
             return getLabel(res, definedLabel);
         }
 
         String alteredLabel = sButtonLabels.get(label);
         if (null == alteredLabel) {
-            alteredLabel = label.toUpperCase(Locale.getDefault()).replaceFirst(IGNORED_WORDS_STRING + "\\s*", "");
+            alteredLabel = label.toUpperCase(Locale.getDefault()).replaceFirst(ButtonIdentifier.IGNORED_WORDS_STRING + "\\s*", "");
             if (!alteredLabel.equals(label)) {
                 sButtonLabels.put(label, alteredLabel);
             }
@@ -236,19 +132,15 @@ public class ButtonIdentifier {
         return res.getString(NAME_LABEL_IDS[buttonIdentifier]);
     }
 
-    public static boolean isNumber(int buttonIdentifier) {
-        return buttonIdentifier >= ButtonIds.BUTTON_0 && buttonIdentifier <= ButtonIds.BUTTON_9;
-    }
-
-    public static boolean isArrow(int buttonIdentifier) {
-        return buttonIdentifier == ButtonIds.BUTTON_UP || buttonIdentifier == ButtonIds.BUTTON_LEFT || buttonIdentifier == ButtonIds.BUTTON_RIGHT || buttonIdentifier == ButtonIds.BUTTON_DOWN;
-    }
-
     public static int getIconId(String label) {
-        Integer buttonId = getKnownButton(label);
-        if (null != buttonId) {
+        Integer buttonId = ButtonIdentifier.getKnownButton(label);
+        return getIconId(buttonId);
+    }
+
+	private static int getIconId(Integer buttonId) {
+		if (null != buttonId && buttonId < NAME_ICON_IDS.length) {
             return NAME_ICON_IDS[buttonId];
         }
         return 0;
-    }
+	}
 }

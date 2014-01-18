@@ -14,6 +14,7 @@ import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tab
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Buttons;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Remotes;
 import com.doubtech.universalremote.providers.providerdo.Button;
+import com.doubtech.universalremote.utils.ButtonStyler;
 import com.doubtech.universalremote.utils.StringUtils;
 
 public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
@@ -104,6 +105,11 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
         }
 
         return buttons;
+    }
+
+    @Override
+    public int getIconId(Button button) {
+        return ButtonStyler.getIconId(button.getName());
     }
 
     @Override

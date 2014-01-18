@@ -11,12 +11,13 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
+import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
+import com.doubtech.universalremote.utils.ButtonStyler;
 
 public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
     private static final long serialVersionUID = 1L;
@@ -34,10 +35,10 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
         mBrandId = buttonCursor.getString(URPContract.Buttons.COLIDX_BRAND_ID);
         mModelId = buttonCursor.getString(URPContract.Buttons.COLIDX_MODEL_ID);
         mId = buttonCursor.getString(URPContract.Buttons.COLIDX_BUTTON_ID);
-        mLabel = buttonCursor.getString(URPContract.Buttons.COLIDX_NAME);
+        mLabel = ButtonStyler.getLabel(context.getResources(), buttonCursor.getString(URPContract.Buttons.COLIDX_NAME));
 
         // TODO This is ugly and the label object isn't really needed anymore
-        mLabel = ButtonIdentifier.getLabel(context.getResources(), mLabel);
+        mLabel = ButtonStyler.getLabel(context.getResources(), mLabel);
         mButtonIdentifier = buttonCursor.getInt(URPContract.Buttons.COLIDX_BUTTON_IDENTIFIER);
 
         // Button identifier wasn't set so let's try one more time to get it
@@ -61,16 +62,18 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
 
     public void getIcon(final Context context, final IconLoaderListener listener) {
         if (null == mButtonIcon) {
-            BaseAbstractUniversalRemoteProvider.loadIcon(context, mAuthority, mId, new IconLoaderListener() {
-                @Override
-                public void onIconLoaded(Bitmap bitmap) {
-                    mButtonIcon = bitmap;
-                    listener.onIconLoaded(bitmap);
-                    while (mLoadedListeners.size() > 0) {
-                        mLoadedListeners.poll().onIconLoaded(bitmap);
-                    }
-                }
-            });
+            BaseAbstractUniversalRemoteProvider.loadIcon(context,
+            		new Button(getAuthority(), getBrandId(), getModelId(), getId()),
+            		new IconLoaderListener() {
+		                @Override
+		                public void onIconLoaded(Bitmap bitmap) {
+		                    mButtonIcon = bitmap;
+		                    listener.onIconLoaded(bitmap);
+		                    while (mLoadedListeners.size() > 0) {
+		                        mLoadedListeners.poll().onIconLoaded(bitmap);
+		                    }
+		                }
+		            });
         } else {
             listener.onIconLoaded(mButtonIcon);
         }

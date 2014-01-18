@@ -1,4 +1,4 @@
-package com.doubtech.universalremote;
+package com.doubtech.universalremote.widget;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -12,13 +12,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xmlpull.v1.XmlSerializer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.ProgressBar;
 
+import com.doubtech.universalremote.ButtonFunction;
 import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.ui.IRemoteView;
 import com.doubtech.universalremote.ui.RemoteButton;
@@ -28,7 +31,7 @@ import com.doubtech.universalremote.ui.RemoteRocker;
 import com.doubtech.universalremote.ui.RemoteToggleButton;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 import com.doubtech.universalremote.utils.ButtonIds;
-import com.doubtech.universalremote.widget.DropGridLayout;
+import com.doubtech.universalremote.utils.ButtonLoaderTask;
 
 public class RemotePage extends DropGridLayout {
     public static final String XMLTAG = "page";
@@ -56,14 +59,35 @@ public class RemotePage extends DropGridLayout {
         super(context, attrs);
     }
 
+	public void loadButtons(String authority, String brandId, String modelId) {
+		removeAllViews();
+		addView(new ProgressBar(getContext()), new ChildSpec(0, 0, getRowCount(), getColumnCount()));
+		new ButtonLoaderTask(getContext()) {
+			@Override
+			protected void onPostExecute(Cursor result) {
+				removeAllViews();
+				new RemotePageBuilder(RemotePage.this).build(result);
+			}
+		}.execute(authority, brandId, modelId);
+	}
+
     public static class RemotePageBuilder {
         private RemotePage mPage;
         private SparseArray<ButtonFunction> identifiedButtons;
         private ArrayList<ButtonFunction> unidentifiedButtons;
         HashMap<Integer, ButtonFunction> unusedIdentifiedButtons;
 
-        public RemotePageBuilder(Context context) {
+        @SuppressLint("UseSparseArrays")
+		public RemotePageBuilder(Context context) {
             mPage = new RemotePage(context);
+            identifiedButtons = new SparseArray<ButtonFunction>();
+            unidentifiedButtons = new ArrayList<ButtonFunction>();
+            unusedIdentifiedButtons = new HashMap<Integer, ButtonFunction>();
+        }
+
+        @SuppressLint("UseSparseArrays")
+		public RemotePageBuilder(RemotePage existingPage) {
+        	mPage = existingPage;
             identifiedButtons = new SparseArray<ButtonFunction>();
             unidentifiedButtons = new ArrayList<ButtonFunction>();
             unusedIdentifiedButtons = new HashMap<Integer, ButtonFunction>();

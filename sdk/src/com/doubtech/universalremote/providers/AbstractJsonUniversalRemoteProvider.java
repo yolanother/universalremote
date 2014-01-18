@@ -16,8 +16,6 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
         AbstractUniversalRemoteProvider {
     public static final String TAG = "UniversalRemote : AbstractJsonURP";
 
-    private ConcurrentHashMap<Button, Button> mCachedButtons = new ConcurrentHashMap<Button, Button>();
-
     @Override
     public Button[] getButtons(String brandId, String modelId) {
         try {
@@ -25,9 +23,6 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
                     this,
                     getAuthority(),
                     getJsonRetreiver().getButtonsJson(brandId, modelId));
-            for (Button button : buttons) {
-                mCachedButtons.put(button, button);
-            }
             return buttons;
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -42,7 +37,7 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
         String lastModelCache = null;
 
         for (int i = 0; i < buttons.length; i++) {
-            Button b =  mCachedButtons.get(buttons[i]);
+            Button b =  Button.getCachedButton(buttons[i]);
             if (null == b) {
                 String brand = buttons[i].getBrandId();
                 String model = buttons[i].getModelId();
@@ -53,7 +48,7 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
                     lastBrandCache = brand;
                     lastModelCache = model;
                 }
-                b =  mCachedButtons.get(buttons[i]);
+                b = Button.getCachedButton(buttons[i]);
                 if (null != b) {
                     buttons[i] = b;
                 }

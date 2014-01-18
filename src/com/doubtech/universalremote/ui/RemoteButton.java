@@ -34,7 +34,7 @@ public class RemoteButton extends ImageView implements IRemoteView {
     public RemoteButton(Context context, ButtonFunction button) {
         super(context);
         init();
-        mButtonDetails.add(button);
+        setButtonDetails(button);
     }
 
     private void init() {

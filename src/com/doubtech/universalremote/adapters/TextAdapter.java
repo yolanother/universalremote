@@ -157,4 +157,11 @@ public class TextAdapter extends CursorAdapter {
         mIdColIndex = -1;
         return super.swapCursor(newCursor);
     }
+
+	public CharSequence getText(int position) {
+		Cursor cursor = getCursor();
+		cursor.moveToPosition(position);
+        initializeColumns(cursor);
+        return cursor.getString(mLabelColIndex);
+	}
 }

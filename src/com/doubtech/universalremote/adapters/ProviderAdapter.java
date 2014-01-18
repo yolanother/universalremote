@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.pm.ProviderInfo;
+import android.database.Cursor;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.RemotePageConfiguration;
+import com.doubtech.universalremote.adapters.TextAdapter.SimpleCursorLoader;
 import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.providerdo.ProviderDetails;
@@ -51,12 +53,18 @@ public class ProviderAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        String authority = mProviders.get(position).getAuthority();
+        final String authority = mProviders.get(position).getAuthority();
+        SimpleCursorLoader loader = new SimpleCursorLoader() {
+			@Override
+			public Cursor loadCursor() {
+				return BaseAbstractUniversalRemoteProvider.queryBrands(mContext, authority);
+			}
+		};
         return new TextAdapter(
                 mContext,
                 null,
                 URPContract.TABLE_BRANDS,
-                BaseAbstractUniversalRemoteProvider.queryBrands(mContext, authority),
+                loader,
                 URPContract.COLUMN_AUTHORITY,
                 URPContract.Brands.COLUMN_BRAND_ID,
                 URPContract.Brands.COLUMN_NAME,

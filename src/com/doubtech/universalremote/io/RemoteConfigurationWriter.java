@@ -8,7 +8,7 @@ import org.xmlpull.v1.XmlSerializer;
 
 import android.util.Xml;
 
-import com.doubtech.universalremote.RemotePage;
+import com.doubtech.universalremote.widget.RemotePage;
 
 public class RemoteConfigurationWriter {
     private XmlSerializer mXml;

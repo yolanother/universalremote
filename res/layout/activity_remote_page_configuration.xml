@@ -2,29 +2,77 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".RemotePageConfiguration"
-    android:background="#000000" >
+    android:background="#000000"
+    tools:context=".RemotePageConfiguration" >
 
-    <com.doubtech.universalremote.widget.DynamicListView
+    <TextView
+        android:id="@+id/pages_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="#44cccccc"
+        android:paddingBottom="8dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="8dp"
+        android:text="@string/cfg_lbl_pages_label"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ffffff" />
+
+    <com.doubtech.universalremote.widget.TwoWayListView
         android:id="@+id/remotes"
         android:layout_width="match_parent"
         android:layout_height="180dp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:orientation="horizontal"
-         />
+        android:layout_below="@+id/pages_label"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:orientation="horizontal" />
 
-    <com.doubtech.universalremote.widget.HierarchicalListView
-        android:id="@+id/remote_sources"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/sources_label"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
+        android:layout_below="@+id/remotes"
+        android:background="#44cccccc"
+        android:paddingBottom="8dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="8dp"
+        android:text="@string/cfg_lbl_sources_label"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ffffff" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_below="@id/remotes"
-        android:orientation="vertical" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/sources_label"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin" >
+
+        <com.doubtech.universalremote.widget.HierarchicalListView
+            android:id="@+id/remote_sources"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/icon_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/pages_label"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/remotes"
+        android:src="@drawable/ic_action_delete"
+        android:visibility="gone" />
+
 </RelativeLayout>

@@ -1,6 +1,7 @@
 package com.doubtech.universalremote.providers.providerdo;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,6 +17,8 @@ import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 
 public class Button {
+	private static ConcurrentHashMap<Button, Button> mButtonCache = new ConcurrentHashMap<Button, Button>();
+	
     protected String mAuthority;
     protected String mBrandId;
     protected String mModelId;
@@ -25,7 +28,9 @@ public class Button {
     protected HashMap<String, String> mInternalData = new HashMap<String, String>();
 
     protected Button() {
-
+    	mBrandId = "";
+    	mModelId = "";
+    	mButtonId = "";
     }
 
     public Button(String authority, String brandId, String modelId, String buttonId) {
@@ -41,7 +46,7 @@ public class Button {
         button.mBrandId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
         button.mModelId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_MODELID);
         button.mButtonId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BUTTON_ID);
-        return button;
+        return getCachedButton(button);
     }
 
     public static Button fromCursor(BaseAbstractUniversalRemoteProvider provider, String authority, Cursor cursor) {
@@ -69,9 +74,14 @@ public class Button {
             button.mButtonId = cursor.getString(idx);
         }
 
+        // We now have enough to get/save the button to the cache. Get the
+        // button from the cache just incase any column data is missing or
+        // the cached version has extra data provided by the adapter
+        button = getCachedButton(button);
+
         idx = cursor.getColumnIndex(provider.getButtonsColNameButtonName());
         if (idx >= 0) {
-            button.mName = ButtonIdentifier.getLabel(provider.getContext().getResources(), cursor.getString(idx));
+            button.mName = cursor.getString(idx);
         }
 
         idx = cursor.getColumnIndex(provider.getButtonsColNameButtonIdentifier());
@@ -89,20 +99,24 @@ public class Button {
         Button[] buttons = new Button[array.length()];
         for (int i = 0; i < array.length(); i++) {
             obj = array.getJSONObject(i);
-            Button button = new Button();
-            button.mAuthority = authority;
-            button.mBrandId = obj.getString("brandId");
-            button.mModelId = obj.getString("modelId");
-            button.mButtonId = obj.getString("buttonId");
-            button.mName = ButtonIdentifier.getLabel(provider.getContext().getResources(), obj.getString("buttonName"));
-            button.mButtonIdentifier = ButtonIdentifier.getKnownButton(obj.getString("buttonName"));
-            provider.onPutExtras(button, obj);
-            buttons[i] = button;
+            buttons[i] = fromJson(provider, authority, obj);
         }
         return buttons;
     }
 
-    public Object[] toRow() {
+    private static Button fromJson(AbstractJsonUniversalRemoteProvider provider, String authority, JSONObject obj) throws JSONException {
+    	Button button = new Button();
+        button.mAuthority = authority;
+        button.mBrandId = obj.getString("brandId");
+        button.mModelId = obj.getString("modelId");
+        button.mButtonId = obj.getString("buttonId");
+        button.mName = obj.getString("buttonName");
+        button.mButtonIdentifier = ButtonIdentifier.getKnownButton(obj.getString("buttonName"));
+        provider.onPutExtras(button, obj);
+        return button;
+	}
+
+	public Object[] toRow() {
         Object[] row = new Object[URPContract.Buttons.ALL.length];
         row[Buttons.COLIDX_ID] = getButtonId().hashCode();
         row[Buttons.COLIDX_AUTHORITY] = getAuthority();
@@ -167,4 +181,25 @@ public class Button {
         }
         return false;
     }
+
+	public Uri getUri() {
+		return URPContract.getButtonUri(
+				getAuthority(),
+				getBrandId(),
+				getModelId(),
+				getButtonId());
+	}
+	
+	public static Button getCachedButton(String authority, String brandId, String modelId, String buttonId) {
+		return mButtonCache.get(new Button(authority, brandId, modelId, buttonId));
+	}
+
+	public static Button getCachedButton(Button button) {
+		Button b = mButtonCache.get(button);
+		if(null == b) {
+			b = button;
+			mButtonCache.put(b, b);
+		}
+		return b;
+	}
 }

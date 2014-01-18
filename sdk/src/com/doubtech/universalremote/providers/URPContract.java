@@ -137,9 +137,11 @@ public final class URPContract {
         return Uri.parse("content://" + authority + "/" + URPContract.TABLE_BUTTONS_PATH);
     }
 
-    public static Uri getButtonUri(String authority, String id) {
+    public static Uri getButtonUri(String authority, String brandId, String modelId, String id) {
         return Uri.parse("content://" + authority + "/" + URPContract.TABLE_BUTTONS_PATH)
                 .buildUpon()
+                .appendQueryParameter(QUERY_PARAMETER_BRANDID, brandId)
+                .appendQueryParameter(QUERY_PARAMETER_MODELID, modelId)
                 .appendQueryParameter(QUERY_PARAMETER_BUTTON_ID, id)
                 .build();
     }

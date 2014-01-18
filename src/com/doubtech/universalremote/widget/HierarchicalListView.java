@@ -14,6 +14,7 @@ import android.graphics.Paint;
 import android.support.v4.widget.CursorAdapter;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -32,6 +33,10 @@ public class HierarchicalListView extends FrameLayout {
         boolean onItemClick(AdapterView<?> adapterView, View view, int position,
                 long id);
     }
+    
+    public static interface OnHierarchyChangedListener {
+    	void onHierarchyChangedListener(int level);
+    }
 
     private List<Adapter> mAdapters;
     private OnItemClickListener mItemClickListener;
@@ -39,6 +44,8 @@ public class HierarchicalListView extends FrameLayout {
     private int mOffsetWidth;
     private TimeInterpolator mInterpolator;
     private OnItemLongClickListener mItemLongClickListener;
+	private OnHierarchyChangedListener mHierarchyChangedListener;
+	private boolean mClosing;
 
     public HierarchicalListView(Context context) {
         super(context);
@@ -201,8 +208,14 @@ public class HierarchicalListView extends FrameLayout {
                 super.dispatchDraw(canvas);
                 drawHighlights(canvas, this);
             }
+            @Override
+            public boolean onTouchEvent(MotionEvent event) {
+
+            	return true;
+            }
         };
         layout.addView(view);
+        
         completeAddHierarchyView(layout);
     }
 
@@ -309,7 +322,7 @@ public class HierarchicalListView extends FrameLayout {
         int width = getMeasuredWidth();
         if (getChildCount() >= 2) {
             int offset = (getChildCount() - 1) * mOffsetWidth;
-            width = getMeasuredWidth() - offset;
+            width = getMeasuredWidth() - mOffsetWidth;
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, getMeasuredHeight());
             view.setLayoutParams(params);
             view.setTranslationX(getWidth());
@@ -339,11 +352,17 @@ public class HierarchicalListView extends FrameLayout {
                     .start();
             }
         }
+
+        if(null != mHierarchyChangedListener) {
+        	mHierarchyChangedListener.onHierarchyChangedListener(getChildCount() - 1);
+        }
     }
 
     public boolean closeTopView() {
+    	if(mClosing) return false;
         boolean closed = false;
         if (getChildCount() > 2) {
+        	mClosing = true;
             final View v = getChildAt(getChildCount() - 1);
             v.animate()
                 .translationX(getWidth())
@@ -364,6 +383,9 @@ public class HierarchicalListView extends FrameLayout {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
+                    	if(null != mHierarchyChangedListener) {
+                    		mHierarchyChangedListener.onHierarchyChangedListener(getChildCount() - 2);
+                    	}
                         removeView(v);
                         if (v instanceof ListView) {
                             mAdapters.remove(((ListView)v).getAdapter());
@@ -371,12 +393,12 @@ public class HierarchicalListView extends FrameLayout {
                         InternalListView listview = (InternalListView) getChildAt(getChildCount() - 2);
                         listview.bringToFront();
                         listview.getSelectionAdapter().clearSelectedPosition();
+                        mClosing = false;
                     }
 
                     @Override
                     public void onAnimationCancel(Animator animation) {
-                        // TODO Auto-generated method stub
-
+                    	mClosing = false;
                     }
                 })
                 .start();
@@ -412,4 +434,15 @@ public class HierarchicalListView extends FrameLayout {
     public void setOnItemLongClickListener(OnItemLongClickListener listener) {
         mItemLongClickListener = listener;
     }
+
+	public void setSelectedPosition(int position) {
+		View v = getChildAt(getChildCount() - 1);
+		if(v instanceof InternalListView) {
+			((InternalListView) v).getSelectionAdapter().setSelectedPosition(position);
+		}
+	}
+	
+	public void setHierarchyLevelChangedListener(OnHierarchyChangedListener listener) {
+		mHierarchyChangedListener =  listener;
+	}
 }

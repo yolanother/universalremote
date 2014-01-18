@@ -11,6 +11,8 @@ import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.jsonretreivers.HttpJsonRetreiver;
 import com.doubtech.universalremote.jsonretreivers.JsonRetreiver;
 import com.doubtech.universalremote.providers.AbstractJsonIRUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.providerdo.Button;
+import com.doubtech.universalremote.utils.ButtonStyler;
 
 public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider {
     private static class Retreiver extends HttpJsonRetreiver {
@@ -73,4 +75,8 @@ public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider
         return mRetreiver;
     }
 
+    @Override
+    public int getIconId(Button button) {
+        return ButtonStyler.getIconId(button.getName());
+    }
 }
