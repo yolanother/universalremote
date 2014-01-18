@@ -59,17 +59,17 @@ public class RemotePage extends DropGridLayout {
         super(context, attrs);
     }
 
-	public void loadButtons(String authority, String brandId, String modelId) {
-		removeAllViews();
-		addView(new ProgressBar(getContext()), new ChildSpec(0, 0, getRowCount(), getColumnCount()));
-		new ButtonLoaderTask(getContext()) {
-			@Override
-			protected void onPostExecute(Cursor result) {
-				removeAllViews();
-				new RemotePageBuilder(RemotePage.this).build(result);
-			}
-		}.execute(authority, brandId, modelId);
-	}
+    public void loadButtons(String authority, String brandId, String modelId) {
+        removeAllViews();
+        addView(new ProgressBar(getContext()), new ChildSpec(0, 0, getRowCount(), getColumnCount()));
+        new ButtonLoaderTask(getContext()) {
+            @Override
+            protected void onPostExecute(Cursor result) {
+                removeAllViews();
+                new RemotePageBuilder(RemotePage.this).build(result);
+            }
+        }.execute(authority, brandId, modelId);
+    }
 
     public static class RemotePageBuilder {
         private RemotePage mPage;
@@ -78,7 +78,7 @@ public class RemotePage extends DropGridLayout {
         HashMap<Integer, ButtonFunction> unusedIdentifiedButtons;
 
         @SuppressLint("UseSparseArrays")
-		public RemotePageBuilder(Context context) {
+        public RemotePageBuilder(Context context) {
             mPage = new RemotePage(context);
             identifiedButtons = new SparseArray<ButtonFunction>();
             unidentifiedButtons = new ArrayList<ButtonFunction>();
@@ -86,8 +86,8 @@ public class RemotePage extends DropGridLayout {
         }
 
         @SuppressLint("UseSparseArrays")
-		public RemotePageBuilder(RemotePage existingPage) {
-        	mPage = existingPage;
+        public RemotePageBuilder(RemotePage existingPage) {
+            mPage = existingPage;
             identifiedButtons = new SparseArray<ButtonFunction>();
             unidentifiedButtons = new ArrayList<ButtonFunction>();
             unusedIdentifiedButtons = new HashMap<Integer, ButtonFunction>();

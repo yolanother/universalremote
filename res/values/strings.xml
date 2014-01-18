@@ -18,7 +18,7 @@
 
     <string name="remote_central_provider_name">Remote Central</string>
     <string name="remote_central_provider_desc">A collection of remotes hosted on Remote Central.</string>
-    
+
     <!-- Remote Page Configuration -->
     <string name="title_activity_remote_page_configuration">Page Configuration</string>
     <string name="cfg_lbl_pages_label">Remote Pages</string>

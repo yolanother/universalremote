@@ -67,7 +67,7 @@ public class RemotePageConfiguration extends Activity {
         private TextView mLabel;
         private ImageView mScreenshot;
         private ScalePreviewView mContainer;
-		public RemotePage mPage;
+        public RemotePage mPage;
 
         public ViewHolder(View convertView) {
             mLabel = (TextView) convertView.findViewById(R.id.label);
@@ -92,16 +92,16 @@ public class RemotePageConfiguration extends Activity {
 
         public void add(RemotePage page) {
             mRemotes.add(page);
-            if(null != page) {
-	            mIdMap.put(page, mIdMap.size());
-				mRemotePageAdapter.notifyDataSetChanged();
+            if (null != page) {
+                mIdMap.put(page, mIdMap.size());
+                mRemotePageAdapter.notifyDataSetChanged();
             }
         }
-        
+
         public void remove(RemotePage page) {
-        	mRemotes.remove(page);
-        	mIdMap.remove(page);
-			mRemotePageAdapter.notifyDataSetChanged();
+            mRemotes.remove(page);
+            mIdMap.remove(page);
+            mRemotePageAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -131,7 +131,7 @@ public class RemotePageConfiguration extends Activity {
                 viewHolder.mPage = v;
                 viewHolder.mContainer.addView(v);
                 convertView.setAlpha(v.getAlpha());
-                if(v.getAlpha() < 1) {
+                if (v.getAlpha() < 1) {
                     viewHolder.mScreenshot.setImageResource(R.drawable.ic_action_add_custom);
                 }
             }
@@ -184,9 +184,9 @@ public class RemotePageConfiguration extends Activity {
             this.modelId = modelId;
         }
     }
-    
+
     private class ButtonInfo {
-    	ModelInfo info;
+        ModelInfo info;
         private String id;
 
         public ButtonInfo(String authority, String brandId, String modelId, String buttonId) {
@@ -281,12 +281,12 @@ public class RemotePageConfiguration extends Activity {
     private RemotePageAdapter mRemotePageAdapter;
     private MenuItem mMenuItemAddRemote;
     private Uri mFile;
-	private RemoteConfigurationReader mReader;
-	private View mTrashIcon;
-	private RemotePage mCurrentPage;
-	private int mHierarchyLevel;
-	private int mRevertHierarchyLevel;
-	private RemotePage mNewPage;
+    private RemoteConfigurationReader mReader;
+    private View mTrashIcon;
+    private RemotePage mCurrentPage;
+    private int mHierarchyLevel;
+    private int mRevertHierarchyLevel;
+    private RemotePage mNewPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -297,33 +297,33 @@ public class RemotePageConfiguration extends Activity {
         mList.setAdapter(mRemotePageAdapter);
         mList.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-					int position, long arg3) {
-				mNewPage = null;
-				final RemotePage view = mRemotePageAdapter.mRemotes.get(position);
-				ViewGroup parent = (ViewGroup) view.getParent();
-				while(R.id.remote_preview_layout != parent.getId() && null != parent) {
-					parent = (ViewGroup) parent.getParent();
-				}
-				final View shadowView = parent;
-				View.DragShadowBuilder shadow = new View.DragShadowBuilder(shadowView) {
-					@Override
-					public void onDrawShadow(Canvas canvas) {
-						Paint p = new Paint();
-						p.setColor(getResources().getColor(color.holo_blue_bright));
-						p.setAlpha(80);
-						p.setStrokeJoin(Join.ROUND);
-						canvas.drawRect(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight(), p);
-						shadowView.setAlpha(.75f);
-						shadowView.draw(canvas);
-						shadowView.setAlpha(1f);
-					}
-				};
-				startDrag(view, shadow);
-				return true;
-			}
-		});
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                    int position, long arg3) {
+                mNewPage = null;
+                final RemotePage view = mRemotePageAdapter.mRemotes.get(position);
+                ViewGroup parent = (ViewGroup) view.getParent();
+                while (R.id.remote_preview_layout != parent.getId() && null != parent) {
+                    parent = (ViewGroup) parent.getParent();
+                }
+                final View shadowView = parent;
+                View.DragShadowBuilder shadow = new View.DragShadowBuilder(shadowView) {
+                    @Override
+                    public void onDrawShadow(Canvas canvas) {
+                        Paint p = new Paint();
+                        p.setColor(getResources().getColor(color.holo_blue_bright));
+                        p.setAlpha(80);
+                        p.setStrokeJoin(Join.ROUND);
+                        canvas.drawRect(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight(), p);
+                        shadowView.setAlpha(.75f);
+                        shadowView.draw(canvas);
+                        shadowView.setAlpha(1f);
+                    }
+                };
+                startDrag(view, shadow);
+                return true;
+            }
+        });
 
         mRemotes = (HierarchicalListView) findViewById(R.id.remote_sources);
         mRemotes.setOnItemClickListener(new OnItemClickListener() {
@@ -342,13 +342,13 @@ public class RemotePageConfiguration extends Activity {
                     String brandId = ta.getAdapterId();
                     String modelId = ta.getActualId(position);
                     if (ta.getChildTable() == URPContract.TABLE_MODELS) {
-                    	mRemotes.setSelectedPosition(position);
-                    	RemotePageButtonSource page = new RemotePageButtonSource(RemotePageConfiguration.this);
-                    	
-                    	ScrollView sv = new ScrollView(RemotePageConfiguration.this);
-                    	page.setColumnCount(page.getColumnCount() - 2);
+                        mRemotes.setSelectedPosition(position);
+                        RemotePageButtonSource page = new RemotePageButtonSource(RemotePageConfiguration.this);
+
+                        ScrollView sv = new ScrollView(RemotePageConfiguration.this);
+                        page.setColumnCount(page.getColumnCount() - 2);
                         page.setCellSpacing(getResources().getDimensionPixelSize(R.dimen.cell_padding));
-                    	sv.addView(page);
+                        sv.addView(page);
                         mRevertHierarchyLevel = mHierarchyLevel;
                         mRemotes.addHierarchyView(sv);
                         page.loadButtons(authority, brandId, modelId);
@@ -387,15 +387,15 @@ public class RemotePageConfiguration extends Activity {
                         v.measure(w, h);
                         v.layout(0, 0, w, h);
                         startDrag(page, new View.DragShadowBuilder(v) {
-                			@Override
-                			public void onDrawShadow(Canvas canvas) {
-                				Paint p = new Paint();
-                				p.setColor(getResources().getColor(color.holo_blue_bright));
-                				p.setAlpha(80);
-                				p.setStrokeJoin(Join.ROUND);
-                				canvas.drawRect(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight(), p);
-                			}
-                		});
+                            @Override
+                            public void onDrawShadow(Canvas canvas) {
+                                Paint p = new Paint();
+                                p.setColor(getResources().getColor(color.holo_blue_bright));
+                                p.setAlpha(80);
+                                p.setStrokeJoin(Join.ROUND);
+                                canvas.drawRect(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight(), p);
+                            }
+                        });
                         page.setAlpha(0);
                         mNewPage = page;
                         mRemotePageAdapter.add(page);
@@ -409,154 +409,154 @@ public class RemotePageConfiguration extends Activity {
         });
         mHierarchyLevel = 0;
         mRemotes.setHierarchyLevelChangedListener(new OnHierarchyChangedListener() {
-			
-			@Override
-			public void onHierarchyChangedListener(int level) {
-				mHierarchyLevel = level;
-				if(level == mRevertHierarchyLevel) {
-					mMenuItemAddRemote.setVisible(false);
-				}
-			}
-		});
+
+            @Override
+            public void onHierarchyChangedListener(int level) {
+                mHierarchyLevel = level;
+                if (level == mRevertHierarchyLevel) {
+                    mMenuItemAddRemote.setVisible(false);
+                }
+            }
+        });
 
         // loaderManager = getLoaderManager();
         // loaderManager.initLoader(LOADER_BRAND, null, mLoaderHandler);
         mRemotes.addAdapter(new ProviderAdapter(this));
         mReader = new RemoteConfigurationReader(this);
-        
-        Uri uri = getIntent().getData();
-        if(null != uri) {
-        	mReader.open(uri, new RemotesLoadedListener() {
-				
-				@Override
-				public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
-					mFile = uri;
-					for(RemotePage page : pages) {
-						mRemotePageAdapter.add(page);
-					}
-				}
 
-				@Override
-				public void onRemoteLoadFailed(Throwable error) {
-					if(error instanceof FileNotFoundException) {
-						// Handle new configuration.
-					} else {
-						Toast.makeText(RemotePageConfiguration.this, error.getMessage(), Toast.LENGTH_LONG).show();
-					}
-				}
-			});
+        Uri uri = getIntent().getData();
+        if (null != uri) {
+            mReader.open(uri, new RemotesLoadedListener() {
+
+                @Override
+                public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
+                    mFile = uri;
+                    for (RemotePage page : pages) {
+                        mRemotePageAdapter.add(page);
+                    }
+                }
+
+                @Override
+                public void onRemoteLoadFailed(Throwable error) {
+                    if (error instanceof FileNotFoundException) {
+                        // Handle new configuration.
+                    } else {
+                        Toast.makeText(RemotePageConfiguration.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
         }
-        
+
         mTrashIcon = findViewById(R.id.icon_delete);
         final View label = findViewById(R.id.pages_label);
         label.setOnDragListener(new OnDragListener() {
-			
-			@Override
-			public boolean onDrag(View v, DragEvent event) {
-				if(event.getLocalState() instanceof RemotePage) {
-					switch(event.getAction()) {
-					case DragEvent.ACTION_DRAG_ENTERED:
-						label.setBackgroundColor(Color.argb(0x88, 255, 0, 0));
-						break;
-					case DragEvent.ACTION_DRAG_STARTED:
-						mTrashIcon.setVisibility(View.VISIBLE);
-					case DragEvent.ACTION_DRAG_EXITED:
-						label.setBackgroundColor(Color.argb(0x44, 255, 0, 0));
-						break;
-					case DragEvent.ACTION_DRAG_ENDED:
-						mTrashIcon.setVisibility(View.GONE);
-						label.setBackgroundColor(Color.argb(0x44, 0xcc, 0xcc, 0xcc));							
-						break;
-					case DragEvent.ACTION_DROP:
-						mRemotePageAdapter.remove((RemotePage) event.getLocalState());
-						break;
-					}
-					return true;
-				}
-				return false;
-			}
-		});
-        
+
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                if (event.getLocalState() instanceof RemotePage) {
+                    switch(event.getAction()) {
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        label.setBackgroundColor(Color.argb(0x88, 255, 0, 0));
+                        break;
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        mTrashIcon.setVisibility(View.VISIBLE);
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        label.setBackgroundColor(Color.argb(0x44, 255, 0, 0));
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        mTrashIcon.setVisibility(View.GONE);
+                        label.setBackgroundColor(Color.argb(0x44, 0xcc, 0xcc, 0xcc));
+                        break;
+                    case DragEvent.ACTION_DROP:
+                        mRemotePageAdapter.remove((RemotePage) event.getLocalState());
+                        break;
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
         mList.setOnDragListener(new OnDragListener() {
-			
-			@Override
-			public boolean onDrag(View v, DragEvent event) {
-				if(event.getLocalState() instanceof RemotePage) {
-					RemotePage page = (RemotePage) event.getLocalState();
-					switch(event.getAction()) {
-					case DragEvent.ACTION_DRAG_ENTERED: 
-					if (page == mNewPage) {
-						page.setAlpha(.5f);
-						mRemotePageAdapter.notifyDataSetChanged();
-						break;
-					}
-					case DragEvent.ACTION_DRAG_EXITED: 
-					if (page == mNewPage) {
-						page.setAlpha(0f);
-						mRemotePageAdapter.notifyDataSetChanged();
-						break;
-					}
-					case DragEvent.ACTION_DRAG_LOCATION: {
-						float buffer = v.getWidth() / 2.0f;
-						if(event.getX() < buffer) {
-							mList.scrollBy(10);
-						} else if(event.getX() > mList.getWidth() - buffer) {
-							mList.scrollBy(-10);
-						}
-						float x = event.getX() - mList.getScrollX();
 
-						ViewGroup parent = getParent(page.getParent());
-						if(null != parent && (x < parent.getLeft() || x > parent.getRight())) {
-							int idx = mRemotePageAdapter.mRemotes.indexOf(page);
-							for(int i = mList.getFirstVisiblePosition(); idx >= 0 && i <= mList.getLastVisiblePosition(); i++) {
-								if(i != idx) {
-									parent = getParent(mList.getItemAtPosition(i));
-									if(x < parent.getLeft() + buffer / 2.0f && idx > i && idx > 0) {
-										mRemotePageAdapter.swap(idx, i);
-										break;
-									} else if(x > parent.getRight() - buffer / 2.0f && idx < i) {
-										mRemotePageAdapter.swap(idx, i);
-										break;
-									}
-								}
-							}
-						}
-						break;
-					}
-					case DragEvent.ACTION_DRAG_STARTED:
-						break;
-					case DragEvent.ACTION_DRAG_ENDED: 
-						if (page == mNewPage) {
-							if(page.getAlpha() < 1) {
-								mRemotePageAdapter.remove(page);
-							}
-							break;
-						}
-					case DragEvent.ACTION_DROP: 
-					if (page == mNewPage) {
-							page.setAlpha(1.0f);
-							mRemotePageAdapter.notifyDataSetChanged();
-							break;
-						}
-					}
-					return true;
-				}
-				return false;
-			}
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                if (event.getLocalState() instanceof RemotePage) {
+                    RemotePage page = (RemotePage) event.getLocalState();
+                    switch(event.getAction()) {
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                    if (page == mNewPage) {
+                        page.setAlpha(.5f);
+                        mRemotePageAdapter.notifyDataSetChanged();
+                        break;
+                    }
+                    case DragEvent.ACTION_DRAG_EXITED:
+                    if (page == mNewPage) {
+                        page.setAlpha(0f);
+                        mRemotePageAdapter.notifyDataSetChanged();
+                        break;
+                    }
+                    case DragEvent.ACTION_DRAG_LOCATION: {
+                        float buffer = v.getWidth() / 2.0f;
+                        if (event.getX() < buffer) {
+                            mList.scrollBy(10);
+                        } else if (event.getX() > mList.getWidth() - buffer) {
+                            mList.scrollBy(-10);
+                        }
+                        float x = event.getX() - mList.getScrollX();
 
-			private ViewGroup getParent(Object p) {
-				ViewGroup parent = ((ViewGroup) p);
-				while(null != parent && parent.getId() != R.id.remote_preview_layout)
-					parent = (ViewGroup) parent.getParent();
-				return parent;
-			}
-		});
+                        ViewGroup parent = getParent(page.getParent());
+                        if (null != parent && (x < parent.getLeft() || x > parent.getRight())) {
+                            int idx = mRemotePageAdapter.mRemotes.indexOf(page);
+                            for (int i = mList.getFirstVisiblePosition(); idx >= 0 && i <= mList.getLastVisiblePosition(); i++) {
+                                if (i != idx) {
+                                    parent = getParent(mList.getItemAtPosition(i));
+                                    if (x < parent.getLeft() + buffer / 2.0f && idx > i && idx > 0) {
+                                        mRemotePageAdapter.swap(idx, i);
+                                        break;
+                                    } else if (x > parent.getRight() - buffer / 2.0f && idx < i) {
+                                        mRemotePageAdapter.swap(idx, i);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        if (page == mNewPage) {
+                            if (page.getAlpha() < 1) {
+                                mRemotePageAdapter.remove(page);
+                            }
+                            break;
+                        }
+                    case DragEvent.ACTION_DROP:
+                    if (page == mNewPage) {
+                            page.setAlpha(1.0f);
+                            mRemotePageAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            private ViewGroup getParent(Object p) {
+                ViewGroup parent = ((ViewGroup) p);
+                while (null != parent && parent.getId() != R.id.remote_preview_layout)
+                    parent = (ViewGroup) parent.getParent();
+                return parent;
+            }
+        });
     }
 
-	private void startDrag(RemotePage page,
-			DragShadowBuilder shadow) {
-		mList.startDrag(ClipData.newPlainText("label", page.getTitle()), shadow, page, 0);
-	}
+    private void startDrag(RemotePage page,
+            DragShadowBuilder shadow) {
+        mList.startDrag(ClipData.newPlainText("label", page.getTitle()), shadow, page, 0);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -571,7 +571,7 @@ public class RemotePageConfiguration extends Activity {
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch(item.getItemId()) {
         case R.id.action_save:
-        	ParcelFileDescriptor fd = null;
+            ParcelFileDescriptor fd = null;
             FileOutputStream fos = null;
             try {
                 fd = getContentResolver().openFileDescriptor(mFile, "w");
@@ -593,14 +593,14 @@ public class RemotePageConfiguration extends Activity {
             finish();
             return true;
         case R.id.action_remote:
-        	if(null != mCurrentPage) {
-        		ModelInfo info = (ModelInfo) mCurrentPage.getTag();
+            if (null != mCurrentPage) {
+                ModelInfo info = (ModelInfo) mCurrentPage.getTag();
                 ScalePreviewView v = new ScalePreviewView(RemotePageConfiguration.this);
                 RemotePage page = new RemotePage(RemotePageConfiguration.this);
                 page.loadButtons(info.authority, info.brandId, info.modelId);
                 page.setTitle(mCurrentPage.getTitle());
-        		mRemotePageAdapter.add(page);
-        	}
+                mRemotePageAdapter.add(page);
+            }
             return true;
         }
         return super.onMenuItemSelected(featureId, item);

@@ -6,5 +6,5 @@ import android.os.Environment;
 
 public class Constants {
     public static final File REMOTE_FILE = new File(Environment.getExternalStorageDirectory(), "UniversalRemote/remote.xml");
-	public static final String AUTHORITY_FILE_PROVIDER = "com.doubtech.universalremote.fileprovider";
+    public static final String AUTHORITY_FILE_PROVIDER = "com.doubtech.universalremote.fileprovider";
 }

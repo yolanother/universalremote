@@ -17,8 +17,8 @@ import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 
 public class Button {
-	private static ConcurrentHashMap<Button, Button> mButtonCache = new ConcurrentHashMap<Button, Button>();
-	
+    private static ConcurrentHashMap<Button, Button> mButtonCache = new ConcurrentHashMap<Button, Button>();
+
     protected String mAuthority;
     protected String mBrandId;
     protected String mModelId;
@@ -28,9 +28,9 @@ public class Button {
     protected HashMap<String, String> mInternalData = new HashMap<String, String>();
 
     protected Button() {
-    	mBrandId = "";
-    	mModelId = "";
-    	mButtonId = "";
+        mBrandId = "";
+        mModelId = "";
+        mButtonId = "";
     }
 
     public Button(String authority, String brandId, String modelId, String buttonId) {
@@ -105,7 +105,7 @@ public class Button {
     }
 
     private static Button fromJson(AbstractJsonUniversalRemoteProvider provider, String authority, JSONObject obj) throws JSONException {
-    	Button button = new Button();
+        Button button = new Button();
         button.mAuthority = authority;
         button.mBrandId = obj.getString("brandId");
         button.mModelId = obj.getString("modelId");
@@ -114,9 +114,9 @@ public class Button {
         button.mButtonIdentifier = ButtonIdentifier.getKnownButton(obj.getString("buttonName"));
         provider.onPutExtras(button, obj);
         return button;
-	}
+    }
 
-	public Object[] toRow() {
+    public Object[] toRow() {
         Object[] row = new Object[URPContract.Buttons.ALL.length];
         row[Buttons.COLIDX_ID] = getButtonId().hashCode();
         row[Buttons.COLIDX_AUTHORITY] = getAuthority();
@@ -182,24 +182,24 @@ public class Button {
         return false;
     }
 
-	public Uri getUri() {
-		return URPContract.getButtonUri(
-				getAuthority(),
-				getBrandId(),
-				getModelId(),
-				getButtonId());
-	}
-	
-	public static Button getCachedButton(String authority, String brandId, String modelId, String buttonId) {
-		return mButtonCache.get(new Button(authority, brandId, modelId, buttonId));
-	}
+    public Uri getUri() {
+        return URPContract.getButtonUri(
+                getAuthority(),
+                getBrandId(),
+                getModelId(),
+                getButtonId());
+    }
 
-	public static Button getCachedButton(Button button) {
-		Button b = mButtonCache.get(button);
-		if(null == b) {
-			b = button;
-			mButtonCache.put(b, b);
-		}
-		return b;
-	}
+    public static Button getCachedButton(String authority, String brandId, String modelId, String buttonId) {
+        return mButtonCache.get(new Button(authority, brandId, modelId, buttonId));
+    }
+
+    public static Button getCachedButton(Button button) {
+        Button b = mButtonCache.get(button);
+        if (null == b) {
+            b = button;
+            mButtonCache.put(b, b);
+        }
+        return b;
+    }
 }

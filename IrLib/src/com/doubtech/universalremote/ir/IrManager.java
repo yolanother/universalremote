@@ -10,7 +10,7 @@ import android.util.Log;
 
 public abstract class IrManager {
     public static final String TAG = "IrManager";
-    
+
     public static final int PRONTO_HEADER_BLOCK_LENGTH = 4;
 
     private static IrManager mInstance;

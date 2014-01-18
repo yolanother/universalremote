@@ -55,11 +55,11 @@ public class ProviderAdapter extends BaseAdapter {
     public Object getItem(int position) {
         final String authority = mProviders.get(position).getAuthority();
         SimpleCursorLoader loader = new SimpleCursorLoader() {
-			@Override
-			public Cursor loadCursor() {
-				return BaseAbstractUniversalRemoteProvider.queryBrands(mContext, authority);
-			}
-		};
+            @Override
+            public Cursor loadCursor() {
+                return BaseAbstractUniversalRemoteProvider.queryBrands(mContext, authority);
+            }
+        };
         return new TextAdapter(
                 mContext,
                 null,

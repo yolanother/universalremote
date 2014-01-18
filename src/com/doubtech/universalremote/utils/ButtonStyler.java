@@ -12,8 +12,8 @@ public class ButtonStyler {
     public static final int[] NAME_ICON_IDS = new int[ButtonIdentifier.NAME_PATTERN_STRINGS.length];
 
     private static final HashMap<String, String> sButtonLabels = new HashMap<String, String>();
-	
-	static {
+
+    static {
 
         NAME_LABEL_IDS[ButtonIds.BUTTON_VOLUME_UP] = R.string.button_volume_up;
         NAME_LABEL_IDS[ButtonIds.BUTTON_VOLUME_DOWN] = R.string.button_volume_down;
@@ -109,7 +109,7 @@ public class ButtonStyler {
         NAME_ICON_IDS[ButtonIds.BUTTON_PREVIOUS] = R.drawable.button_previous;
         NAME_ICON_IDS[ButtonIds.BUTTON_SOURCE] = R.drawable.button_input_source;
         NAME_ICON_IDS[ButtonIds.BUTTON_DOT] = R.drawable.button_dot;
-	}
+    }
 
     public static String getLabel(Resources res, String label) {
         Integer definedLabel = ButtonIdentifier.getKnownButton(label);
@@ -137,10 +137,10 @@ public class ButtonStyler {
         return getIconId(buttonId);
     }
 
-	private static int getIconId(Integer buttonId) {
-		if (null != buttonId && buttonId < NAME_ICON_IDS.length) {
+    private static int getIconId(Integer buttonId) {
+        if (null != buttonId && buttonId < NAME_ICON_IDS.length) {
             return NAME_ICON_IDS[buttonId];
         }
         return 0;
-	}
+    }
 }

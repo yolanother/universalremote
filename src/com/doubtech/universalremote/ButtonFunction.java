@@ -63,17 +63,17 @@ public class ButtonFunction extends ButtonFunctionSet implements Parcelable {
     public void getIcon(final Context context, final IconLoaderListener listener) {
         if (null == mButtonIcon) {
             BaseAbstractUniversalRemoteProvider.loadIcon(context,
-            		new Button(getAuthority(), getBrandId(), getModelId(), getId()),
-            		new IconLoaderListener() {
-		                @Override
-		                public void onIconLoaded(Bitmap bitmap) {
-		                    mButtonIcon = bitmap;
-		                    listener.onIconLoaded(bitmap);
-		                    while (mLoadedListeners.size() > 0) {
-		                        mLoadedListeners.poll().onIconLoaded(bitmap);
-		                    }
-		                }
-		            });
+                    new Button(getAuthority(), getBrandId(), getModelId(), getId()),
+                    new IconLoaderListener() {
+                        @Override
+                        public void onIconLoaded(Bitmap bitmap) {
+                            mButtonIcon = bitmap;
+                            listener.onIconLoaded(bitmap);
+                            while (mLoadedListeners.size() > 0) {
+                                mLoadedListeners.poll().onIconLoaded(bitmap);
+                            }
+                        }
+                    });
         } else {
             listener.onIconLoaded(mButtonIcon);
         }

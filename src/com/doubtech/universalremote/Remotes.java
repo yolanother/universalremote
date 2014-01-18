@@ -44,7 +44,7 @@ public class Remotes extends FragmentActivity {
      */
     ViewPager mViewPager;
 
-	private Uri mFile;
+    private Uri mFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +63,8 @@ public class Remotes extends FragmentActivity {
         Constants.REMOTE_FILE.getParentFile().mkdirs();
 
         mFile = FileProvider.getUriForFile(this,
-        		Constants.AUTHORITY_FILE_PROVIDER,
-        		Constants.REMOTE_FILE);
+                Constants.AUTHORITY_FILE_PROVIDER,
+                Constants.REMOTE_FILE);
     }
 
     @Override
@@ -83,8 +83,8 @@ public class Remotes extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-        	Intent intent = new Intent(this, RemotePageConfiguration.class);
-        	intent.setData(mFile);
+            Intent intent = new Intent(this, RemotePageConfiguration.class);
+            intent.setData(mFile);
             startActivityForResult(intent, REQUEST_CONFIGURE);
         }
         return super.onOptionsItemSelected(item);
@@ -97,7 +97,7 @@ public class Remotes extends FragmentActivity {
         }
     }
 
-	/**
+    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
@@ -109,25 +109,25 @@ public class Remotes extends FragmentActivity {
         }
 
         public void open(Uri file) {
-        	mFile = file;
+            mFile = file;
             mPages.clear();
             notifyDataSetChanged();
             RemoteConfigurationReader reader = new RemoteConfigurationReader(Remotes.this);
             reader.open(file, new RemotesLoadedListener() {
-				
-				@Override
-				public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
-					for(RemotePage page : pages) {
-						mPages.add(page);
-						notifyDataSetChanged();
-					}
-				}
-				
-				@Override
-				public void onRemoteLoadFailed(Throwable error) {
-					Toast.makeText(Remotes.this, error.getMessage(), Toast.LENGTH_LONG).show();
-				}
-			});
+
+                @Override
+                public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
+                    for (RemotePage page : pages) {
+                        mPages.add(page);
+                        notifyDataSetChanged();
+                    }
+                }
+
+                @Override
+                public void onRemoteLoadFailed(Throwable error) {
+                    Toast.makeText(Remotes.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
         }
 
         @Override
@@ -177,8 +177,8 @@ public class Remotes extends FragmentActivity {
             if (null != mPage) {
                 mPage.setCellSpacing(getResources().getDimensionPixelSize(R.dimen.cell_padding));
                 ViewGroup parent = (ViewGroup) mPage.getParent();
-                if(null != parent) {
-                	parent.removeView(mPage);
+                if (null != parent) {
+                    parent.removeView(mPage);
                 }
                 mRootView.addView(mPage);
             }

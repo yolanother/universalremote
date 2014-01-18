@@ -34,8 +34,8 @@ public class DropGridLayout<T> extends RelativeLayout {
     private int mCellSpaceTop;
     private int mCellSpaceRight;
     private int mCellSpaceBottom;
-	private Class<?> mDropFilter;
-	private boolean mDragEnabled;
+    private Class<?> mDropFilter;
+    private boolean mDragEnabled;
 
     public DropGridLayout(Context context) {
         super(context);
@@ -62,15 +62,15 @@ public class DropGridLayout<T> extends RelativeLayout {
     public int getRowCount() {
         return ROW_COUNT;
     }
-    
+
     public void setColumnCount(int colCount) {
-    	COL_COUNT = colCount;
-    	requestLayout();
+        COL_COUNT = colCount;
+        requestLayout();
     }
-    
+
     public void setRowCount(int rowCount) {
-    	ROW_COUNT = rowCount;
-    	requestLayout();
+        ROW_COUNT = rowCount;
+        requestLayout();
     }
 
     @Override
@@ -142,20 +142,20 @@ public class DropGridLayout<T> extends RelativeLayout {
         params.topMargin = (int) (spec.row * mCellHeight);
         view.setLayoutParams(params);
     }*/
-    
+
     public void setDropFilter(Class<?> filter) {
-    	mDropFilter = filter;
+        mDropFilter = filter;
     }
-    
+
     public void setDragEnabled(boolean dragEnabled) {
-    	mDragEnabled = dragEnabled;
+        mDragEnabled = dragEnabled;
     }
 
     @Override
     public boolean onDragEvent(DragEvent event) {
-    	if(!mDragEnabled || null == event.getLocalState()) {
-    		return false;
-    	}
+        if (!mDragEnabled || null == event.getLocalState()) {
+            return false;
+        }
         switch(event.getAction()) {
         case DragEvent.ACTION_DRAG_ENTERED:
         case DragEvent.ACTION_DRAG_LOCATION:
@@ -168,25 +168,25 @@ public class DropGridLayout<T> extends RelativeLayout {
             break;
         case DragEvent.ACTION_DROP:
             View view = (View) event.getLocalState();
-            if(null == view.getParent() || view.getParent() == this) {
-	            Point cell = calculateCell(event.getX(), event.getY());
-	            mDragShadow = null;
-	            invalidate();
-	            ChildSpec spec = getChildSpec(view);
-	            if (null == spec) {
-	                int width = view.getMeasuredWidth();
-	                int height = view.getMeasuredHeight();
-	                width = (int) Math.max(Math.ceil(width / (float) mCellWidth), 1);
-	                height = (int) Math.max(Math.ceil(height / (float) mCellHeight), 1);
-	                spec = new ChildSpec(cell.y, cell.x, width, height);
-	            } else {
-	                spec.row = cell.y;
-	                spec.col = cell.x;
-	            }
-	            if(null != view.getParent()) {
-	            	removeView(view);
-	            }
-	            addView(view, spec);
+            if (null == view.getParent() || view.getParent() == this) {
+                Point cell = calculateCell(event.getX(), event.getY());
+                mDragShadow = null;
+                invalidate();
+                ChildSpec spec = getChildSpec(view);
+                if (null == spec) {
+                    int width = view.getMeasuredWidth();
+                    int height = view.getMeasuredHeight();
+                    width = (int) Math.max(Math.ceil(width / (float) mCellWidth), 1);
+                    height = (int) Math.max(Math.ceil(height / (float) mCellHeight), 1);
+                    spec = new ChildSpec(cell.y, cell.x, width, height);
+                } else {
+                    spec.row = cell.y;
+                    spec.col = cell.x;
+                }
+                if (null != view.getParent()) {
+                    removeView(view);
+                }
+                addView(view, spec);
             }
             break;
         }

@@ -33,9 +33,9 @@ public class HierarchicalListView extends FrameLayout {
         boolean onItemClick(AdapterView<?> adapterView, View view, int position,
                 long id);
     }
-    
+
     public static interface OnHierarchyChangedListener {
-    	void onHierarchyChangedListener(int level);
+        void onHierarchyChangedListener(int level);
     }
 
     private List<Adapter> mAdapters;
@@ -44,8 +44,8 @@ public class HierarchicalListView extends FrameLayout {
     private int mOffsetWidth;
     private TimeInterpolator mInterpolator;
     private OnItemLongClickListener mItemLongClickListener;
-	private OnHierarchyChangedListener mHierarchyChangedListener;
-	private boolean mClosing;
+    private OnHierarchyChangedListener mHierarchyChangedListener;
+    private boolean mClosing;
 
     public HierarchicalListView(Context context) {
         super(context);
@@ -211,11 +211,11 @@ public class HierarchicalListView extends FrameLayout {
             @Override
             public boolean onTouchEvent(MotionEvent event) {
 
-            	return true;
+                return true;
             }
         };
         layout.addView(view);
-        
+
         completeAddHierarchyView(layout);
     }
 
@@ -353,16 +353,16 @@ public class HierarchicalListView extends FrameLayout {
             }
         }
 
-        if(null != mHierarchyChangedListener) {
-        	mHierarchyChangedListener.onHierarchyChangedListener(getChildCount() - 1);
+        if (null != mHierarchyChangedListener) {
+            mHierarchyChangedListener.onHierarchyChangedListener(getChildCount() - 1);
         }
     }
 
     public boolean closeTopView() {
-    	if(mClosing) return false;
+        if (mClosing) return false;
         boolean closed = false;
         if (getChildCount() > 2) {
-        	mClosing = true;
+            mClosing = true;
             final View v = getChildAt(getChildCount() - 1);
             v.animate()
                 .translationX(getWidth())
@@ -383,9 +383,9 @@ public class HierarchicalListView extends FrameLayout {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                    	if(null != mHierarchyChangedListener) {
-                    		mHierarchyChangedListener.onHierarchyChangedListener(getChildCount() - 2);
-                    	}
+                        if (null != mHierarchyChangedListener) {
+                            mHierarchyChangedListener.onHierarchyChangedListener(getChildCount() - 2);
+                        }
                         removeView(v);
                         if (v instanceof ListView) {
                             mAdapters.remove(((ListView)v).getAdapter());
@@ -398,7 +398,7 @@ public class HierarchicalListView extends FrameLayout {
 
                     @Override
                     public void onAnimationCancel(Animator animation) {
-                    	mClosing = false;
+                        mClosing = false;
                     }
                 })
                 .start();
@@ -435,14 +435,14 @@ public class HierarchicalListView extends FrameLayout {
         mItemLongClickListener = listener;
     }
 
-	public void setSelectedPosition(int position) {
-		View v = getChildAt(getChildCount() - 1);
-		if(v instanceof InternalListView) {
-			((InternalListView) v).getSelectionAdapter().setSelectedPosition(position);
-		}
-	}
-	
-	public void setHierarchyLevelChangedListener(OnHierarchyChangedListener listener) {
-		mHierarchyChangedListener =  listener;
-	}
+    public void setSelectedPosition(int position) {
+        View v = getChildAt(getChildCount() - 1);
+        if (v instanceof InternalListView) {
+            ((InternalListView) v).getSelectionAdapter().setSelectedPosition(position);
+        }
+    }
+
+    public void setHierarchyLevelChangedListener(OnHierarchyChangedListener listener) {
+        mHierarchyChangedListener =  listener;
+    }
 }

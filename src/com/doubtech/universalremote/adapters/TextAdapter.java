@@ -158,10 +158,10 @@ public class TextAdapter extends CursorAdapter {
         return super.swapCursor(newCursor);
     }
 
-	public CharSequence getText(int position) {
-		Cursor cursor = getCursor();
-		cursor.moveToPosition(position);
+    public CharSequence getText(int position) {
+        Cursor cursor = getCursor();
+        cursor.moveToPosition(position);
         initializeColumns(cursor);
         return cursor.getString(mLabelColIndex);
-	}
+    }
 }

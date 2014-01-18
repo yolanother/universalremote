@@ -27,63 +27,63 @@ import com.doubtech.universalremote.widget.RemotePage;
 
 public class RemoteConfigurationReader {
     private static final String TAG = "UniversalRemote :: RemoteConfigurationReader";
-    
+
     public interface RemotesLoadedListener {
-    	void onRemotesLoaded(Uri uri, List<RemotePage> pages);
-    	void onRemoteLoadFailed(Throwable error);
+        void onRemotesLoaded(Uri uri, List<RemotePage> pages);
+        void onRemoteLoadFailed(Throwable error);
     }
-    
+
     private class ErrorRunnable implements Runnable {
 
-		private Throwable mError;
-		private RemotesLoadedListener mListener;
+        private Throwable mError;
+        private RemotesLoadedListener mListener;
 
-		public ErrorRunnable(RemotesLoadedListener listener,
-				Throwable e) {
-			mError = e;
-			mListener = listener;
-		}
+        public ErrorRunnable(RemotesLoadedListener listener,
+                Throwable e) {
+            mError = e;
+            mListener = listener;
+        }
 
-		@Override
-		public void run() {
-			mListener.onRemoteLoadFailed(mError);
-		}
+        @Override
+        public void run() {
+            mListener.onRemoteLoadFailed(mError);
+        }
     }
-    
+
     private static ExecutorService sLoaderService = Executors.newSingleThreadExecutor();
-	private Handler mHandler;
-	private Context mContext;
+    private Handler mHandler;
+    private Context mContext;
 
     public RemoteConfigurationReader(Context context) {
-    	mContext = context;
-    	mHandler = new Handler();
+        mContext = context;
+        mHandler = new Handler();
     }
 
     public void open(final Uri uri, final RemotesLoadedListener listener) {
-    	sLoaderService.execute(new Runnable() {
-    		@Override
-    		public void run() {
-    	    	try {
-    				ParcelFileDescriptor fd = mContext.getContentResolver().openFileDescriptor(uri, "r");
-    				final List<RemotePage> pages = read(new FileInputStream(fd.getFileDescriptor()));
-    				mHandler.post(new Runnable() {
-						
-						@Override
-						public void run() {
-							listener.onRemotesLoaded(uri, pages);
-						}
-					});
-    			} catch (FileNotFoundException e) {
-    				mHandler.post(new ErrorRunnable(listener, e));
-    			} catch (ParserConfigurationException e) {
-    				mHandler.post(new ErrorRunnable(listener, e));
-				} catch (SAXException e) {
-    				mHandler.post(new ErrorRunnable(listener, e));
-				} catch (IOException e) {
-    				mHandler.post(new ErrorRunnable(listener, e));
-				}
-    		}
-    	});
+        sLoaderService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ParcelFileDescriptor fd = mContext.getContentResolver().openFileDescriptor(uri, "r");
+                    final List<RemotePage> pages = read(new FileInputStream(fd.getFileDescriptor()));
+                    mHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            listener.onRemotesLoaded(uri, pages);
+                        }
+                    });
+                } catch (FileNotFoundException e) {
+                    mHandler.post(new ErrorRunnable(listener, e));
+                } catch (ParserConfigurationException e) {
+                    mHandler.post(new ErrorRunnable(listener, e));
+                } catch (SAXException e) {
+                    mHandler.post(new ErrorRunnable(listener, e));
+                } catch (IOException e) {
+                    mHandler.post(new ErrorRunnable(listener, e));
+                }
+            }
+        });
     }
 
     public List<RemotePage> read(InputStream stream) throws ParserConfigurationException, SAXException, IOException {

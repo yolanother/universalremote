@@ -80,7 +80,7 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
             throws FileNotFoundException {
         switch (mUriMatcher.match(uri)) {
         case URPContract.TABLE_BUTTONS:
-        	Button button = Button.fromUri(uri);
+            Button button = Button.fromUri(uri);
             return openButtonIconAsset(button);
         }
         return null;
@@ -91,17 +91,17 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
             throws FileNotFoundException {
         switch (mUriMatcher.match(uri)) {
             case URPContract.TABLE_BUTTONS:
-            	Button button = Button.fromUri(uri);
+                Button button = Button.fromUri(uri);
                 return openButtonIcon(button);
         }
         return null;
     }
 
     ParcelFileDescriptor openButtonIcon(Button button) throws FileNotFoundException {
-    	File file = getIconFile(button);
-    	if(null != file) {
-    		return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-    	}
+        File file = getIconFile(button);
+        if (null != file) {
+            return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+        }
         return null;
     }
 
@@ -111,12 +111,12 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
      * @return Returns 0 if there is no resource icon for this button or the R.drawable id
      */
     public int getIconId(Button button) {
-    	return 0;
+        return 0;
     }
 
     /**
      * Gets a file path for an image to be used as a button label.
-     * 
+     *
      * NOTE:
      * This will be passed through the provider system so the icon can be in the
      * application's data directory.
@@ -124,7 +124,7 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
      * @return Returns null if no file is found for this button or the path to the file
      */
     public File getIconFile(Button button) {
-    	return null;
+        return null;
     }
 
     AssetFileDescriptor openButtonIconAsset(Button button) {
@@ -370,10 +370,10 @@ public abstract class BaseAbstractUniversalRemoteProvider extends ContentProvide
 
     private static String getIconCacheKey(Button button) {
         return (button.getAuthority() + "." +
-        		button.getBrandId() + "." +
-        		button.getModelId() + "." +
-        		button.getButtonId()
-        		).replaceAll("[^a-zA-Z0-9_-]", "_");
+                button.getBrandId() + "." +
+                button.getModelId() + "." +
+                button.getButtonId()
+                ).replaceAll("[^a-zA-Z0-9_-]", "_");
     }
 
     public static void loadIcon(final Context context, final Button button,
