@@ -38,6 +38,7 @@ public class RemoteDpad extends View implements IRemoteView {
     private Drawable mOkDrawable;
 
     private Paint mPathPaint;
+	private boolean mRepeating;
 
     public RemoteDpad(Context context) {
         super(context);
@@ -232,6 +233,14 @@ public class RemoteDpad extends View implements IRemoteView {
         }
     }
 
+    public boolean isRepeating() {
+        return mRepeating;
+    }
+
+    public void setRepeating(boolean shouldRepeat) {
+        mRepeating = shouldRepeat;
+    }
+
     @Override
     public void writeXml(XmlSerializer xml, ChildSpec spec) throws IllegalArgumentException, IllegalStateException, IOException {
         xml.startTag("", XMLTAG);
@@ -271,6 +280,9 @@ public class RemoteDpad extends View implements IRemoteView {
         dpad.setLeftButton(ButtonFunctionSet.fromXml(context, "left", item));
         dpad.setRightButton(ButtonFunctionSet.fromXml(context, "right", item));
         dpad.setOkButton(ButtonFunctionSet.fromXml(context, "ok", item));
+        if (!item.hasAttribute("repeating") || !Boolean.parseBoolean(item.getAttribute("repeating"))) {
+            dpad.setRepeating(false);
+        }
         return dpad;
     }
 }
