@@ -38,7 +38,7 @@ public class RemoteDpad extends View implements IRemoteView {
     private Drawable mOkDrawable;
 
     private Paint mPathPaint;
-	private boolean mRepeating;
+    private boolean mRepeating;
 
     public RemoteDpad(Context context) {
         super(context);

@@ -10,6 +10,7 @@ import java.net.URL;
 import android.content.Context;
 import android.util.Log;
 
+import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.utils.IOUtil;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.jakewharton.disklrucache.DiskLruCache.Editor;
@@ -83,39 +84,14 @@ public abstract class HttpJsonRetreiver implements JsonRetreiver {
     }
 
     @Override
-    public String getButtonsJson(String brandId, String modelId) {
+    public String getJson(Parent parent) {
         try {
-            return get(getButtonsUrl(brandId, modelId));
+            return get(getUrl(parent));
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         }
         return "";
     }
 
-    protected abstract URL getButtonsUrl(String brandId, String modelId);
-
-    @Override
-    public String getModelsJson(String brandId) {
-        try {
-            return get(getModelsUrl(brandId));
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return "";
-    }
-
-    public abstract URL getModelsUrl(String brandId);
-
-    @Override
-    public String getBrandsJson() {
-        try {
-            return get(getBrandsUrl());
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return "";
-    }
-
-    public abstract URL getBrandsUrl();
-
+    protected abstract URL getUrl(Parent parent);
 }

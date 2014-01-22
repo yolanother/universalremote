@@ -22,7 +22,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.doubtech.universalremote.ButtonFunction;
-import com.doubtech.universalremote.providers.URPContract.Buttons;
+import com.doubtech.universalremote.providers.providerdo.Button;
+import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.ui.IRemoteView;
 import com.doubtech.universalremote.ui.RemoteButton;
 import com.doubtech.universalremote.ui.RemoteDpad;
@@ -59,7 +60,7 @@ public class RemotePage extends DropGridLayout {
         super(context, attrs);
     }
 
-    public void loadButtons(String authority, String brandId, String modelId) {
+    public void loadButtons(Parent parent) {
         removeAllViews();
         addView(new ProgressBar(getContext()), new ChildSpec(0, 0, getRowCount(), getColumnCount()));
         new ButtonLoaderTask(getContext()) {
@@ -68,7 +69,7 @@ public class RemotePage extends DropGridLayout {
                 removeAllViews();
                 new RemotePageBuilder(RemotePage.this).build(result);
             }
-        }.execute(authority, brandId, modelId);
+        }.execute(parent);
     }
 
     public static class RemotePageBuilder {
@@ -100,8 +101,7 @@ public class RemotePage extends DropGridLayout {
 
             if (null != buttonCursor && buttonCursor.moveToFirst()) {
                 do {
-                    String authority = buttonCursor.getString(Buttons.COLIDX_AUTHORITY);
-                    ButtonFunction button = new ButtonFunction(mPage.getContext(), authority, buttonCursor);
+                    ButtonFunction button = new ButtonFunction(mPage.getContext(), (Button) Parent.fromCursor(buttonCursor));
                     int buttonIdentifier = button.getButtonIdentifier();
                     if (ButtonIds.BUTTON_UNKNOWN != buttonIdentifier) {
                         identifiedButtons.put(buttonIdentifier, button);

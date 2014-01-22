@@ -4,9 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 
-import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.providerdo.Parent;
 
-public class ButtonLoaderTask extends AsyncTask<String, Void, Cursor> {
+public class ButtonLoaderTask extends AsyncTask<Parent, Void, Cursor> {
     private Context mContext;
 
     public ButtonLoaderTask(Context context) {
@@ -14,15 +15,8 @@ public class ButtonLoaderTask extends AsyncTask<String, Void, Cursor> {
     }
 
     @Override
-    protected Cursor doInBackground(String... params) {
-        String authority = params[0];
-        String brandId = params[1];
-        String modelId = params[2];
+    protected Cursor doInBackground(Parent... params) {
 
-        return BaseAbstractUniversalRemoteProvider.queryButtons(mContext, authority, brandId, modelId);
-    }
-
-    public void execute(String authority, String brandId, String modelId) {
-        super.execute(authority, brandId, modelId);
+        return AbstractUniversalRemoteProvider.query(mContext, params[0]);
     }
 }

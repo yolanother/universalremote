@@ -45,13 +45,15 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!--
+
         <provider
             android:name="com.doubtech.universalremote.providers.irremotes.IrRemoteProvider"
             android:authorities="com.doubtech.universalremote.providers.irremotes.LircProvider"
             android:enabled="true"
             android:exported="true"
             android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
-        </provider>
+        </provider> -->
 
         <provider
             android:name="com.doubtech.universalremote.providers.irremotes.RemoteCentralProvider"

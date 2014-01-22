@@ -8,7 +8,7 @@ import android.util.SparseArray;
 
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.ir.IrManager;
-import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Brands;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Buttons;
@@ -17,8 +17,8 @@ import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.utils.ButtonStyler;
 import com.doubtech.universalremote.utils.StringUtils;
 
-public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
-    private static final String TAG = "UniversalRemote : IrRemoteProvider";
+public class IrRemoteProvider /*extends AbstractUniversalRemoteProvider*/ {
+    private static final String TAG = "UniversalRemote : IrRemoteProvider";/*
 
     public static final String AUTHORITY = "com.doubtech.universalremote.providers.irremotes.LircProvider";
 
@@ -255,5 +255,5 @@ public class IrRemoteProvider extends BaseAbstractUniversalRemoteProvider {
     @Override
     public boolean isProviderEnabled() {
         return IrManager.isSupported(getContext());
-    }
+    }*/
 }

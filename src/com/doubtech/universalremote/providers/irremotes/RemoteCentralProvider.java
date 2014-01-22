@@ -5,13 +5,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.content.Context;
-import android.net.Uri;
 
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.jsonretreivers.HttpJsonRetreiver;
 import com.doubtech.universalremote.jsonretreivers.JsonRetreiver;
 import com.doubtech.universalremote.providers.AbstractJsonIRUniversalRemoteProvider;
-import com.doubtech.universalremote.providers.providerdo.Button;
+import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.utils.ButtonStyler;
 
 public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider {
@@ -22,27 +21,9 @@ public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider
         }
 
         @Override
-        protected URL getButtonsUrl(String brandId, String modelId) {
+        protected URL getUrl(Parent parent) {
             try {
-                return new URL("http://ir.doubtech.com/json.php?provider=remotecentral&brandId=" + Uri.encode(brandId) + "&modelId=" + Uri.encode(modelId));
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException("Bad url generated for " + brandId + ", " + modelId);
-            }
-        }
-
-        @Override
-        public URL getModelsUrl(String brandId) {
-            try {
-                return new URL("http://ir.doubtech.com/json.php?provider=remotecentral&brandId=" + Uri.encode(brandId));
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException("Bad url generated for " + brandId);
-            }
-        }
-
-        @Override
-        public URL getBrandsUrl() {
-            try {
-                return new URL("http://ir.doubtech.com/json.php?provider=remotecentral");
+                return new URL("http://ir.doubtech.com/json.php/remotecentral" + parent.getPathString());
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException("Bad url generated. Should never get here.");
             }
@@ -76,7 +57,7 @@ public class RemoteCentralProvider extends AbstractJsonIRUniversalRemoteProvider
     }
 
     @Override
-    public int getIconId(Button button) {
+    public int getIconId(Parent button) {
         return ButtonStyler.getIconId(button.getName());
     }
 }

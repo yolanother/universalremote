@@ -12,10 +12,12 @@ import android.widget.Adapter;
 import android.widget.TextView;
 
 import com.doubtech.universalremote.R;
+import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.providerdo.Parent;
 
 public class TextAdapter extends CursorAdapter {
     public static interface RequestChildAdapterListener {
-        Object onRequestChild(Adapter parent, String authority, int parentTable, String id);
+        Object onRequestChild(Adapter parent, Parent node);
     }
 
     private int mIdColIndex = -1;
@@ -58,25 +60,36 @@ public class TextAdapter extends CursorAdapter {
             notifyDataSetChanged();
         };
     };
+    private Parent mParent;
 
-    public TextAdapter(Context context, String id, int table, Cursor cursor, String authorityColumn, String idColumn, String labelColumn, RequestChildAdapterListener listener) {
+    public TextAdapter(Context context, Parent parent, Cursor cursor, RequestChildAdapterListener listener) {
         super(context, cursor, true);
-        mId = id;
-        mTable = table;
-        mLabelColumn = labelColumn;
-        mIdColumn = idColumn;
+        mParent = parent;
         mRequestChildListener = listener;
-        mAuthorityColumn = authorityColumn;
     }
 
-    public TextAdapter(Context context, String id, int table, SimpleCursorLoader cursorLoader, String authorityColumn, String idColumn, String labelColumn, RequestChildAdapterListener listener) {
-        this(context, id, table, (Cursor) null, authorityColumn, idColumn, labelColumn, listener);
+    public TextAdapter(final Context context, final Parent parent, RequestChildAdapterListener listener) {
+        this(context, parent, (Cursor) null, listener);
+
+        mLoader.execute(new SimpleCursorLoader() {
+
+                    @Override
+                    public Cursor loadCursor() {
+                        return AbstractUniversalRemoteProvider.query(
+                                context,
+                                parent);
+                    }
+                });
+    }
+
+    public TextAdapter(Context context, SimpleCursorLoader cursorLoader, RequestChildAdapterListener listener) {
+        this(context, null, (Cursor) null, listener);
 
         mLoader.execute(cursorLoader);
     }
 
-    public String getAdapterId() {
-        return mId;
+    public Parent getParentObject() {
+        return mParent;
     }
 
     public TextAdapter setParentAdapter(Adapter adapter) {
@@ -88,32 +101,12 @@ public class TextAdapter extends CursorAdapter {
         return mParentAdapter;
     }
 
-    public int getChildTable() {
-        return mTable;
-    }
-
-    public String getActualId(int position) {
-        getCursor().moveToPosition(position);
-        return getCursor().getString(mIdColIndex);
-    }
-
-    public String getTargetAuthority(int position) {
-        initializeColumns(getCursor());
-        getCursor().moveToPosition(position);
-        return getCursor().getString(mAuthorityIndex);
-    }
-
     @Override
     public Object getItem(int position) {
         Cursor cursor = getCursor();
-        initializeColumns(cursor);
 
         cursor.moveToPosition(position);
-
-        String authority = cursor.getString(mAuthorityIndex);
-        String id = cursor.getString(mIdColIndex);
-
-        return mRequestChildListener.onRequestChild(this, authority, mTable, id);
+        return mRequestChildListener.onRequestChild(this, Parent.fromCursor(cursor));
     }
 
     @Override
@@ -124,24 +117,8 @@ public class TextAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         TextView tv = (TextView) view;
-        if (null != mLabelColumn) {
-            initializeColumns(cursor);
-            tv.setText(cursor.getString(mLabelColIndex));
-        } else {
-            tv.setText("UNDEFINED LABEL COLUMN");
-        }
-    }
-
-    private void initializeColumns(Cursor cursor) {
-        if (-1 == mLabelColIndex) {
-            mLabelColIndex = cursor.getColumnIndex(mLabelColumn);
-        }
-        if (-1 == mIdColIndex) {
-            mIdColIndex  = getCursor().getColumnIndex(mIdColumn);
-        }
-        if (-1 == mAuthorityIndex) {
-            mAuthorityIndex = getCursor().getColumnIndex(mAuthorityColumn);
-        }
+        Parent parent = Parent.fromCursor(cursor);
+        tv.setText(parent.getName());
     }
 
     @Override
@@ -160,8 +137,12 @@ public class TextAdapter extends CursorAdapter {
 
     public CharSequence getText(int position) {
         Cursor cursor = getCursor();
-        cursor.moveToPosition(position);
-        initializeColumns(cursor);
-        return cursor.getString(mLabelColIndex);
+        Parent parent = Parent.fromCursor(cursor);
+        return parent.getName();
+    }
+
+    public Parent getTarget(int position) {
+        getCursor().moveToPosition(position);
+        return Parent.fromCursor(getCursor());
     }
 }

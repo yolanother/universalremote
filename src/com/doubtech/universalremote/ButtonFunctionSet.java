@@ -10,15 +10,15 @@ import org.xmlpull.v1.XmlSerializer;
 import android.content.Context;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
-import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 
 public class ButtonFunctionSet extends ArrayList<ButtonFunction> {
     private static final long serialVersionUID = 1L;
 
     public void send(Context context) {
         for (ButtonFunction function : this) {
-            BaseAbstractUniversalRemoteProvider.sendButton(context,
-                    function.getAuthority(), function.getBrandId(), function.getModelId(), function.getId());
+            AbstractUniversalRemoteProvider.sendButton(context,
+                    function.getButton());
             for (ButtonFunction subfunction : function) {
                 subfunction.send(context);
             }

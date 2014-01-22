@@ -16,8 +16,8 @@ import android.widget.TextView;
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.RemotePageConfiguration;
 import com.doubtech.universalremote.adapters.TextAdapter.SimpleCursorLoader;
-import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
-import com.doubtech.universalremote.providers.URPContract;
+import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.providers.providerdo.ProviderDetails;
 
 public class ProviderAdapter extends BaseAdapter {
@@ -33,7 +33,7 @@ public class ProviderAdapter extends BaseAdapter {
         for (ProviderInfo provider : providers) {
             if ("com.doubtech.universalremote.PROVIDE_BUTTONS".equals(provider.readPermission)) {
                 try {
-                    ProviderDetails details = BaseAbstractUniversalRemoteProvider.queryProviderDetails(context, provider.authority);
+                    ProviderDetails details = AbstractUniversalRemoteProvider.queryProviderDetails(context, provider.authority);
 
                     Log.d("AARON", "" + details);
                     if (null != details && details.isEnabled()) {
@@ -57,17 +57,12 @@ public class ProviderAdapter extends BaseAdapter {
         SimpleCursorLoader loader = new SimpleCursorLoader() {
             @Override
             public Cursor loadCursor() {
-                return BaseAbstractUniversalRemoteProvider.queryBrands(mContext, authority);
+                return AbstractUniversalRemoteProvider.query(mContext, new Parent(authority, new String[0]));
             }
         };
         return new TextAdapter(
                 mContext,
-                null,
-                URPContract.TABLE_BRANDS,
                 loader,
-                URPContract.COLUMN_AUTHORITY,
-                URPContract.Brands.COLUMN_BRAND_ID,
-                URPContract.Brands.COLUMN_NAME,
                 ((RemotePageConfiguration)mContext).getRequestChildListener());
     }
 

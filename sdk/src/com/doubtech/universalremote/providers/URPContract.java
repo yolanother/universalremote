@@ -2,6 +2,8 @@ package com.doubtech.universalremote.providers;
 
 import android.net.Uri;
 
+import com.doubtech.universalremote.providers.providerdo.Parent;
+
 public final class URPContract {
     public static final String TABLE_BRANDS_PATH = "brands";
     public static final String TABLE_MODELS_PATH = "models";
@@ -43,107 +45,64 @@ public final class URPContract {
         };
     }
 
-    public static final class Brands {
+    public static final class Parents {
         public static final int COLIDX_ID = 0;
         public static final int COLIDX_AUTHORITY = 1;
-        public static final int COLIDX_BRAND_ID = 2;
+        public static final int COLIDX_PATH = 2;
         public static final int COLIDX_NAME = 3;
-        public static final int COLIDX_LOGO = 4;
+        public static final int COLIDX_TYPE = 4;
 
         public static final String COLUMN_ID = "_id";
         public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
-        public static final String COLUMN_BRAND_ID = "brand_id";
+        public static final String COLUMN_PATH = "path";
         public static final String COLUMN_NAME = "name";
-        public static final String COLUMN_LOGO = "logo";
+        public static final String COLUMN_TYPE = "type";
+
+        public static final String TYPE_PARENT = "parent";
+        public static final String TYPE_BUTTON = "button";
 
         public static final String[] ALL = new String[] {
             COLUMN_ID,
             COLUMN_AUTHORITY,
-            COLUMN_BRAND_ID,
+            COLUMN_PATH,
             COLUMN_NAME,
-            COLUMN_LOGO
-        };
-    }
-
-    public static final class Models {
-        public static final int COLIDX_ID = 0;
-        public static final int COLIDX_AUTHORITY = 1;
-        public static final int COLIDX_MODEL_ID = 2;
-        public static final int COLIDX_BRAND_ID = 3;
-        public static final int COLIDX_NAME = 4;
-
-        public static final String COLUMN_ID = "_id";
-        public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
-        public static final String COLUMN_MODEL_ID = "model_id";
-        public static final String COLUMN_BRAND_ID = "brand_id";
-        public static final String COLUMN_NAME = "name";
-
-        public static final String[] ALL = new String[] {
-            COLUMN_ID,
-            COLUMN_AUTHORITY,
-            COLUMN_MODEL_ID,
-            COLUMN_BRAND_ID,
-            COLUMN_NAME
+            COLUMN_TYPE
         };
     }
 
     public static final class Buttons {
-        public static final int ICON_RESOURCE_TYPE_NO_ICON = 0;
-        /**
-         * An icon resource to be opened with package manager
-         */
-        public static final int ICON_RESOURCE_TYPE_RESOURCE = 1;
-        /**
-         * An icon resource to be opened with a provider and file descriptor
-         */
-        public static final int ICON_RESOURCE_TYPE_PROVIDER_URI = 2;
-
         public static final int COLIDX_ID = 0;
         public static final int COLIDX_AUTHORITY = 1;
-        public static final int COLIDX_BRAND_ID = 2;
-        public static final int COLIDX_MODEL_ID = 3;
-        public static final int COLIDX_BUTTON_ID = 4;
-        public static final int COLIDX_NAME = 5;
-        public static final int COLIDX_BUTTON_IDENTIFIER = 6;
+        public static final int COLIDX_PATH = 2;
+        public static final int COLIDX_NAME = 3;
+        public static final int COLIDX_TYPE = 4;
+        public static final int COLIDX_BUTTON_IDENTIFIER = 5;
 
         public static final String COLUMN_ID = "_id";
         public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
-        public static final String COLUMN_BUTTON_ID = "remote_id";
+        public static final String COLUMN_PATH = "path";
         public static final String COLUMN_NAME = "name";
-        public static final String COLUMN_MODEL_ID = "model_id";
-        public static final String COLUMN_BRAND_ID = "brand_id";
+        public static final String COLUMN_TYPE = "type";
         public static final String COLUMN_BUTTON_IDENTIFIER = "button_identifier";
 
         public static final String[] ALL = new String[] {
             COLUMN_ID,
             COLUMN_AUTHORITY,
-            COLUMN_BRAND_ID,
-            COLUMN_MODEL_ID,
-            COLUMN_BUTTON_ID,
+            COLUMN_PATH,
             COLUMN_NAME,
+            COLUMN_TYPE,
             COLUMN_BUTTON_IDENTIFIER
         };
     }
 
-    public static Uri getBrandsUri(String authority) {
-        return Uri.parse("content://" + authority + "/" + URPContract.TABLE_BRANDS_PATH);
-    }
-
-    public static Uri getModelsUri(String authority) {
-        return Uri.parse("content://" + authority + "/" + URPContract.TABLE_MODELS_PATH);
-    }
-
-    public static Uri getButtonsUri(String authority) {
-        return Uri.parse("content://" + authority + "/" + URPContract.TABLE_BUTTONS_PATH);
-    }
-
-    public static Uri getButtonUri(String authority, String brandId, String modelId, String id) {
-        return Uri.parse("content://" + authority + "/" + URPContract.TABLE_BUTTONS_PATH)
-                .buildUpon()
-                .appendQueryParameter(QUERY_PARAMETER_BRANDID, brandId)
-                .appendQueryParameter(QUERY_PARAMETER_MODELID, modelId)
-                .appendQueryParameter(QUERY_PARAMETER_BUTTON_ID, id)
-                .build();
+    public static Uri getUri(String authority, String table, String[] path) {
+        Uri.Builder builder = Uri.parse("content://" + authority)
+                .buildUpon();
+        builder.appendPath(table);
+        for (String segment : path) {
+            builder.appendPath(segment);
+        }
+        return builder.build();
     }
 
     public static Uri getProviderDetailsUri(String authority) {

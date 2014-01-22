@@ -10,10 +10,8 @@ import java.util.List;
 import android.R.color;
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -44,12 +42,12 @@ import android.widget.Toast;
 import com.doubtech.universalremote.adapters.ProviderAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter.RequestChildAdapterListener;
-import com.doubtech.universalremote.adapters.TextAdapter.SimpleCursorLoader;
 import com.doubtech.universalremote.io.RemoteConfigurationReader;
 import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedListener;
 import com.doubtech.universalremote.io.RemoteConfigurationWriter;
-import com.doubtech.universalremote.providers.BaseAbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
+import com.doubtech.universalremote.providers.providerdo.Button;
+import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.utils.IOUtil;
 import com.doubtech.universalremote.widget.DynamicListView.ISwappableAdapter;
 import com.doubtech.universalremote.widget.HierarchicalListView;
@@ -173,109 +171,15 @@ public class RemotePageConfiguration extends Activity {
     private TwoWayListView mList;
     private HierarchicalListView mRemotes;
 
-    private class ModelInfo {
-        private String authority;
-        private String brandId;
-        private String modelId;
-
-        public ModelInfo(String authority, String brandId, String modelId) {
-            this.authority = authority;
-            this.brandId = brandId;
-            this.modelId = modelId;
-        }
-    }
-
-    private class ButtonInfo {
-        ModelInfo info;
-        private String id;
-
-        public ButtonInfo(String authority, String brandId, String modelId, String buttonId) {
-            this.info = new ModelInfo(authority, brandId, modelId);
-            this.id = buttonId;
-        }
-
-        public void click() {
-            BaseAbstractUniversalRemoteProvider.sendButton(
-                    (Context) RemotePageConfiguration.this,
-                    info.authority,
-                    info.brandId,
-                    info.modelId,
-                    id);
-        }
-    }
-
     private RequestChildAdapterListener mRequestChildListener = new RequestChildAdapterListener() {
 
-        public Object onRequestChild(final Adapter parent, final String authority, int parentTable, final String id) {
-            SimpleCursorLoader loader;
-            switch(parentTable) {
-            case URPContract.TABLE_BRANDS:
-                loader = new SimpleCursorLoader() {
-
-                    @Override
-                    public Cursor loadCursor() {
-                        // TODO Auto-generated method stub
-                        return BaseAbstractUniversalRemoteProvider.queryModels(
-                                (Context) RemotePageConfiguration.this,
-                                authority,
-                                id);
-                    }
-                };
-                return new TextAdapter(
-                        RemotePageConfiguration.this,
-                        id,
-                        URPContract.TABLE_MODELS,
-                        loader,
-                        URPContract.COLUMN_AUTHORITY,
-                        URPContract.Models.COLUMN_MODEL_ID,
-                        URPContract.Models.COLUMN_NAME,
-                        mRequestChildListener)
-                    .setParentAdapter(parent);
-            case URPContract.TABLE_MODELS:
-                loader = new SimpleCursorLoader() {
-
-                    @Override
-                    public Cursor loadCursor() {
-                        return BaseAbstractUniversalRemoteProvider.queryButtons(
-                                        RemotePageConfiguration.this,
-                                        authority,
-                                        ((TextAdapter)parent).getAdapterId(),
-                                        id);
-                    }
-                };
-                return new TextAdapter(
-                        RemotePageConfiguration.this,
-                        id,
-                        URPContract.TABLE_BUTTONS,
-                        loader,
-                        URPContract.COLUMN_AUTHORITY,
-                        URPContract.Buttons.COLUMN_BUTTON_ID,
-                        URPContract.Buttons.COLUMN_NAME,
-                        new RequestChildAdapterListener() {
-
-                            @Override
-                            public Object onRequestChild(Adapter parent, String authority, int parentTable, String id) {
-                                TextAdapter modelAdapter = ((TextAdapter)parent);
-
-                                return new ButtonInfo(
-                                        authority,
-                                        ((TextAdapter) modelAdapter.getParentAdapter()).getAdapterId(),
-                                        modelAdapter.getAdapterId(),
-                                        id);
-                            }
-                        });
-                /*return new ButtonLayout.Builder(RemotePageConfiguration.this)
-                        .addButtons(getContentResolver().query(
-                                URPContract.getButtonsUri(authority).buildUpon()
-                                    .appendQueryParameter(URPContract.QUERY_PARAMETER_PARENT, id)
-                                    .build(),
-                                null,
-                                null,
-                                null,
-                                null))
-                        .build();*/
-            }
-            return null;
+        public Object onRequestChild(final Adapter parent, Parent node) {
+            TextAdapter adapter = new TextAdapter(
+                    RemotePageConfiguration.this,
+                    node,
+                    mRequestChildListener);
+            adapter.setParentAdapter(parent);
+            return adapter;
         };
     };
     private RemotePageAdapter mRemotePageAdapter;
@@ -333,15 +237,13 @@ public class RemotePageConfiguration extends Activity {
                     int position, long id) {
                 Adapter adapter = ((ListView) adapterView).getAdapter();
                 Object item = adapter.getItem(position);
-                if (item instanceof ButtonInfo) {
-                    ((ButtonInfo)item).click();
+                if (item instanceof Button) {
+                    ((Button)item).click(RemotePageConfiguration.this);
                     return true;
                 } else if (adapter instanceof TextAdapter) {
                     final TextAdapter ta = (TextAdapter) adapter;
-                    String authority = ta.getTargetAuthority(position);
-                    String brandId = ta.getAdapterId();
-                    String modelId = ta.getActualId(position);
-                    if (ta.getChildTable() == URPContract.TABLE_MODELS) {
+                    Parent parent = ta.getTarget(position);
+                    if (null != ta.getParentObject() && ta.getParentObject().hasButtons()) {
                         mRemotes.setSelectedPosition(position);
                         RemotePageButtonSource page = new RemotePageButtonSource(RemotePageConfiguration.this);
 
@@ -351,8 +253,8 @@ public class RemotePageConfiguration extends Activity {
                         sv.addView(page);
                         mRevertHierarchyLevel = mHierarchyLevel;
                         mRemotes.addHierarchyView(sv);
-                        page.loadButtons(authority, brandId, modelId);
-                        page.setTag(new ModelInfo(authority, brandId, modelId));
+                        page.loadButtons(parent);
+                        page.setTag(parent);
                         page.setTitle(ta.getText(position));
                         mCurrentPage = page;
                         mMenuItemAddRemote.setVisible(true);
@@ -370,14 +272,12 @@ public class RemotePageConfiguration extends Activity {
                 Adapter adapter = ((ListView) adapterView).getAdapter();
                 if (adapter instanceof TextAdapter) {
                     final TextAdapter ta = (TextAdapter) adapter;
-                    if (ta.getChildTable() == URPContract.TABLE_MODELS) {
-                        String authority = ta.getTargetAuthority(position);
-                        String brandId = ta.getAdapterId();
-                        String modelId = ta.getActualId(position);
+                    if (null != ta.getParentObject() && ta.getParentObject().hasButtons()) {
+                        Parent parent = ta.getTarget(position);
                         ScalePreviewView v = new ScalePreviewView(RemotePageConfiguration.this);
                         RemotePage page = new RemotePage(RemotePageConfiguration.this);
-                        page.loadButtons(authority, brandId, modelId);
-                        page.setTitle(ta.getText(position));
+                        page.loadButtons(parent);
+                        page.setTitle(parent.getName());
 
                         Resources res = getResources();
                         DisplayMetrics dm = res.getDisplayMetrics();
@@ -594,10 +494,10 @@ public class RemotePageConfiguration extends Activity {
             return true;
         case R.id.action_remote:
             if (null != mCurrentPage) {
-                ModelInfo info = (ModelInfo) mCurrentPage.getTag();
+                Parent info = (Parent) mCurrentPage.getTag();
                 ScalePreviewView v = new ScalePreviewView(RemotePageConfiguration.this);
                 RemotePage page = new RemotePage(RemotePageConfiguration.this);
-                page.loadButtons(info.authority, info.brandId, info.modelId);
+                page.loadButtons(info);
                 page.setTitle(mCurrentPage.getTitle());
                 mRemotePageAdapter.add(page);
             }

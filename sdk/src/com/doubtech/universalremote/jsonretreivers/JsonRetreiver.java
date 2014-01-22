@@ -1,7 +1,7 @@
 package com.doubtech.universalremote.jsonretreivers;
 
+import com.doubtech.universalremote.providers.providerdo.Parent;
+
 public interface JsonRetreiver {
-    String getButtonsJson(String brandId, String modelId);
-    String getModelsJson(String brandId);
-    String getBrandsJson();
+    String getJson(Parent parent);
 }
