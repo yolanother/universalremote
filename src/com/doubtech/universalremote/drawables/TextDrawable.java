@@ -166,7 +166,7 @@ public class TextDrawable extends Drawable {
     public void setText(CharSequence text) {
         if (text == null) text = "";
 
-        mText = text;
+        mText = text.toString().replaceAll(" ", "\n");
 
         measureContent();
     }

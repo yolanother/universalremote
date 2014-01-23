@@ -13,6 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.v4.widget.CursorAdapter;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -214,6 +215,7 @@ public class HierarchicalListView extends FrameLayout {
                 return true;
             }
         };
+        layout.setTag(view);
         layout.addView(view);
 
         completeAddHierarchyView(layout);
@@ -248,6 +250,7 @@ public class HierarchicalListView extends FrameLayout {
 
     public void addAdapter(final BaseAdapter adapter) {
         final InternalListView listView = new InternalListView(getContext());
+        listView.setTag(adapter);
         mAdapters.add(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -445,4 +448,20 @@ public class HierarchicalListView extends FrameLayout {
     public void setHierarchyLevelChangedListener(OnHierarchyChangedListener listener) {
         mHierarchyChangedListener =  listener;
     }
+
+	public Adapter getCurrentAdapter() {
+		View v = getChildAt(getChildCount() - 1);
+        if (v instanceof InternalListView) {
+            return (Adapter) v.getTag();
+        }
+		return null;
+	}
+
+	public View getCurrentView() {
+		View v = getChildAt(getChildCount() - 1);
+		if(v instanceof FrameLayout) {
+			return (View) v.getTag();
+		}
+		return null;
+	}
 }

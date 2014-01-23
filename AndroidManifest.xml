@@ -62,6 +62,14 @@
             android:exported="true"
             android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
         </provider>
+
+        <provider
+            android:name="com.doubtech.universalremote.providers.irremotes.GlobalCacheProvider"
+            android:authorities="com.doubtech.universalremote.providers.irremotes.GlobalCache"
+            android:enabled="true"
+            android:exported="true"
+            android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
+        </provider>
     </application>
 
 </manifest>

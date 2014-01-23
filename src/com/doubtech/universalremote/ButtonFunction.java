@@ -87,7 +87,7 @@ public class ButtonFunction extends ButtonFunctionSet {
 
     public static ButtonFunction fromXml(Context context, Element item) {
         ButtonFunction details = new ButtonFunction();
-        details.mButton = new Button(item.getAttribute("authority"), item.getAttribute("id"));
+        details.mButton = new Button(item.getAttribute("authority"), item.getAttribute("id"), true);
         details.mLabel = item.getAttribute("label");
         return details;
     }

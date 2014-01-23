@@ -49,14 +49,20 @@ public final class URPContract {
         public static final int COLIDX_ID = 0;
         public static final int COLIDX_AUTHORITY = 1;
         public static final int COLIDX_PATH = 2;
-        public static final int COLIDX_NAME = 3;
-        public static final int COLIDX_TYPE = 4;
+        public static final int COLIDX_LEVEL_NAME = 3;
+        public static final int COLIDX_NAME = 4;
+        public static final int COLIDX_DESCRIPTION = 5;
+        public static final int COLIDX_TYPE = 6;
+        public static final int COLIDX_HAS_BUTTONSETS = 7;
 
         public static final String COLUMN_ID = "_id";
         public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
         public static final String COLUMN_PATH = "path";
+        public static final String COLUMN_LEVEL = "level";
         public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_TYPE = "type";
+        public static final String COLUMN_HAS_BUTTONSETS = "hasButtonSets";
 
         public static final String TYPE_PARENT = "parent";
         public static final String TYPE_BUTTON = "button";
@@ -65,8 +71,11 @@ public final class URPContract {
             COLUMN_ID,
             COLUMN_AUTHORITY,
             COLUMN_PATH,
+            COLUMN_LEVEL,
             COLUMN_NAME,
-            COLUMN_TYPE
+            COLUMN_DESCRIPTION,
+            COLUMN_TYPE,
+            COLUMN_HAS_BUTTONSETS
         };
     }
 
@@ -74,23 +83,32 @@ public final class URPContract {
         public static final int COLIDX_ID = 0;
         public static final int COLIDX_AUTHORITY = 1;
         public static final int COLIDX_PATH = 2;
-        public static final int COLIDX_NAME = 3;
-        public static final int COLIDX_TYPE = 4;
-        public static final int COLIDX_BUTTON_IDENTIFIER = 5;
+        public static final int COLIDX_LEVEL_NAME = 3;
+        public static final int COLIDX_NAME = 4;
+        public static final int COLIDX_DESCRIPTION = 5;
+        public static final int COLIDX_TYPE = 6;
+        public static final int COLIDX_HAS_BUTTONSETS = 7;
+        public static final int COLIDX_BUTTON_IDENTIFIER = 8;
 
         public static final String COLUMN_ID = "_id";
         public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
         public static final String COLUMN_PATH = "path";
+        public static final String COLUMN_LEVEL = "level";
         public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_TYPE = "type";
         public static final String COLUMN_BUTTON_IDENTIFIER = "button_identifier";
+        public static final String COLUMN_HAS_BUTTONSETS = "hasButtonSets";
 
         public static final String[] ALL = new String[] {
             COLUMN_ID,
             COLUMN_AUTHORITY,
             COLUMN_PATH,
+            COLUMN_LEVEL,
             COLUMN_NAME,
+            COLUMN_DESCRIPTION,
             COLUMN_TYPE,
+            COLUMN_HAS_BUTTONSETS,
             COLUMN_BUTTON_IDENTIFIER
         };
     }

@@ -11,7 +11,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
-import com.doubtech.universalremote.providers.URPContract;
+import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Parents;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 
@@ -25,12 +25,12 @@ public class Button extends Parent {
 
     }
 
-    public Button(String authority, String[] parentIds) {
-        super(authority, parentIds);
+    public Button(String authority, String[] parentIds, boolean needsToFetch) {
+        super(authority, parentIds, needsToFetch);
     }
 
-    public Button(String authority, String path) {
-        super(authority, getPath(path));
+    public Button(String authority, String path, boolean needsToFetch) {
+        super(authority, getPath(path), needsToFetch);
     }
 
     static Button fromCursor(Button button, Cursor cursor) {
@@ -39,18 +39,14 @@ public class Button extends Parent {
         // the cached version has extra data provided by the adapter
         button = (Button) getCached(button);
 
-        int idx = cursor.getColumnIndex(URPContract.Buttons.COLUMN_BUTTON_IDENTIFIER);
-        if (idx >= 0) {
-            button.mButtonIdentifier = ButtonIdentifier.getKnownButton(cursor.getString(idx));
-        }
+        button.mButtonIdentifier = ButtonIdentifier.getKnownButton(button.getName());
 
         return button;
     }
 
     public static Button fromJson(AbstractUniversalRemoteProvider provider,
             JSONObject obj, Button button) throws JSONException {
-        button.mButtonIdentifier = ButtonIdentifier.getKnownButton(obj
-                .getString("buttonName"));
+        button.mButtonIdentifier = ButtonIdentifier.getKnownButton(button.getName());
         Iterator<?> iterator = obj.keys();
         while (iterator.hasNext()) {
             String key = "" + iterator.next();
@@ -65,11 +61,19 @@ public class Button extends Parent {
                 hashCode(),
                 getAuthority(),
                 getPathString(),
+                getLevelName(),
                 getName(),
+                getDescription(),
                 Parents.TYPE_BUTTON,
+                hasButtonSets() ? 1 : 0,
                 getButtonIdentifier()
         };
         return row;
+    }
+    
+    @Override
+    public String[] getColumns() {
+    	return Buttons.ALL;
     }
 
     public int getButtonIdentifier() {

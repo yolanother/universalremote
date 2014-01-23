@@ -8,6 +8,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView.FindListener;
 import android.widget.Adapter;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ import com.doubtech.universalremote.providers.providerdo.Parent;
 public class TextAdapter extends CursorAdapter {
     public static interface RequestChildAdapterListener {
         Object onRequestChild(Adapter parent, Parent node);
+        void onLoadComplete(TextAdapter adapter, Parent parent);
     }
 
     private int mIdColIndex = -1;
@@ -58,6 +60,7 @@ public class TextAdapter extends CursorAdapter {
                 changeCursor(result);
             }
             notifyDataSetChanged();
+            mRequestChildListener.onLoadComplete(TextAdapter.this, mParent);
         };
     };
     private Parent mParent;
@@ -111,14 +114,32 @@ public class TextAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.text_view, null);
+        View view = LayoutInflater.from(context).inflate(R.layout.descriptive_text_view, null);
+        view.setTag(new ViewHolder(view));
+        return view;
+    }
+    
+    private class ViewHolder {
+    	private TextView mLabel;
+		private TextView mDescription;
+
+		public ViewHolder(View view) {
+    		mLabel = (TextView) view.findViewById(R.id.label);
+    		mDescription = (TextView) view.findViewById(R.id.description);
+    	}
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView tv = (TextView) view;
+    	ViewHolder holder = (ViewHolder) view.getTag();
         Parent parent = Parent.fromCursor(cursor);
-        tv.setText(parent.getName());
+        holder.mLabel.setText(parent.getName());
+        if(null != parent.getDescription()) {
+        	holder.mDescription.setVisibility(View.VISIBLE);
+        	holder.mDescription.setText(parent.getDescription());
+        } else {
+        	holder.mDescription.setVisibility(View.GONE);
+        }
     }
 
     @Override

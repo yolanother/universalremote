@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.URPContract.Buttons;
+import com.doubtech.universalremote.providers.URPContract.Parents;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.providers.providerdo.ProviderDetails;
@@ -78,10 +79,12 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
     @Override
     public AssetFileDescriptor openAssetFile(Uri uri, String mode)
             throws FileNotFoundException {
-        switch (mUriMatcher.match(uri)) {
-        case URPContract.TABLE_BUTTONS:
-            Parent button = Parent.fromUri(uri);
-            return openButtonIconAsset(button);
+        List<String> segments = uri.getPathSegments();
+        String table = segments.get(0);
+    	if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
+            Parent[] nodes = get(Parent.fromUri(uri));
+
+            return openButtonIconAsset(nodes[0]);
         }
         return null;
     }
@@ -89,10 +92,12 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode)
             throws FileNotFoundException {
-        switch (mUriMatcher.match(uri)) {
-            case URPContract.TABLE_BUTTONS:
-                Parent button = Parent.fromUri(uri);
-                return openButtonIcon(button);
+        List<String> segments = uri.getPathSegments();
+        String table = segments.get(0);
+    	if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
+            Parent[] nodes = get(Parent.fromUri(uri));
+
+            return openButtonIcon(nodes[0]);
         }
         return null;
     }
@@ -151,7 +156,7 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection,
+    public Cursor query(final Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
         List<String> segments = uri.getPathSegments();
         String table = segments.get(0);
@@ -169,48 +174,35 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             Parent[] nodes = get(Parent.fromUri(uri));
             return getCursor(nodes);
         } else if (URPContract.BUTTON_COMMAND_SEND.equals(table)) {
-            Parent[] nodes = get(Parent.fromUri(uri));
-            List<Button> buttons = new ArrayList<Button>();
-            for (Parent node : nodes) {
-                if (node instanceof Button) {
-                    buttons.add((Button) node);
-                }
-            }
-            sendButtons(buttons.toArray(new Button[0]));
-            return getCursor(nodes);
+        	// TODO Might want to replace with a single thread executor.
+        	new Thread() {
+        		public void run() {
+                    Parent[] nodes = get(Parent.fromUri(uri));
+                    List<Button> buttons = new ArrayList<Button>();
+                    for (Parent node : nodes) {
+                        if (node instanceof Button) {
+                            buttons.add((Button) node);
+                        }
+                    }
+                    sendButtons(buttons.toArray(new Button[0]));        			
+        		}
+        	}.start();
+            return new MatrixCursor(new String[] {"Sent"});
         }
-
-            /*if (URPContract.BUTTON_COMMAND_SEND.equals(uri.getLastPathSegment())) {
-                if (uri.getQueryParameters(URPContract.QUERY_PARAMETER_BUTTON_ID).size() == 0) {
-                    throw new IllegalArgumentException("No buttons were selected.");
-                }
-                List<String> buttonIds = ;
-                String brandId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_BRANDID);
-                String modelId = uri.getQueryParameter(URPContract.QUERY_PARAMETER_MODELID);
-                Button[] buttons = new Button[buttonIds.size()];
-                for (int i = 0; i < buttons.length; i++) {
-                    buttons[i] = new Button(
-                            getAuthority(),
-                            brandId,
-                            modelId,
-                            buttonIds.get(i));
-                }
-
-                MatrixCursor cursor = new MatrixCursor(Buttons.ALL);
-                for (Button button : sendButtons(buttons)) {
-                    cursor.addRow(button.toRow());
-                }
-                return cursor;
-            }
-            return getButtons(uri, selectionArgs);*/
         throw new IllegalArgumentException("Unknown query: " + uri);
     }
 
     private Cursor getCursor(Parent[] nodes) {
-        MatrixCursor cursor = new MatrixCursor(nodes[0].getColumns());
-        for (Parent node : nodes) {
-            cursor.addRow(node.toRow());
-        }
+        MatrixCursor cursor;
+    	if(nodes.length > 0) {
+    		cursor = new MatrixCursor(nodes[0].getColumns());
+	        for (Parent node : nodes) {
+	            cursor.addRow(node.toRow());
+	        }
+    	} else {
+    		cursor = new MatrixCursor(Parents.ALL);
+    	}
+    	cursor.moveToFirst();
         return cursor;
     }
 
@@ -342,4 +334,12 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             iconLoaderListener.onIconLoaded(mButtonIcon);
         }
     }
+
+	public boolean hasButtonSets(Parent node) {
+		return false;
+	}
+
+	public String getDescription(Parent node) {
+		return null;
+	}
 }

@@ -19,8 +19,12 @@
     <string name="remote_central_provider_name">Remote Central</string>
     <string name="remote_central_provider_desc">A collection of remotes hosted on Remote Central.</string>
 
+    <string name="globalcache_provider_name">Global Caché Infrared Database</string>
+    <string name="globalcache_provider_desc">Contains over 100,000 Infrared codes for over 2,000 different remotes from over 500 manufacturers</string>
+
     <!-- Remote Page Configuration -->
     <string name="title_activity_remote_page_configuration">Page Configuration</string>
     <string name="cfg_lbl_pages_label">Remote Pages</string>
     <string name="cfg_lbl_sources_label">Remote/Button Sources</string>
+    <string name="cfg_lbl_buttons">Buttons</string>
 </resources>

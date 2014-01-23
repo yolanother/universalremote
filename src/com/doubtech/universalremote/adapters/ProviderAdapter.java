@@ -57,7 +57,7 @@ public class ProviderAdapter extends BaseAdapter {
         SimpleCursorLoader loader = new SimpleCursorLoader() {
             @Override
             public Cursor loadCursor() {
-                return AbstractUniversalRemoteProvider.query(mContext, new Parent(authority, new String[0]));
+                return AbstractUniversalRemoteProvider.query(mContext, new Parent(authority, new String[0], true));
             }
         };
         return new TextAdapter(
@@ -79,6 +79,7 @@ public class ProviderAdapter extends BaseAdapter {
         public ViewHolder(View convertView) {
             mLabel = (TextView) convertView.findViewById(R.id.label);
             mDescription = (TextView) convertView.findViewById(R.id.description);
+            mDescription.setVisibility(View.VISIBLE);
         }
     }
 

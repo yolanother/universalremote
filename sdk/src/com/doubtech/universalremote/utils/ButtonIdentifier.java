@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class ButtonIdentifier {
 
     public static final String IGNORED_WORDS_STRING = "^(KEY|BUTTON|BTN|BUT|KP)";
-    private static final String NBR_LEAD = "(num|number|nr)?\\s*";
+    private static final String NBR_LEAD = "(num|number|nr|digit)?\\s*";
     private static final String NPS_LEAD = IGNORED_WORDS_STRING + "?\\s*";
     private static final String NPS_TAIL = "$";
 
@@ -15,9 +15,9 @@ public class ButtonIdentifier {
         "UNKNOWN",
         NPS_LEAD + "(vol(ume)?\\s*(up|[+^]|plus|inc))|([+]\\s*vol(ume)?)" + NPS_TAIL,
         NPS_LEAD + "(vol(ume)?\\s*(down|-|minus|dec|dn|dwn))|([+]\\s*vol(ume)?)" + NPS_TAIL,
-        NPS_LEAD + "pow(er)?(\\s*toggle)?" + NPS_TAIL,
-        NPS_LEAD + "pow(er)?\\s*on" + NPS_TAIL,
-        NPS_LEAD + "pow(er)?\\s*off" + NPS_TAIL,
+        NPS_LEAD + "pow(er)?\\s*(toggle|on/off)?" + NPS_TAIL,
+        NPS_LEAD + "pow(er)?\\s*on|on,\\s*power\\s*on/off" + NPS_TAIL,
+        NPS_LEAD + "pow(er)?\\s*off|off,\\s*power\\s*on/off" + NPS_TAIL,
         NPS_LEAD + "ch(an(nel)?)?\\s*(up|[+\\^]|inc|plus)|[+]\\s*ch(an(nel)?)?" + NPS_TAIL,
         NPS_LEAD + "ch(an(nel)?)?\\s*(down|[-]|dn|dwn|dec|minus)|[-]\\s*ch(an(nel)?)?" + NPS_TAIL,
         NPS_LEAD + NBR_LEAD + "(0|zero)" + NPS_TAIL,
@@ -34,7 +34,7 @@ public class ButtonIdentifier {
         NPS_LEAD + "((br|bri|brgt|bright|brighness|brightness|brt)\\s*(up|[+]|plus|inc))|((up|[+]|plus|inc)\\s*(br|bri|brgt|brt|bright|brightness|brighness))" + NPS_TAIL,
         NPS_LEAD + "((br|bri|brgt|bright|brightness|brighness|brt)\\s*(dwn|down|-|minus|dec))|((dwn|down|-|minus|dec)\\s*(br|bri|brgt|brt|bright|brightness|brighness))" + NPS_TAIL,
         NPS_LEAD + "(cancel)" + NPS_TAIL,
-        NPS_LEAD + "(ok)" + NPS_TAIL,
+        NPS_LEAD + "(ok|menu select)" + NPS_TAIL,
         NPS_LEAD + "(enter)" + NPS_TAIL,
         NPS_LEAD + "(return)" + NPS_TAIL,
         NPS_LEAD + "(help)" + NPS_TAIL,
@@ -49,10 +49,10 @@ public class ButtonIdentifier {
         NPS_LEAD + "((pg|page)\\s*(up|[+]|plus|inc))|([+]\\s*(pg|page))" + NPS_TAIL,
         NPS_LEAD + "((pg|page)\\s*(down|-|minus|dec|dn|dwn))|([+]\\s*(pg|page))" + NPS_TAIL,
         NPS_LEAD + "(rec|record)" + NPS_TAIL,
-        NPS_LEAD + "(up( arrow)?)" + NPS_TAIL,
-        NPS_LEAD + "(down|dwn|dn)( arrow)?" + NPS_TAIL,
-        NPS_LEAD + "(left( arrow)?)" + NPS_TAIL,
-        NPS_LEAD + "(right( arrow)?)" + NPS_TAIL,
+        NPS_LEAD + "(up( arrow)?|menu up(, adjust up)?)" + NPS_TAIL,
+        NPS_LEAD + "((down|dwn|dn)( arrow)?)|(menu down(, adjust down)?)" + NPS_TAIL,
+        NPS_LEAD + "(left( arrow)?)|menu left" + NPS_TAIL,
+        NPS_LEAD + "(right( arrow)?)|menu right" + NPS_TAIL,
         NPS_LEAD + "(red)" + NPS_TAIL,
         NPS_LEAD + "(blue)" + NPS_TAIL,
         NPS_LEAD + "(green)" + NPS_TAIL,
@@ -64,7 +64,7 @@ public class ButtonIdentifier {
         NPS_LEAD + "(previous|prev|prv|skip\\s*back(ward)?)" + NPS_TAIL,
         NPS_LEAD + "(source|input)" + NPS_TAIL,
         NPS_LEAD + "(menu)" + NPS_TAIL,
-        NPS_LEAD + "(cc|closed\\s*caption(ing|s)|captions)" + NPS_TAIL,
+        NPS_LEAD + "(sap,\\s*cc|cc|closed\\s*caption(ing|s)|captions)" + NPS_TAIL,
         NPS_LEAD + "(dot|[.])" + NPS_TAIL,
     };
 
