@@ -13,6 +13,7 @@ import android.net.Uri;
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Parents;
+import com.doubtech.universalremote.providers.providerdo.Parent.ParentBuilder;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 
 public class Button extends Parent {
@@ -20,6 +21,31 @@ public class Button extends Parent {
     protected int mButtonIdentifier = 0;
     protected HashMap<String, String> mInternalData = new HashMap<String, String>();
 
+
+	
+	public static class ButtonBuilder extends ParentBuilder{
+		public ButtonBuilder(String authority, String[] path) {
+			super(new Button(authority, path, false));
+		}
+		
+		@Override
+		public ParentBuilder setName(String name) {
+			if(0 == ((Button)mParent).mButtonIdentifier) {
+				setButtonIdentifier(ButtonIdentifier.getKnownButton(name));
+			}
+			return super.setName(name);
+		}
+		
+		public ParentBuilder setButtonIdentifier(int buttonIdentifier) {
+			((Button)mParent).mButtonIdentifier = buttonIdentifier;
+			return this;
+		}
+		
+		public ParentBuilder putExtra(String name, String extra) {
+			((Button)mParent).putExtra(name, extra);
+			return this;
+		}
+	}
 
     private Button() {
 

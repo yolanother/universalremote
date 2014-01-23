@@ -84,7 +84,9 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
     	if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
             Parent[] nodes = get(Parent.fromUri(uri));
 
-            return openButtonIconAsset(nodes[0]);
+            if(nodes.length > 0) {
+            	return openButtonIconAsset(nodes[0]);
+            }
         }
         return null;
     }
@@ -97,7 +99,9 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
     	if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
             Parent[] nodes = get(Parent.fromUri(uri));
 
-            return openButtonIcon(nodes[0]);
+            if(nodes.length > 0) {
+            	return openButtonIcon(nodes[0]);
+            }
         }
         return null;
     }

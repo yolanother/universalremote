@@ -27,4 +27,9 @@
     <string name="cfg_lbl_pages_label">Remote Pages</string>
     <string name="cfg_lbl_sources_label">Remote/Button Sources</string>
     <string name="cfg_lbl_buttons">Buttons</string>
+    
+    <!-- Built in level names -->
+    <string name="level_brands">Brands</string>
+    <string name="level_models">Models</string>
+    <string name="level_buttons">Buttons</string>
 </resources>

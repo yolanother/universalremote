@@ -24,6 +24,41 @@ public class Parent {
 	private boolean mNeedsToFetch = true;
 	private Parent[] mChildren = new Parent[0];
 	private String mLevelName;
+	
+	public static class ParentBuilder {
+		Parent mParent;
+		ParentBuilder(Parent parent) {
+			mParent = parent;
+		}
+		
+		public ParentBuilder(String authority, String[] path) {
+			mParent = new Parent(authority, path, false);
+		}
+		
+		public ParentBuilder setName(String name) {
+			mParent.mName = name;
+			return this;
+		}
+		
+		public ParentBuilder setHasButtonSets(boolean hasButtonSets) {
+			mParent.mHasButtonSets = hasButtonSets;
+			return this;
+		}
+		
+		public ParentBuilder setDescription(String description) {
+			mParent.mDescription = description;
+			return this;
+		}
+		
+		public ParentBuilder setLevelName(String levelName) {
+			mParent.mLevelName = levelName;
+			return this;
+		}
+		
+		public Parent build() {
+			return mParent;
+		}
+	}
 
     protected Parent() {
 
@@ -255,5 +290,9 @@ public class Parent {
 	
 	public Parent[] getChildren() {
 		return mChildren;
+	}
+
+	public String getId() {
+		return getPath()[getPath().length - 1];
 	}
 }

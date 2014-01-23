@@ -1,7 +1,6 @@
 package com.doubtech.universalremote.providers.irremotes;
 
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.util.SparseArray;
@@ -9,16 +8,18 @@ import android.util.SparseArray;
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.ir.IrManager;
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
-import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Brands;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Buttons;
 import com.doubtech.universalremote.providers.irremotes.DataProviderContract.Tables.Remotes;
 import com.doubtech.universalremote.providers.providerdo.Button;
+import com.doubtech.universalremote.providers.providerdo.Button.ButtonBuilder;
+import com.doubtech.universalremote.providers.providerdo.Parent;
+import com.doubtech.universalremote.providers.providerdo.Parent.ParentBuilder;
 import com.doubtech.universalremote.utils.ButtonStyler;
 import com.doubtech.universalremote.utils.StringUtils;
 
-public class IrRemoteProvider /*extends AbstractUniversalRemoteProvider*/ {
-    private static final String TAG = "UniversalRemote : IrRemoteProvider";/*
+public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
+    private static final String TAG = "UniversalRemote : IrRemoteProvider";
 
     public static final String AUTHORITY = "com.doubtech.universalremote.providers.irremotes.LircProvider";
 
@@ -34,43 +35,72 @@ public class IrRemoteProvider /*extends AbstractUniversalRemoteProvider*/ {
     public String getAuthority() {
         return AUTHORITY;
     }
-
+    
     @Override
-    protected Cursor getBrands(String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        return compileQuery(Brands.TABLE_NAME, projection, selection, selectionArgs, Brands.Columns.BrandName);
+    public Parent[] get(Parent parent) {
+    	if(null == parent || parent.getPath().length == 0) {
+    		return getBrands(parent);
+    	} else if(parent.getPath().length == 1) {
+    		return getModels(parent);
+    	} else if(parent.getPath().length == 2) {
+    		return getButtons(parent);
+    	}
+    	return new Parent[0];
     }
 
-    @Override
-    public String getBrandColNameBrandName() {
-        return Brands.Columns.BrandName;
-    }
+    private Parent[] getBrands(Parent parent) {
+    	Cursor cursor = compileQuery(Brands.TABLE_NAME, null, null, null, Brands.Columns.BrandName);
+    	Parent[] brands = new Parent[cursor.getCount()];
+    	cursor.moveToFirst();
+    	String levelName = getContext().getResources().getString(R.string.level_brands);
+    	for(int i = 0; i < brands.length; i++) {
+    		String id = cursor.getString(Brands.Columns.PROJECTION_BRAND_ID);
+    		brands[i] = new ParentBuilder(getAuthority(), new String[] { id })
+    			.setName(cursor.getString(Brands.Columns.PROJECTION_BRAND_NAME))
+    			.setLevelName(levelName)
+    			.build();
+    		cursor.moveToNext();
+    	}
+    	return brands;
+	}
 
-    @Override
-    public String getBrandColNameId() {
-        return Brands.Columns.BrandID;
-    }
+    private Parent[] getModels(Parent parent) {
+    	String brandId = parent.getId();
+    	Cursor cursor = compileQuery(Remotes.TABLE_NAME, null, null != brandId ? Remotes.Columns.BrandId + " = " + brandId : brandId, null, Remotes.Columns.RemoteName);
+    	Parent[] brands = new Parent[cursor.getCount()];
+    	cursor.moveToFirst();
+    	String levelName = getContext().getResources().getString(R.string.level_buttons);
+    	for(int i = 0; i < brands.length; i++) {
+    		String id = cursor.getString(Remotes.Columns.PROJECTION_REMOTE_ID);
+    		brands[i] = new ParentBuilder(getAuthority(), new String[] { brandId, id })
+    			.setName(cursor.getString(Remotes.Columns.PROJECTION_REMOTE_NAME))
+    			.setHasButtonSets(true)
+    			.setLevelName(levelName)
+    			.build();
+    		cursor.moveToNext();
+    	}
+    	return brands;
+	}
 
-    @Override
-    protected Cursor getModels(String[] projection, String brandId,
-            String[] selectionArgs, String sortOrder) {
-        return compileQuery(Remotes.TABLE_NAME, projection, null != brandId ? Remotes.Columns.BrandId + " = " + brandId : brandId, selectionArgs, Remotes.Columns.RemoteName);
-    }
-
-    @Override
-    public String getModelColNameBrandId() {
-        return Remotes.Columns.BrandId;
-    }
-
-    @Override
-    public String getModelColNameModelName() {
-        return Remotes.Columns.RemoteName;
-    }
-
-    @Override
-    public String getModelColNameId() {
-        return Remotes.Columns.RemoteId;
-    }
-
+    private Parent[] getButtons(Parent parent) {
+    	String modelId = parent.getId();
+    	Cursor cursor = getButtons(Buttons.Columns.ALL, modelId, null, null);
+    	Parent[] brands = new Parent[cursor.getCount()];
+    	cursor.moveToFirst();
+    	String levelName = getContext().getResources().getString(R.string.level_models);
+    	for(int i = 0; i < brands.length; i++) {
+    		String id = cursor.getString(Buttons.Columns.PROJECTION_BUTTON_ID);
+    		brands[i] = new ButtonBuilder(getAuthority(), new String[] { parent.getPath()[0], parent.getPath()[1], id })
+				.putExtra(Buttons.Columns.ButtonCode, cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE))
+    			.setName(cursor.getString(Buttons.Columns.PROJECTION_BUTTON_NAME))
+    			.setHasButtonSets(true)
+    			.setLevelName(levelName)
+    			.build();
+    		cursor.moveToNext();
+    	}
+    	return brands;
+	}
+    
     @Override
     public Button[] sendButtons(Button[] buttons) {
         SparseArray<Button> map = new SparseArray<Button>();
@@ -82,11 +112,11 @@ public class IrRemoteProvider /*extends AbstractUniversalRemoteProvider*/ {
         query.append(Buttons.Columns.ButtonId);
         query.append(" in (");
         for (int i = 0; i < buttons.length; i++) {
-            query.append(buttons[i].getButtonId());
+            query.append(buttons[i].getId());
             if (i + 1 < buttons.length) {
                 query.append(", ");
             }
-            map.put(Integer.parseInt(buttons[i].getButtonId()), buttons[i]);
+            map.put(Integer.parseInt(buttons[i].getId()), buttons[i]);
         }
         query.append(")");
         final SQLiteDatabase db = mHelper.getReadableDatabase();
@@ -108,12 +138,11 @@ public class IrRemoteProvider /*extends AbstractUniversalRemoteProvider*/ {
     }
 
     @Override
-    public int getIconId(Button button) {
+    public int getIconId(Parent button) {
         return ButtonStyler.getIconId(button.getName());
     }
 
-    @Override
-    protected Cursor getButtons(String[] projection, String brandId, String modelId,
+    protected Cursor getButtons(String[] projection, String modelId,
             String[] buttons, String sortOrder) {
         final SQLiteDatabase db = mHelper.getReadableDatabase();
         StringBuilder query = new StringBuilder("select ");
@@ -159,31 +188,7 @@ public class IrRemoteProvider /*extends AbstractUniversalRemoteProvider*/ {
         query.append(" order by " + Buttons.Columns.ButtonLabel);
         Cursor cursor = db.rawQuery(query.toString(), null);
 
-        MatrixCursor modifiedCursor = new MatrixCursor(URPContract.Buttons.ALL);
-        if (cursor.moveToFirst()) {
-            do {
-                Button button = Button.fromCursor(this, getAuthority(), cursor);
-                button.putExtra(Buttons.Columns.ButtonCode, cursor.getString(cursor.getColumnIndex(Buttons.Columns.ButtonCode)));
-                modifiedCursor.addRow(button.toRow());
-
-            } while (cursor.moveToNext());
-        }
-        return modifiedCursor;
-    }
-
-    @Override
-    public String getButtonsColNameModelId() {
-        return Buttons.Columns.RemoteId;
-    }
-
-    @Override
-    public String getButtonsColNameId() {
-        return Buttons.Columns.ButtonId;
-    }
-
-    @Override
-    public String getButtonsColNameButtonName() {
-        return Buttons.Columns.ButtonName;
+        return cursor;
     }
 
     private Cursor compileQuery(String table, String[] projection, String selection,
@@ -255,5 +260,5 @@ public class IrRemoteProvider /*extends AbstractUniversalRemoteProvider*/ {
     @Override
     public boolean isProviderEnabled() {
         return IrManager.isSupported(getContext());
-    }*/
+    }
 }
