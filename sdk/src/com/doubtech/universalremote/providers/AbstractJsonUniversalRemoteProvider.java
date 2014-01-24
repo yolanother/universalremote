@@ -21,6 +21,19 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
             } else if (null != parent && parent.getChildren().length > 0) {
                 return parent.getChildren();
             }
+
+            Parent parentsParent = parent.getParent();
+            if (null != parentsParent && parentsParent.needsToFetch()) {
+                get(parentsParent);
+            }
+
+            if (parent instanceof Button) {
+                Button button = (Button) parent;
+                parent = parent.getParent();
+                Parent.fromJson(this, parent, getJsonRetreiver().getJson(parent));
+                return new Parent[] { Button.getCached(button) };
+            }
+
             return Parent.fromJson(this, parent, getJsonRetreiver().getJson(parent));
         } catch (JSONException e) {
             Log.d(TAG, e.getMessage(), e);

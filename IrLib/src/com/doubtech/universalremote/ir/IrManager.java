@@ -8,8 +8,12 @@ import java.util.concurrent.TimeUnit;
 import android.content.Context;
 import android.util.Log;
 
+import com.doubtech.universalremote.utils.StringUtils;
+
 public abstract class IrManager {
     public static final String TAG = "IrManager";
+    
+    static final boolean DEBUG = false;
 
     public static final int PRONTO_HEADER_BLOCK_LENGTH = 4;
 
@@ -59,6 +63,7 @@ public abstract class IrManager {
                 @Override
                 public void run() {
                     try {
+                        if(DEBUG) Log.d("AARON", frequency + "," + StringUtils.implode(",", timings));
                         transmitImpl(frequency, timings);
                     } catch(RejectedExecutionException e) {
                         destroy();

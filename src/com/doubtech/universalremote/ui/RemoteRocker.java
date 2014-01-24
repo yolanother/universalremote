@@ -112,7 +112,7 @@ public class RemoteRocker extends View implements IRemoteView {
                         while (top || bottom) {
                             if (top) {
                                 mTopButton.send(getContext());
-                            } else {
+                            } else if (bottom) {
                                 mBottomButton.send(getContext());
                             }
                             try {
@@ -128,7 +128,6 @@ public class RemoteRocker extends View implements IRemoteView {
 
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        Log.d("AARON", "Alpha: " + mAlpha);
                         mAlpha = (int) (255 * (500 - millisUntilFinished) / 500.0f);
                         invalidate();
                     }
@@ -149,7 +148,7 @@ public class RemoteRocker extends View implements IRemoteView {
                     public void run() {
                         if (top) {
                             mTopButton.send(getContext());
-                        } else {
+                        } else if (bottom) {
                             mBottomButton.send(getContext());
                         }
                     };

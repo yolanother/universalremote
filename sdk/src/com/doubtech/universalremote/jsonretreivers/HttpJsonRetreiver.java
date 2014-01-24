@@ -34,7 +34,6 @@ public abstract class HttpJsonRetreiver implements JsonRetreiver {
     }
 
     private String get(final URL url) throws IOException {
-        Log.d(TAG, "Getting " + url);
         final String key = getUrlKey(url);
         Snapshot snapshot = mCache.get(key);
         String json = "";
@@ -64,6 +63,7 @@ public abstract class HttpJsonRetreiver implements JsonRetreiver {
     }
 
     private String doHttpGet(URL url) throws IOException {
+        Log.d(TAG, "Getting " + url);
         return doReadStream(url.openStream());
     }
 

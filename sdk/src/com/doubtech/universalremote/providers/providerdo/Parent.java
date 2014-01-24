@@ -24,6 +24,7 @@ public class Parent {
     private boolean mNeedsToFetch = true;
     private Parent[] mChildren = new Parent[0];
     private String mLevelName;
+    private Parent mParent;
 
     public static class ParentBuilder {
         Parent mParent;
@@ -186,6 +187,9 @@ public class Parent {
             if (!isParent) {
                 node = Button.fromJson(provider, obj, (Button) node);
             }
+            if (null == node.mParent) {
+                node.mParent = parentNode;
+            }
             models[i] = getCached(node);
         }
         if (null != parentNode) {
@@ -294,5 +298,17 @@ public class Parent {
 
     public String getId() {
         return getPath()[getPath().length - 1];
+    }
+
+    public Parent getParent() {
+        if (null == mParent && mPath.length > 0) {
+            String[] path = new String[mPath.length - 1];
+            for (int i = 0; i < path.length; i++) {
+                path[i] = mPath[i];
+            }
+            mParent = getCached(new Parent(mAuthority, path, true));
+        }
+
+        return mParent;
     }
 }
