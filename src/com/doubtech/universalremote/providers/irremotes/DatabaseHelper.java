@@ -26,23 +26,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public synchronized static DatabaseHelper getInstance(Context context) {
         if (sInstance == null) {
-            File remotesDb = context.getDatabasePath("remotes.db");
-            boolean importDb = !remotesDb.exists();
-            sInstance = new DatabaseHelper(context);
-            if (importDb) {
-                if (!sInstance.importDatabase( new File(context.getCacheDir(), "temp.db"))) {
-                    // TODO REMOVE. This is to make debugging faster.
-                    Log.d(TAG, "REMOVE ME.", new Exception());
-                    remotesDb.delete();
-                }
+            File remotesDb = new File(context.getCacheDir(), "remotes.db");
+            if (!remotesDb.exists()) {
+                extractSourceDatabase(context, "remotes.db", remotesDb);
             }
+            sInstance = new DatabaseHelper(context);
         }
 
         return sInstance;
     }
 
     public DatabaseHelper(Context context) {
-        super(context, "remotes.db", null, VERSION);
+        super(context, new File(context.getCacheDir(), "remotes.db").getAbsolutePath(), null, VERSION);
         mContext = context.getApplicationContext();
     }
 
@@ -66,22 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(createTable(
-                Tables.Brands.TABLE_NAME,
-                Tables.Brands.Columns.ALL,
-                Tables.Brands.Columns.ALL_TYPES));
-
-        db.execSQL(createTable(
-                Tables.Remotes.TABLE_NAME,
-                Tables.Remotes.Columns.ALL,
-                Tables.Remotes.Columns.ALL_TYPES));
-
-        db.execSQL(createTable(
-                Tables.Buttons.TABLE_NAME,
-                Tables.Buttons.Columns.ALL,
-                Tables.Buttons.Columns.ALL_TYPES));
-
-        db.execSQL("INSERT INTO Brands values(-1, 'Recently Added');");
+        // Importing existing database so we don't need to create.
     }
 
     private boolean importDatabase(File tempFile) {

@@ -69,8 +69,8 @@ public class GlobalCacheProvider extends AbstractJsonUniversalRemoteProvider {
             String buttonData = button.getInternalData("buttonCode");
             String[] code = buttonData.split(",");
             int[] timings = new int[code.length - 1];
-            for(int i = 0; i < timings.length; i++) {
-            	timings[i] = Integer.parseInt(code[i + 1]);
+            for (int i = 0; i < timings.length; i++) {
+                timings[i] = Integer.parseInt(code[i + 1]);
             }
             manager.transmit(Integer.parseInt(code[0]), timings);
         }

@@ -19,46 +19,46 @@ public class Parent {
     protected String[] mPath;
     protected String mName;
     private int mHashCode;
-	private boolean mHasButtonSets;
-	private String mDescription;
-	private boolean mNeedsToFetch = true;
-	private Parent[] mChildren = new Parent[0];
-	private String mLevelName;
-	
-	public static class ParentBuilder {
-		Parent mParent;
-		ParentBuilder(Parent parent) {
-			mParent = parent;
-		}
-		
-		public ParentBuilder(String authority, String[] path) {
-			mParent = new Parent(authority, path, false);
-		}
-		
-		public ParentBuilder setName(String name) {
-			mParent.mName = name;
-			return this;
-		}
-		
-		public ParentBuilder setHasButtonSets(boolean hasButtonSets) {
-			mParent.mHasButtonSets = hasButtonSets;
-			return this;
-		}
-		
-		public ParentBuilder setDescription(String description) {
-			mParent.mDescription = description;
-			return this;
-		}
-		
-		public ParentBuilder setLevelName(String levelName) {
-			mParent.mLevelName = levelName;
-			return this;
-		}
-		
-		public Parent build() {
-			return mParent;
-		}
-	}
+    private boolean mHasButtonSets;
+    private String mDescription;
+    private boolean mNeedsToFetch = true;
+    private Parent[] mChildren = new Parent[0];
+    private String mLevelName;
+
+    public static class ParentBuilder {
+        Parent mParent;
+        ParentBuilder(Parent parent) {
+            mParent = parent;
+        }
+
+        public ParentBuilder(String authority, String[] path) {
+            mParent = new Parent(authority, path, false);
+        }
+
+        public ParentBuilder setName(String name) {
+            mParent.mName = name;
+            return this;
+        }
+
+        public ParentBuilder setHasButtonSets(boolean hasButtonSets) {
+            mParent.mHasButtonSets = hasButtonSets;
+            return this;
+        }
+
+        public ParentBuilder setDescription(String description) {
+            mParent.mDescription = description;
+            return this;
+        }
+
+        public ParentBuilder setLevelName(String levelName) {
+            mParent.mLevelName = levelName;
+            return this;
+        }
+
+        public Parent build() {
+            return mParent;
+        }
+    }
 
     protected Parent() {
 
@@ -112,7 +112,7 @@ public class Parent {
         Parent node;
 
         node = isParent ? new Parent(authority, getPath(parent), true) :
-        		new Button(authority, getPath(parent), true);
+                new Button(authority, getPath(parent), true);
 
         idx = cursor.getColumnIndex(Parents.COLUMN_NAME);
         if (idx >= 0) {
@@ -129,8 +129,8 @@ public class Parent {
             node.mHasButtonSets = cursor.getInt(idx) != 0;
         }
 
-        if(!isParent) {
-        	node = Button.fromCursor((Button) node, cursor);
+        if (!isParent) {
+            node = Button.fromCursor((Button) node, cursor);
         }
 
         return node;
@@ -164,11 +164,11 @@ public class Parent {
         String authority = provider.getAuthority();
         String levelName = null;
         boolean hasButtonSets = false;
-        if(obj.has(Parents.COLUMN_HAS_BUTTONSETS)) {
-        	hasButtonSets = obj.getBoolean(Parents.COLUMN_HAS_BUTTONSETS);
+        if (obj.has(Parents.COLUMN_HAS_BUTTONSETS)) {
+            hasButtonSets = obj.getBoolean(Parents.COLUMN_HAS_BUTTONSETS);
         }
-        if(obj.has(Parents.COLUMN_LEVEL)) {
-        	levelName = obj.getString(Parents.COLUMN_LEVEL);
+        if (obj.has(Parents.COLUMN_LEVEL)) {
+            levelName = obj.getString(Parents.COLUMN_LEVEL);
         }
         for (int i = 0; i < array.length(); i++) {
             obj = array.getJSONObject(i);
@@ -176,20 +176,20 @@ public class Parent {
             Parent node = isParent ? new Parent(authority, path, false)
                 : new Button(authority, path, false);
             node.mName = obj.getString(Parents.COLUMN_NAME);
-        	node.mHasButtonSets = hasButtonSets || provider.hasButtonSets(node);
-        	node.mLevelName = levelName;
-        	if(obj.has(Parents.COLUMN_DESCRIPTION)) {
-        		node.mDescription = obj.getString(Parents.COLUMN_DESCRIPTION);
-        	} else {
-        		node.mDescription = provider.getDescription(node);
-        	}
-        	if(!isParent) {
-        		node = Button.fromJson(provider, obj, (Button) node);
-        	}
+            node.mHasButtonSets = hasButtonSets || provider.hasButtonSets(node);
+            node.mLevelName = levelName;
+            if (obj.has(Parents.COLUMN_DESCRIPTION)) {
+                node.mDescription = obj.getString(Parents.COLUMN_DESCRIPTION);
+            } else {
+                node.mDescription = provider.getDescription(node);
+            }
+            if (!isParent) {
+                node = Button.fromJson(provider, obj, (Button) node);
+            }
             models[i] = getCached(node);
         }
-        if(null != parentNode) {
-        	parentNode.setChildren(models);
+        if (null != parentNode) {
+            parentNode.setChildren(models);
         }
         return models;
     }
@@ -213,15 +213,15 @@ public class Parent {
     }
 
     public String getLevelName() {
-		return mLevelName;
-	}
+        return mLevelName;
+    }
 
-	public String getName() {
+    public String getName() {
         return mName;
     }
 
     public String getDescription() {
-    	return mDescription;
+        return mDescription;
     }
 
     public String[] getPath() {
@@ -265,8 +265,8 @@ public class Parent {
         if (null == b) {
             b = button;
             // Only cache objects that have all of their data.
-            if(!button.needsToFetch()) {
-            	mCache.put(b, b);
+            if (!button.needsToFetch()) {
+                mCache.put(b, b);
             }
         }
         return b;
@@ -275,24 +275,24 @@ public class Parent {
     public boolean hasButtonSets() {
         return mHasButtonSets;
     }
-    
+
     public boolean needsToFetch() {
-    	return mNeedsToFetch;
+        return mNeedsToFetch;
     }
 
     public void setNeedsToFetch(boolean needsToFetch) {
-    	mNeedsToFetch = needsToFetch;
+        mNeedsToFetch = needsToFetch;
     }
 
-	public void setChildren(Parent[] children) {
-		mChildren = children;
-	}
-	
-	public Parent[] getChildren() {
-		return mChildren;
-	}
+    public void setChildren(Parent[] children) {
+        mChildren = children;
+    }
 
-	public String getId() {
-		return getPath()[getPath().length - 1];
-	}
+    public Parent[] getChildren() {
+        return mChildren;
+    }
+
+    public String getId() {
+        return getPath()[getPath().length - 1];
+    }
 }

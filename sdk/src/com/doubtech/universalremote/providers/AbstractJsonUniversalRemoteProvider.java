@@ -15,13 +15,13 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
     @Override
     public Parent[] get(Parent parent) {
         try {
-        	parent = Parent.getCached(parent);
-        	if(!parent.needsToFetch() && parent instanceof Button) {
-        		return new Parent[] { parent };
-        	} else if (null != parent && parent.getChildren().length > 0) {
-        		return parent.getChildren();
-        	}
-    		return Parent.fromJson(this, parent, getJsonRetreiver().getJson(parent));
+            parent = Parent.getCached(parent);
+            if (!parent.needsToFetch() && parent instanceof Button) {
+                return new Parent[] { parent };
+            } else if (null != parent && parent.getChildren().length > 0) {
+                return parent.getChildren();
+            }
+            return Parent.fromJson(this, parent, getJsonRetreiver().getJson(parent));
         } catch (JSONException e) {
             Log.d(TAG, e.getMessage(), e);
         }

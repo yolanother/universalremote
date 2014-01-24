@@ -81,11 +81,11 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             throws FileNotFoundException {
         List<String> segments = uri.getPathSegments();
         String table = segments.get(0);
-    	if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
+        if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
             Parent[] nodes = get(Parent.fromUri(uri));
 
-            if(nodes.length > 0) {
-            	return openButtonIconAsset(nodes[0]);
+            if (nodes.length > 0) {
+                return openButtonIconAsset(nodes[0]);
             }
         }
         return null;
@@ -96,11 +96,11 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             throws FileNotFoundException {
         List<String> segments = uri.getPathSegments();
         String table = segments.get(0);
-    	if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
+        if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
             Parent[] nodes = get(Parent.fromUri(uri));
 
-            if(nodes.length > 0) {
-            	return openButtonIcon(nodes[0]);
+            if (nodes.length > 0) {
+                return openButtonIcon(nodes[0]);
             }
         }
         return null;
@@ -178,9 +178,9 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             Parent[] nodes = get(Parent.fromUri(uri));
             return getCursor(nodes);
         } else if (URPContract.BUTTON_COMMAND_SEND.equals(table)) {
-        	// TODO Might want to replace with a single thread executor.
-        	new Thread() {
-        		public void run() {
+            // TODO Might want to replace with a single thread executor.
+            new Thread() {
+                public void run() {
                     Parent[] nodes = get(Parent.fromUri(uri));
                     List<Button> buttons = new ArrayList<Button>();
                     for (Parent node : nodes) {
@@ -188,9 +188,9 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
                             buttons.add((Button) node);
                         }
                     }
-                    sendButtons(buttons.toArray(new Button[0]));        			
-        		}
-        	}.start();
+                    sendButtons(buttons.toArray(new Button[0]));
+                }
+            }.start();
             return new MatrixCursor(new String[] {"Sent"});
         }
         throw new IllegalArgumentException("Unknown query: " + uri);
@@ -198,15 +198,15 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
 
     private Cursor getCursor(Parent[] nodes) {
         MatrixCursor cursor;
-    	if(nodes.length > 0) {
-    		cursor = new MatrixCursor(nodes[0].getColumns());
-	        for (Parent node : nodes) {
-	            cursor.addRow(node.toRow());
-	        }
-    	} else {
-    		cursor = new MatrixCursor(Parents.ALL);
-    	}
-    	cursor.moveToFirst();
+        if (nodes.length > 0) {
+            cursor = new MatrixCursor(nodes[0].getColumns());
+            for (Parent node : nodes) {
+                cursor.addRow(node.toRow());
+            }
+        } else {
+            cursor = new MatrixCursor(Parents.ALL);
+        }
+        cursor.moveToFirst();
         return cursor;
     }
 
@@ -339,11 +339,11 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         }
     }
 
-	public boolean hasButtonSets(Parent node) {
-		return false;
-	}
+    public boolean hasButtonSets(Parent node) {
+        return false;
+    }
 
-	public String getDescription(Parent node) {
-		return null;
-	}
+    public String getDescription(Parent node) {
+        return null;
+    }
 }

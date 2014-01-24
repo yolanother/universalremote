@@ -22,30 +22,30 @@ public class Button extends Parent {
     protected HashMap<String, String> mInternalData = new HashMap<String, String>();
 
 
-	
-	public static class ButtonBuilder extends ParentBuilder{
-		public ButtonBuilder(String authority, String[] path) {
-			super(new Button(authority, path, false));
-		}
-		
-		@Override
-		public ParentBuilder setName(String name) {
-			if(0 == ((Button)mParent).mButtonIdentifier) {
-				setButtonIdentifier(ButtonIdentifier.getKnownButton(name));
-			}
-			return super.setName(name);
-		}
-		
-		public ParentBuilder setButtonIdentifier(int buttonIdentifier) {
-			((Button)mParent).mButtonIdentifier = buttonIdentifier;
-			return this;
-		}
-		
-		public ParentBuilder putExtra(String name, String extra) {
-			((Button)mParent).putExtra(name, extra);
-			return this;
-		}
-	}
+
+    public static class ButtonBuilder extends ParentBuilder{
+        public ButtonBuilder(String authority, String[] path) {
+            super(new Button(authority, path, false));
+        }
+
+        @Override
+        public ParentBuilder setName(String name) {
+            if (0 == ((Button)mParent).mButtonIdentifier) {
+                setButtonIdentifier(ButtonIdentifier.getKnownButton(name));
+            }
+            return super.setName(name);
+        }
+
+        public ParentBuilder setButtonIdentifier(int buttonIdentifier) {
+            ((Button)mParent).mButtonIdentifier = buttonIdentifier;
+            return this;
+        }
+
+        public ParentBuilder putExtra(String name, String extra) {
+            ((Button)mParent).putExtra(name, extra);
+            return this;
+        }
+    }
 
     private Button() {
 
@@ -96,10 +96,10 @@ public class Button extends Parent {
         };
         return row;
     }
-    
+
     @Override
     public String[] getColumns() {
-    	return Buttons.ALL;
+        return Buttons.ALL;
     }
 
     public int getButtonIdentifier() {

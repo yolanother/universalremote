@@ -22,12 +22,15 @@
     <string name="globalcache_provider_name">Global Caché Infrared Database</string>
     <string name="globalcache_provider_desc">Contains over 100,000 Infrared codes for over 2,000 different remotes from over 500 manufacturers</string>
 
+    <string name="manufacturer_provider_name">Manufacturer Database</string>
+    <string name="manufacturer_provider_desc">A small database of manually imported ir codes found directly on manufacturer websites.</string>
+
     <!-- Remote Page Configuration -->
     <string name="title_activity_remote_page_configuration">Page Configuration</string>
     <string name="cfg_lbl_pages_label">Remote Pages</string>
     <string name="cfg_lbl_sources_label">Remote/Button Sources</string>
     <string name="cfg_lbl_buttons">Buttons</string>
-    
+
     <!-- Built in level names -->
     <string name="level_brands">Brands</string>
     <string name="level_models">Models</string>

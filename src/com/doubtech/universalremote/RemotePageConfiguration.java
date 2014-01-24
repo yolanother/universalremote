@@ -181,19 +181,19 @@ public class RemotePageConfiguration extends Activity {
             adapter.setParentAdapter(parent);
             return adapter;
         };
-        
+
         @Override
         public void onLoadComplete(TextAdapter adapter, Parent parent) {
-        	mSourcesLabel.setText(R.string.cfg_lbl_sources_label);
-        	if(adapter.getCount() > 0) {
-	        	parent = ((TextAdapter) adapter).getTarget(0);
-	        	if(null != parent) {
-	            	String levelName = parent.getLevelName();
-	            	if(null != levelName) {
-	            		mSourcesLabel.setText(levelName);
-	            	}
-	        	}
-        	}
+            mSourcesLabel.setText(R.string.cfg_lbl_sources_label);
+            if (adapter.getCount() > 0) {
+                parent = ((TextAdapter) adapter).getTarget(0);
+                if (null != parent) {
+                    String levelName = parent.getLevelName();
+                    if (null != levelName) {
+                        mSourcesLabel.setText(levelName);
+                    }
+                }
+            }
         }
     };
     private RemotePageAdapter mRemotePageAdapter;
@@ -205,7 +205,7 @@ public class RemotePageConfiguration extends Activity {
     private int mHierarchyLevel;
     private int mRevertHierarchyLevel;
     private RemotePage mNewPage;
-	private TextView mSourcesLabel;
+    private TextView mSourcesLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -243,7 +243,7 @@ public class RemotePageConfiguration extends Activity {
                 return true;
             }
         });
-        
+
         mSourcesLabel = (TextView) findViewById(R.id.sources_label);
 
         mRemotes = (HierarchicalListView) findViewById(R.id.remote_sources);
@@ -260,7 +260,7 @@ public class RemotePageConfiguration extends Activity {
                 } else if (adapter instanceof TextAdapter) {
                     final TextAdapter ta = (TextAdapter) adapter;
                     Parent parent = ta.getTarget(position);
-                    
+
                     if (parent.hasButtonSets()) {
                         mRemotes.setSelectedPosition(position);
                         RemotePageButtonSource page = new RemotePageButtonSource(RemotePageConfiguration.this);
@@ -318,7 +318,6 @@ public class RemotePageConfiguration extends Activity {
                         mNewPage = page;
                         mRemotePageAdapter.add(page);
                         v.setTag(page);
-                        Toast.makeText(RemotePageConfiguration.this, "Adding " + ((TextView) view).getText(), Toast.LENGTH_LONG).show();
                         return true;
                     }
                 }
@@ -334,19 +333,19 @@ public class RemotePageConfiguration extends Activity {
                 if (level == mRevertHierarchyLevel) {
                     mMenuItemAddRemote.setVisible(false);
                 }
-                
+
                 mSourcesLabel.setText(R.string.cfg_lbl_sources_label);
                 Adapter adapter = mRemotes.getCurrentAdapter();
-                if(null != adapter && adapter instanceof TextAdapter) {
-                	Parent parent = ((TextAdapter) adapter).getParentObject();
-                	if(null != parent) {
-	                	String levelName = parent.getLevelName();
-	                	if(null != levelName) {
-	                		mSourcesLabel.setText(levelName);
-	                	}
-                	}
-                } else if(null != mRemotes.getCurrentView()) {
-                	mSourcesLabel.setText(R.string.cfg_lbl_buttons);
+                if (null != adapter && adapter instanceof TextAdapter) {
+                    Parent parent = ((TextAdapter) adapter).getParentObject();
+                    if (null != parent) {
+                        String levelName = parent.getLevelName();
+                        if (null != levelName) {
+                            mSourcesLabel.setText(levelName);
+                        }
+                    }
+                } else if (null != mRemotes.getCurrentView()) {
+                    mSourcesLabel.setText(R.string.cfg_lbl_buttons);
                 }
             }
         });

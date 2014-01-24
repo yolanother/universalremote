@@ -449,19 +449,19 @@ public class HierarchicalListView extends FrameLayout {
         mHierarchyChangedListener =  listener;
     }
 
-	public Adapter getCurrentAdapter() {
-		View v = getChildAt(getChildCount() - 1);
+    public Adapter getCurrentAdapter() {
+        View v = getChildAt(getChildCount() - 1);
         if (v instanceof InternalListView) {
             return (Adapter) v.getTag();
         }
-		return null;
-	}
+        return null;
+    }
 
-	public View getCurrentView() {
-		View v = getChildAt(getChildCount() - 1);
-		if(v instanceof FrameLayout) {
-			return (View) v.getTag();
-		}
-		return null;
-	}
+    public View getCurrentView() {
+        View v = getChildAt(getChildCount() - 1);
+        if (v instanceof FrameLayout) {
+            return (View) v.getTag();
+        }
+        return null;
+    }
 }

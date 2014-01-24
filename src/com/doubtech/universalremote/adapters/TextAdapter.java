@@ -118,27 +118,27 @@ public class TextAdapter extends CursorAdapter {
         view.setTag(new ViewHolder(view));
         return view;
     }
-    
-    private class ViewHolder {
-    	private TextView mLabel;
-		private TextView mDescription;
 
-		public ViewHolder(View view) {
-    		mLabel = (TextView) view.findViewById(R.id.label);
-    		mDescription = (TextView) view.findViewById(R.id.description);
-    	}
+    private class ViewHolder {
+        private TextView mLabel;
+        private TextView mDescription;
+
+        public ViewHolder(View view) {
+            mLabel = (TextView) view.findViewById(R.id.label);
+            mDescription = (TextView) view.findViewById(R.id.description);
+        }
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-    	ViewHolder holder = (ViewHolder) view.getTag();
+        ViewHolder holder = (ViewHolder) view.getTag();
         Parent parent = Parent.fromCursor(cursor);
         holder.mLabel.setText(parent.getName());
-        if(null != parent.getDescription()) {
-        	holder.mDescription.setVisibility(View.VISIBLE);
-        	holder.mDescription.setText(parent.getDescription());
+        if (null != parent.getDescription()) {
+            holder.mDescription.setVisibility(View.VISIBLE);
+            holder.mDescription.setText(parent.getDescription());
         } else {
-        	holder.mDescription.setVisibility(View.GONE);
+            holder.mDescription.setVisibility(View.GONE);
         }
     }
 

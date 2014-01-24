@@ -35,72 +35,77 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
     public String getAuthority() {
         return AUTHORITY;
     }
-    
+
     @Override
     public Parent[] get(Parent parent) {
-    	if(null == parent || parent.getPath().length == 0) {
-    		return getBrands(parent);
-    	} else if(parent.getPath().length == 1) {
-    		return getModels(parent);
-    	} else if(parent.getPath().length == 2) {
-    		return getButtons(parent);
-    	}
-    	return new Parent[0];
+        if (null == parent || parent.getPath().length == 0) {
+            return getBrands(parent);
+        } else if (parent.getPath().length == 1) {
+            return getModels(parent);
+        } else if (parent.getPath().length == 2 || parent.getPath().length == 3) {
+            return getButtons(parent);
+        }
+        return new Parent[0];
     }
 
     private Parent[] getBrands(Parent parent) {
-    	Cursor cursor = compileQuery(Brands.TABLE_NAME, null, null, null, Brands.Columns.BrandName);
-    	Parent[] brands = new Parent[cursor.getCount()];
-    	cursor.moveToFirst();
-    	String levelName = getContext().getResources().getString(R.string.level_brands);
-    	for(int i = 0; i < brands.length; i++) {
-    		String id = cursor.getString(Brands.Columns.PROJECTION_BRAND_ID);
-    		brands[i] = new ParentBuilder(getAuthority(), new String[] { id })
-    			.setName(cursor.getString(Brands.Columns.PROJECTION_BRAND_NAME))
-    			.setLevelName(levelName)
-    			.build();
-    		cursor.moveToNext();
-    	}
-    	return brands;
-	}
+        Cursor cursor = compileQuery(Brands.TABLE_NAME, null, null, null, Brands.Columns.BrandName);
+        Parent[] brands = new Parent[cursor.getCount()];
+        cursor.moveToFirst();
+        String levelName = getContext().getResources().getString(R.string.level_brands);
+        for (int i = 0; i < brands.length; i++) {
+            String id = cursor.getString(Brands.Columns.PROJECTION_BRAND_ID);
+            brands[i] = new ParentBuilder(getAuthority(), new String[] { id })
+                .setName(cursor.getString(Brands.Columns.PROJECTION_BRAND_NAME))
+                .setLevelName(levelName)
+                .build();
+            cursor.moveToNext();
+        }
+        return brands;
+    }
 
     private Parent[] getModels(Parent parent) {
-    	String brandId = parent.getId();
-    	Cursor cursor = compileQuery(Remotes.TABLE_NAME, null, null != brandId ? Remotes.Columns.BrandId + " = " + brandId : brandId, null, Remotes.Columns.RemoteName);
-    	Parent[] brands = new Parent[cursor.getCount()];
-    	cursor.moveToFirst();
-    	String levelName = getContext().getResources().getString(R.string.level_buttons);
-    	for(int i = 0; i < brands.length; i++) {
-    		String id = cursor.getString(Remotes.Columns.PROJECTION_REMOTE_ID);
-    		brands[i] = new ParentBuilder(getAuthority(), new String[] { brandId, id })
-    			.setName(cursor.getString(Remotes.Columns.PROJECTION_REMOTE_NAME))
-    			.setHasButtonSets(true)
-    			.setLevelName(levelName)
-    			.build();
-    		cursor.moveToNext();
-    	}
-    	return brands;
-	}
+        String brandId = parent.getId();
+        Cursor cursor = compileQuery(Remotes.TABLE_NAME, null, null != brandId ? Remotes.Columns.BrandId + " = " + brandId : brandId, null, Remotes.Columns.RemoteName);
+        Parent[] brands = new Parent[cursor.getCount()];
+        cursor.moveToFirst();
+        String levelName = getContext().getResources().getString(R.string.level_buttons);
+        for (int i = 0; i < brands.length; i++) {
+            String id = cursor.getString(Remotes.Columns.PROJECTION_REMOTE_ID);
+            brands[i] = new ParentBuilder(getAuthority(), new String[] { brandId, id })
+                .setName(cursor.getString(Remotes.Columns.PROJECTION_REMOTE_NAME))
+                .setHasButtonSets(true)
+                .setLevelName(levelName)
+                .build();
+            cursor.moveToNext();
+        }
+        return brands;
+    }
 
     private Parent[] getButtons(Parent parent) {
-    	String modelId = parent.getId();
-    	Cursor cursor = getButtons(Buttons.Columns.ALL, modelId, null, null);
-    	Parent[] brands = new Parent[cursor.getCount()];
-    	cursor.moveToFirst();
-    	String levelName = getContext().getResources().getString(R.string.level_models);
-    	for(int i = 0; i < brands.length; i++) {
-    		String id = cursor.getString(Buttons.Columns.PROJECTION_BUTTON_ID);
-    		brands[i] = new ButtonBuilder(getAuthority(), new String[] { parent.getPath()[0], parent.getPath()[1], id })
-				.putExtra(Buttons.Columns.ButtonCode, cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE))
-    			.setName(cursor.getString(Buttons.Columns.PROJECTION_BUTTON_NAME))
-    			.setHasButtonSets(true)
-    			.setLevelName(levelName)
-    			.build();
-    		cursor.moveToNext();
-    	}
-    	return brands;
-	}
-    
+        String[] buttonIds = null;
+        String modelId = parent.getId();
+        if (parent.getPath().length == 3) {
+            buttonIds = new String[] { parent.getId() };
+            modelId = parent.getPath()[1];
+        }
+        Cursor cursor = getButtons(Buttons.Columns.ALL, modelId, buttonIds, null);
+        Parent[] brands = new Parent[cursor.getCount()];
+        cursor.moveToFirst();
+        String levelName = getContext().getResources().getString(R.string.level_models);
+        for (int i = 0; i < brands.length; i++) {
+            String id = cursor.getString(Buttons.Columns.PROJECTION_BUTTON_ID);
+            brands[i] = new ButtonBuilder(getAuthority(), new String[] { parent.getPath()[0], parent.getPath()[1], id })
+                .putExtra(Buttons.Columns.ButtonCode, cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE))
+                .setName(cursor.getString(Buttons.Columns.PROJECTION_BUTTON_NAME))
+                .setHasButtonSets(true)
+                .setLevelName(levelName)
+                .build();
+            cursor.moveToNext();
+        }
+        return brands;
+    }
+
     @Override
     public Button[] sendButtons(Button[] buttons) {
         SparseArray<Button> map = new SparseArray<Button>();
