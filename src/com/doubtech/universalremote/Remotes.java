@@ -53,12 +53,9 @@ public class Remotes extends FragmentActivity {
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
 
         Constants.REMOTE_FILE.getParentFile().mkdirs();
 
@@ -70,7 +67,7 @@ public class Remotes extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mSectionsPagerAdapter.open(mFile);
+        open(mFile);
     }
 
     @Override
@@ -93,8 +90,15 @@ public class Remotes extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CONFIGURE && resultCode == RESULT_OK) {
-            mSectionsPagerAdapter.open(data.getData());
+            open(data.getData());
         }
+    }
+
+    private void open(Uri uri) {
+        mSectionsPagerAdapter = new SectionsPagerAdapter(
+                getSupportFragmentManager());
+        mSectionsPagerAdapter.open(uri);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
     }
 
     /**

@@ -7,9 +7,11 @@ import java.util.Collections;
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlSerializer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -90,10 +92,11 @@ public class RemoteButton extends ImageView implements IRemoteView {
         }
     }
 
-    public synchronized void addButtonFunction(ButtonFunction button) {
+    private boolean mDrawablesSet;
+    public synchronized void addButtonFunction(final ButtonFunction button) {
         if (null == button) return;
         mButtonDetails.add(button);
-        if (mButtonDetails.size() == 1) {
+        if (!mDrawablesSet) {
             TextDrawable drawable = new TextDrawable(getContext());
             drawable.setText(button.getLabel());
             drawable.setTextColor(Color.WHITE);
@@ -101,10 +104,14 @@ public class RemoteButton extends ImageView implements IRemoteView {
             button.getIcon(getContext(), new IconLoaderListener() {
                 @Override
                 public void onIconLoaded(final Bitmap bitmap) {
-                    post(new Runnable() {
+                    // NOTE was using post here, but it seemed like it wasn't
+                    // always being run for some reason
+                    ((Activity)getContext()).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (null != bitmap) {
+                                mDrawablesSet = true;
+                                setImageDrawable(null);
                                 setImageBitmap(bitmap);
                             }
                         }

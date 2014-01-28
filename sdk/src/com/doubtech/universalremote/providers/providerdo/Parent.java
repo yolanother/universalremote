@@ -238,7 +238,7 @@ public class Parent {
             path.append("/");
             path.append(Uri.encode(segment));
         }
-        return path.toString();
+        return path.toString().replaceAll("//+", "/");
     }
 
     public String getAuthority() {

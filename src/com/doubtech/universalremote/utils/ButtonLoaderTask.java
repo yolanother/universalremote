@@ -17,6 +17,6 @@ public class ButtonLoaderTask extends AsyncTask<Parent, Void, Cursor> {
     @Override
     protected Cursor doInBackground(Parent... params) {
 
-        return AbstractUniversalRemoteProvider.query(mContext, params[0]);
+        return ProviderUtils.query(mContext, params[0]);
     }
 }

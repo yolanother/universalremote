@@ -49,6 +49,7 @@ import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.utils.IOUtil;
+import com.doubtech.universalremote.utils.ProviderUtils;
 import com.doubtech.universalremote.widget.DynamicListView.ISwappableAdapter;
 import com.doubtech.universalremote.widget.HierarchicalListView;
 import com.doubtech.universalremote.widget.HierarchicalListView.OnHierarchyChangedListener;
@@ -255,7 +256,7 @@ public class RemotePageConfiguration extends Activity {
                 Adapter adapter = ((ListView) adapterView).getAdapter();
                 Object item = adapter.getItem(position);
                 if (item instanceof Button) {
-                    ((Button)item).click(RemotePageConfiguration.this);
+                    ProviderUtils.sendButton(RemotePageConfiguration.this, (Button)item);
                     return true;
                 } else if (adapter instanceof TextAdapter) {
                     final TextAdapter ta = (TextAdapter) adapter;

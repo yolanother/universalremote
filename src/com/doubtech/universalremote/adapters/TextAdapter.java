@@ -8,13 +8,12 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView.FindListener;
 import android.widget.Adapter;
 import android.widget.TextView;
 
 import com.doubtech.universalremote.R;
-import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.providerdo.Parent;
+import com.doubtech.universalremote.utils.ProviderUtils;
 
 public class TextAdapter extends CursorAdapter {
     public static interface RequestChildAdapterListener {
@@ -78,7 +77,7 @@ public class TextAdapter extends CursorAdapter {
 
                     @Override
                     public Cursor loadCursor() {
-                        return AbstractUniversalRemoteProvider.query(
+                        return ProviderUtils.query(
                                 context,
                                 parent);
                     }

@@ -19,6 +19,7 @@ import com.doubtech.universalremote.adapters.TextAdapter.SimpleCursorLoader;
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.providers.providerdo.ProviderDetails;
+import com.doubtech.universalremote.utils.ProviderUtils;
 
 public class ProviderAdapter extends BaseAdapter {
     private static final String TAG = "UniversalRemote : ProviderAdapter";
@@ -33,14 +34,13 @@ public class ProviderAdapter extends BaseAdapter {
         for (ProviderInfo provider : providers) {
             if ("com.doubtech.universalremote.PROVIDE_BUTTONS".equals(provider.readPermission)) {
                 try {
-                    ProviderDetails details = AbstractUniversalRemoteProvider.queryProviderDetails(context, provider.authority);
+                    ProviderDetails details = ProviderUtils.queryProviderDetails(context, provider.authority);
 
-                    Log.d("AARON", "" + details);
                     if (null != details && details.isEnabled()) {
                         mProviders.add(details);
                     }
                 } catch (Exception e) {
-                    Log.d(TAG, "Error retreiving provider info for " + provider.authority + " (" + e.getMessage() + ")");
+                    Log.d(TAG, "Error retreiving provider info for " + provider.authority + " (" + e.getMessage() + ")", e);
                 }
             }
         }
@@ -57,7 +57,7 @@ public class ProviderAdapter extends BaseAdapter {
         SimpleCursorLoader loader = new SimpleCursorLoader() {
             @Override
             public Cursor loadCursor() {
-                return AbstractUniversalRemoteProvider.query(mContext, new Parent(authority, new String[0], true));
+                return ProviderUtils.query(mContext, new Parent(authority, new String[0], true));
             }
         };
         return new TextAdapter(

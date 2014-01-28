@@ -37,6 +37,7 @@ import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.util.Log;
 import android.util.TypedValue;
 
 /**
@@ -116,21 +117,25 @@ public class TextDrawable extends Drawable {
         if (ap != null) {
             for (int i=0; i < ap.getIndexCount(); i++) {
                 int attr = ap.getIndex(i);
-                switch (attr) {
-                    case 0: //Text Size
-                        textSize = a.getDimensionPixelSize(attr, textSize);
-                        break;
-                    case 1: //Typeface
-                        typefaceIndex = a.getInt(attr, typefaceIndex);
-                        break;
-                    case 2: //Text Style
-                        styleIndex = a.getInt(attr, styleIndex);
-                        break;
-                    case 3: //Text Color
-                        textColor = a.getColorStateList(attr);
-                        break;
-                    default:
-                        break;
+                try {
+                    switch (attr) {
+                        case 0: //Text Size
+                            textSize = a.getDimensionPixelSize(attr, textSize);
+                            break;
+                        case 1: //Typeface
+                            typefaceIndex = a.getInt(attr, typefaceIndex);
+                            break;
+                        case 2: //Text Style
+                            styleIndex = a.getInt(attr, styleIndex);
+                            break;
+                        case 3: //Text Color
+                            textColor = a.getColorStateList(attr);
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (Exception e) {
+                    Log.d("TextDrawable", "Unable to precess attributes.", e);
                 }
             }
 

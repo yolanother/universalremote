@@ -1,4 +1,5 @@
-package com.doubtech.universalremote.utils;
+package com.doubtech.universalremote.ir;
+
 
 import java.util.Collection;
 

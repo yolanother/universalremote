@@ -27,6 +27,7 @@ public class ProviderDetails {
     }
 
     public static ProviderDetails fromCursor(Cursor cursor) {
+        cursor.moveToFirst();
         ProviderDetails details = new ProviderDetails();
         details.mAuthority = cursor.getString(URPContract.ProviderDetails.COLIDX_AUTHORITY);
         details.mName = cursor.getString(URPContract.ProviderDetails.COLIDX_NAME);

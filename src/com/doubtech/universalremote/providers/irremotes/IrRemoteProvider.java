@@ -37,7 +37,7 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
     }
 
     @Override
-    public Parent[] get(Parent parent) {
+    public Parent[] getChildren(Parent parent) {
         if (null == parent || parent.getPath().length == 0) {
             return getBrands(parent);
         } else if (parent.getPath().length == 1) {
@@ -46,6 +46,14 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
             return getButtons(parent);
         }
         return new Parent[0];
+    }
+
+    @Override
+    public Parent getDetails(Parent parent) {
+        if (parent instanceof Button) {
+            return getButtons(parent)[0];
+        }
+        return parent;
     }
 
     private Parent[] getBrands(Parent parent) {
@@ -108,30 +116,39 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
 
     @Override
     public Button[] sendButtons(Button[] buttons) {
-        SparseArray<Button> map = new SparseArray<Button>();
-        StringBuilder query = new StringBuilder("select ");
-        StringUtils.implode(",", query, Buttons.Columns.ALL);
-        query.append(" from ");
-        query.append(Buttons.TABLE_NAME);
-        query.append(" where ");
-        query.append(Buttons.Columns.ButtonId);
-        query.append(" in (");
+        boolean fetch = false;
+
         for (int i = 0; i < buttons.length; i++) {
-            query.append(buttons[i].getId());
-            if (i + 1 < buttons.length) {
-                query.append(", ");
-            }
-            map.put(Integer.parseInt(buttons[i].getId()), buttons[i]);
+            buttons[i] = (Button) Parent.getCached(buttons[i]);
+            if (buttons[i].needsToFetch()) fetch = true;
         }
-        query.append(")");
-        final SQLiteDatabase db = mHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query.toString(), null);
-        if (cursor.moveToFirst()) {
-            do {
-                Button button = map.get(cursor.getInt(Buttons.Columns.PROJECTION_BUTTON_ID));
-                button.putExtra(Buttons.Columns.ButtonCode,
-                        cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE));
-            } while (cursor.moveToNext());
+
+        if (fetch) {
+            SparseArray<Button> map = new SparseArray<Button>();
+            StringBuilder query = new StringBuilder("select ");
+            StringUtils.implode(",", query, Buttons.Columns.ALL);
+            query.append(" from ");
+            query.append(Buttons.TABLE_NAME);
+            query.append(" where ");
+            query.append(Buttons.Columns.ButtonId);
+            query.append(" in (");
+            for (int i = 0; i < buttons.length; i++) {
+                query.append(buttons[i].getId());
+                if (i + 1 < buttons.length) {
+                    query.append(", ");
+                }
+                map.put(Integer.parseInt(buttons[i].getId()), buttons[i]);
+            }
+            query.append(")");
+            final SQLiteDatabase db = mHelper.getReadableDatabase();
+            Cursor cursor = db.rawQuery(query.toString(), null);
+            if (cursor.moveToFirst()) {
+                do {
+                    Button button = map.get(cursor.getInt(Buttons.Columns.PROJECTION_BUTTON_ID));
+                    button.putExtra(Buttons.Columns.ButtonCode,
+                            cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE));
+                } while (cursor.moveToNext());
+            }
         }
 
         IrManager ir = IrManager.getInstance(getContext());
@@ -144,7 +161,8 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
 
     @Override
     public int getIconId(Parent button) {
-        return ButtonStyler.getIconId(button.getName());
+        int id = ButtonStyler.getIconId(button.getName());
+        return id;
     }
 
     protected Cursor getButtons(String[] projection, String modelId,

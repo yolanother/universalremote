@@ -13,32 +13,31 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
     public static final String TAG = "UniversalRemote : AbstractJsonURP";
 
     @Override
-    public Parent[] get(Parent parent) {
+    public Parent[] getChildren(Parent parent) {
         try {
             parent = Parent.getCached(parent);
-            if (!parent.needsToFetch() && parent instanceof Button) {
-                return new Parent[] { parent };
-            } else if (null != parent && parent.getChildren().length > 0) {
+            if (null != parent && parent.getChildren().length > 0) {
                 return parent.getChildren();
             }
 
-            Parent parentsParent = parent.getParent();
-            if (null != parentsParent && parentsParent.needsToFetch()) {
-                get(parentsParent);
-            }
-
-            if (parent instanceof Button) {
-                Button button = (Button) parent;
-                parent = parent.getParent();
-                Parent.fromJson(this, parent, getJsonRetreiver().getJson(parent));
-                return new Parent[] { Button.getCached(button) };
-            }
 
             return Parent.fromJson(this, parent, getJsonRetreiver().getJson(parent));
         } catch (JSONException e) {
             Log.d(TAG, e.getMessage(), e);
         }
         return new Parent[0];
+    }
+
+    public Parent getDetails(Parent parent) {
+        // Load details for this button
+        try {
+            Parent.fromJson(this, parent, getJsonRetreiver().getJson(parent.getParent()));
+        } catch (JSONException e) {
+            Log.w(TAG, e.getMessage(), e);
+        }
+
+        // The details were cached on the load so return them.
+        return Parent.getCached(parent);
     }
 
     public abstract JsonRetreiver getJsonRetreiver();

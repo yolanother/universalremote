@@ -357,8 +357,6 @@ public class DynamicListView extends TwoWayListView {
                 return;
             }
 
-            Log.d("AARON", "Original view: " + originalItem);
-            Log.d("AARON", "Switch view: " + switchView);
             if (-1 == originalItem) {
                 return;
             }

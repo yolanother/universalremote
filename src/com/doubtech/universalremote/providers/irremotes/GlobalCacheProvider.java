@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.ir.IrManager;

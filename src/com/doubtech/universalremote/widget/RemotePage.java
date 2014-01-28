@@ -43,11 +43,11 @@ public class RemotePage extends DropGridLayout {
 
     static {
         AVAILABLE_CONTROLS = new HashMap<String, Class<? extends IRemoteView>>();
-        AVAILABLE_CONTROLS.put(RemoteButton.XMLTAG, RemoteButton.class);
-        AVAILABLE_CONTROLS.put(RemoteToggleButton.XMLTAG, RemoteToggleButton.class);
-        AVAILABLE_CONTROLS.put(RemoteDpad.XMLTAG, RemoteDpad.class);
-        AVAILABLE_CONTROLS.put(RemoteNumberpad.XMLTAG, RemoteNumberpad.class);
-        AVAILABLE_CONTROLS.put(RemoteRocker.XMLTAG, RemoteRocker.class);
+        AVAILABLE_CONTROLS.put(RemoteButton.XMLTAG.toLowerCase(), RemoteButton.class);
+        AVAILABLE_CONTROLS.put(RemoteToggleButton.XMLTAG.toLowerCase(), RemoteToggleButton.class);
+        AVAILABLE_CONTROLS.put(RemoteDpad.XMLTAG.toLowerCase(), RemoteDpad.class);
+        AVAILABLE_CONTROLS.put(RemoteNumberpad.XMLTAG.toLowerCase(), RemoteNumberpad.class);
+        AVAILABLE_CONTROLS.put(RemoteRocker.XMLTAG.toLowerCase(), RemoteRocker.class);
     }
 
     private CharSequence mTitle = "";
@@ -124,7 +124,7 @@ public class RemotePage extends DropGridLayout {
 
             addToggleButton(0, ButtonIds.BUTTON_POWER_TOGGLE, ButtonIds.BUTTON_POWER_ON, ButtonIds.BUTTON_POWER_OFF);
 
-            if (arrowButtons == 4) {
+            if (arrowButtons >= 4) {
                 addDpad((int) (colCount / 2.0f - 1),
                         ButtonIds.BUTTON_UP,
                         ButtonIds.BUTTON_DOWN,
@@ -347,7 +347,7 @@ public class RemotePage extends DropGridLayout {
             if (items.item(i) instanceof Element) {
                 Element control = (Element) items.item(i);
                 try {
-                    Class<? extends IRemoteView> controlClass = AVAILABLE_CONTROLS.get(control.getTagName());
+                    Class<? extends IRemoteView> controlClass = AVAILABLE_CONTROLS.get(control.getTagName().toLowerCase());
                     Method method = controlClass.getMethod("fromXml", Context.class, Element.class);
                     int col = Integer.parseInt(control.getAttribute("col"));
                     int row = Integer.parseInt(control.getAttribute("row"));
@@ -357,13 +357,13 @@ public class RemotePage extends DropGridLayout {
                     View view = (View) method.invoke(null, context, control);
                     page.addView(view, new ChildSpec(row, col, rowspan, colspan));
                 } catch (NoSuchMethodException e) {
-                    Log.wtf(TAG, "Unknown control (no such method): " + control.getTagName());
+                    Log.wtf(TAG, "Unknown control (no such method): " + control.getTagName(), e);
                 } catch (IllegalAccessException e) {
-                    Log.wtf(TAG, "Unknown control (illegal access): " + control.getTagName());
+                    Log.wtf(TAG, "Unknown control (illegal access): " + control.getTagName(), e);
                 } catch (IllegalArgumentException e) {
-                    Log.wtf(TAG, "Unknown control (illegal argument): " + control.getTagName());
+                    Log.wtf(TAG, "Unknown control (illegal argument): " + control.getTagName(), e);
                 } catch (InvocationTargetException e) {
-                    Log.wtf(TAG, "Unknown control (invocation target exception): " + control.getTagName());
+                    Log.e(TAG, "Unknown control (invocation target exception): " + control.getTagName(), e);
                 }
             }
         }

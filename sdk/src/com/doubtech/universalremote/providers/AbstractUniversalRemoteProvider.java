@@ -2,35 +2,24 @@ package com.doubtech.universalremote.providers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Parents;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
-import com.doubtech.universalremote.providers.providerdo.ProviderDetails;
-import com.jakewharton.disklrucache.DiskLruCache;
-import com.jakewharton.disklrucache.DiskLruCache.Editor;
-import com.jakewharton.disklrucache.DiskLruCache.Snapshot;
+import com.doubtech.universalremote.utils.StringUtils;
 
 /**
  * @hide
@@ -38,6 +27,8 @@ import com.jakewharton.disklrucache.DiskLruCache.Snapshot;
  *
  */
 public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
+    private static final String TAG = "AbstractUniversalRemoteProvicer";
+    private static final boolean DEBUG = false;
     private UriMatcher mUriMatcher;
 
     public AbstractUniversalRemoteProvider() {
@@ -76,16 +67,25 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         return false;
     }
 
+    @SuppressWarnings("unused")
     @Override
-    public AssetFileDescriptor openAssetFile(Uri uri, String mode)
+    public synchronized AssetFileDescriptor openAssetFile(Uri uri, String mode)
             throws FileNotFoundException {
         List<String> segments = uri.getPathSegments();
         String table = segments.get(0);
         if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
-            Parent[] nodes = get(Parent.fromUri(uri));
+            Parent nodes = getCachedDetails(Parent.fromUri(uri));
 
-            if (nodes.length > 0) {
-                return openButtonIconAsset(nodes[0]);
+            if (!nodes.needsToFetch() && DEBUG) {
+                synchronized(this) {
+                    Log.d(TAG, "[ASSET] ============================");
+                    Log.d(TAG, "[ASSET] " + StringUtils.implode("/", uri.getPathSegments()));
+                    Log.d(TAG, "[ASSET] /" + StringUtils.implode("/", nodes.getPath()));
+                    Log.d(TAG, "[ASSET] " + nodes.getName());
+                    Log.d(TAG, "[ASSET] " + getIconId(nodes));
+                    Log.d(TAG, "[ASSET] ============================\n\n");
+                }
+                return openButtonIconAsset(nodes);
             }
         }
         return null;
@@ -97,7 +97,7 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         List<String> segments = uri.getPathSegments();
         String table = segments.get(0);
         if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
-            Parent[] nodes = get(Parent.fromUri(uri));
+            Parent[] nodes = getChildren(Parent.fromUri(uri));
 
             if (nodes.length > 0) {
                 return openButtonIcon(nodes[0]);
@@ -175,20 +175,14 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             cursor.moveToFirst();
             return cursor;
         } else if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
-            Parent[] nodes = get(Parent.fromUri(uri));
+            Parent[] nodes = getChildren(Parent.fromUri(uri));
             return getCursor(nodes);
         } else if (URPContract.BUTTON_COMMAND_SEND.equals(table)) {
             // TODO Might want to replace with a single thread executor.
             new Thread() {
                 public void run() {
-                    Parent[] nodes = get(Parent.fromUri(uri));
-                    List<Button> buttons = new ArrayList<Button>();
-                    for (Parent node : nodes) {
-                        if (node instanceof Button) {
-                            buttons.add((Button) node);
-                        }
-                    }
-                    sendButtons(buttons.toArray(new Button[0]));
+                    Button button = (Button) getDetails(Parent.fromUri(uri));
+                    sendButtons(new Button[] { button });
                 }
             }.start();
             return new MatrixCursor(new String[] {"Sent"});
@@ -209,8 +203,29 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         cursor.moveToFirst();
         return cursor;
     }
+    /**
+     * If this node's details haven't been loaded yet it's details will be populated
+     * here.
+     * @param parent
+     * @return
+     */
+    public Parent getCachedDetails(Parent parent) {
+        parent = Parent.getCached(parent);
+        if (!parent.needsToFetch()) {
+            return parent;
+        }
 
-    public abstract Parent[] get(Parent parent);
+        return getDetails(parent);
+    }
+
+    public abstract Parent[] getChildren(Parent parent);
+    /**
+     * If this node's details haven't been loaded yet it's details will be populated
+     * here.
+     * @param parent
+     * @return
+     */
+    public abstract Parent getDetails(Parent parent);
 
     public abstract String getProviderName();
     public abstract String getProviderDescription();
@@ -230,114 +245,6 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
     }
 
     public abstract String getAuthority();
-
-    public static Cursor query(Context context, Parent parent) {
-        return context.getContentResolver().query(
-                        parent.getUri(),
-                        null,
-                        null,
-                        null,
-                        null);
-    }
-
-    public static ProviderDetails queryProviderDetails(Context context, String authority) {
-        return ProviderDetails.fromCursor(context.getContentResolver().query(
-                URPContract.getProviderDetailsUri(authority),
-                null,
-                null,
-                null,
-                null));
-    }
-
-    public static Cursor sendButton(Context context, Button button) {
-        return context.getContentResolver().query(
-                URPContract.getUri(button.getAuthority(), URPContract.BUTTON_COMMAND_SEND, button.getPath()),
-            null,
-            null,
-            null,
-            null);
-    }
-
-    private static ConcurrentHashMap<String, Bitmap> mIconCache = new ConcurrentHashMap<String, Bitmap>();
-    private static DiskLruCache sIconDiskCache;
-
-    private static String getIconCacheKey(Button button) {
-        return (button.getAuthority() + "." +
-                button.getPathString()
-                ).replaceAll("[^a-zA-Z0-9_-]", "_");
-    }
-
-    public static void loadIcon(final Context context, final Button button,
-            final IconLoaderListener iconLoaderListener) {
-        if (null == sIconDiskCache) {
-            try {
-                File cache = new File(context.getCacheDir(), "iconCache");
-                cache.mkdirs();
-                sIconDiskCache = DiskLruCache.open(
-                        cache,
-                        1,
-                        1,
-                        1024 * 1024 * 2 /* 2MB */);
-            } catch (IOException e) {
-                Log.w("UniversalRemote", "Icon caching unavailable: " + e.getMessage());
-            }
-        }
-        final String key = getIconCacheKey(button);
-        Bitmap mButtonIcon = mIconCache.get(key);
-        if (null == mButtonIcon) {
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        Uri uri = button.getUri();
-                        Snapshot snapshot = sIconDiskCache.get(key);
-                        if (null == sIconDiskCache || null == snapshot) {
-
-                            AssetFileDescriptor desc = context.getContentResolver().openAssetFileDescriptor(uri, "r");
-                            if (null != desc) {
-                                Bitmap mButtonIcon = BitmapFactory.decodeStream(desc.createInputStream());
-                                saveIconToCache(mButtonIcon, key);
-                                if (null != mButtonIcon) {
-                                    mIconCache.put(key, mButtonIcon);
-                                    iconLoaderListener.onIconLoaded(mButtonIcon);
-                                    return;
-                                }
-                            }
-                            ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(button.getUri(), "r");
-                            if (null != pfd) {
-                                Bitmap mButtonIcon = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
-                                saveIconToCache(mButtonIcon, key);
-                                if (null != mButtonIcon) {
-                                    mIconCache.put(key, mButtonIcon);
-                                }
-                                iconLoaderListener.onIconLoaded(mButtonIcon);
-                            }
-                        } else {
-                            Bitmap icon = BitmapFactory.decodeStream(snapshot.getInputStream(0));
-                            if (null != icon) {
-                                mIconCache.put(key, icon);
-                            }
-                            iconLoaderListener.onIconLoaded(icon);
-                        }
-                    } catch (IOException e) {
-                        Log.w("ButtonDetails", e.getMessage(), e);
-                    }
-                }
-
-                private void saveIconToCache(Bitmap icon, String key) throws IOException {
-                    if (null != sIconDiskCache && null != icon) {
-                        Editor editor = sIconDiskCache.edit(key);
-                        OutputStream stream = editor.newOutputStream(0);
-                        icon.compress(CompressFormat.PNG, 9, stream);
-                        stream.close();
-                        editor.commit();
-                    }
-                }
-            }.start();
-        } else {
-            iconLoaderListener.onIconLoaded(mButtonIcon);
-        }
-    }
 
     public boolean hasButtonSets(Parent node) {
         return false;

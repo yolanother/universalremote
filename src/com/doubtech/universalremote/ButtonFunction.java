@@ -8,12 +8,14 @@ import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 import com.doubtech.universalremote.utils.ButtonStyler;
+import com.doubtech.universalremote.utils.IconLoader;
 
 public class ButtonFunction extends ButtonFunctionSet {
     private static final long serialVersionUID = 1L;
@@ -42,7 +44,7 @@ public class ButtonFunction extends ButtonFunctionSet {
 
     public void getIcon(final Context context, final IconLoaderListener listener) {
         if (null == mButtonIcon) {
-            AbstractUniversalRemoteProvider.loadIcon(context,
+            IconLoader.loadIcon(context,
                     mButton,
                     new IconLoaderListener() {
                         @Override

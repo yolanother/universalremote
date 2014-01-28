@@ -35,7 +35,7 @@ public abstract class HttpJsonRetreiver implements JsonRetreiver {
 
     private String get(final URL url) throws IOException {
         final String key = getUrlKey(url);
-        Snapshot snapshot = mCache.get(key);
+        Snapshot snapshot = mCache != null ? mCache.get(key) : null;
         String json = "";
         if (null == mCache || null == snapshot) {
             try {
@@ -55,6 +55,8 @@ public abstract class HttpJsonRetreiver implements JsonRetreiver {
         } else {
             json = snapshot.getString(0);
         }
+
+        IOUtil.closeQuietly(snapshot);
         return json;
     }
 

@@ -39,10 +39,15 @@ public class RemoteNumberpad extends View implements IRemoteView {
     private Rect mTouchedRect;
     private int mTouchedIndex;
     private GradientDrawable mGradientDrawable;
+    private Paint mTouchedPaint;
 
     public RemoteNumberpad(Context context) {
         super(context);
         setBackgroundResource(R.drawable.rounded_button);
+
+        mTouchedPaint = new Paint();
+        mTouchedPaint.setColor(getResources().getColor(color.holo_blue_dark));
+        mTouchedPaint.setAlpha(190);
     }
 
     public void setButtonFunction(final int idx, ButtonFunctionSet button) {
@@ -100,10 +105,7 @@ public class RemoteNumberpad extends View implements IRemoteView {
         super.onDraw(canvas);
 
         if (null != mTouchedRect) {
-            Paint paint = new Paint();
-            paint.setColor(getResources().getColor(color.holo_blue_dark));
-            paint.setAlpha(190);
-            canvas.drawRect(mTouchedRect, paint);
+            canvas.drawRect(mTouchedRect, mTouchedPaint);
         }
 
         for (Drawable d : mButtonDrawables) {

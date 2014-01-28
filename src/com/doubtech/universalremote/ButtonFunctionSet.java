@@ -10,14 +10,14 @@ import org.xmlpull.v1.XmlSerializer;
 import android.content.Context;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
-import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.utils.ProviderUtils;
 
 public class ButtonFunctionSet extends ArrayList<ButtonFunction> {
     private static final long serialVersionUID = 1L;
 
     public void send(Context context) {
         for (ButtonFunction function : this) {
-            AbstractUniversalRemoteProvider.sendButton(context,
+            ProviderUtils.sendButton(context,
                     function.getButton());
             for (ButtonFunction subfunction : function) {
                 subfunction.send(context);

@@ -110,7 +110,6 @@ public class DropGridLayout<T> extends RelativeLayout {
             int top = (int) (spec.row * mCellHeight) + t + getPaddingTop();
             int right = (int) (left + mCellWidth * spec.colspan);
             int bottom = (int) (top + mCellHeight * spec.rowspan);
-
             child.layout(left + mCellSpaceLeft, top + mCellSpaceTop, right - mCellSpaceRight, bottom - mCellSpaceBottom);
         }
     }

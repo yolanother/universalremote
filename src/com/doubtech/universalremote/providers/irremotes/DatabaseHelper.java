@@ -100,9 +100,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         InputStream is = null;
         FileOutputStream fos = null;
         try {
-            for (String f : context.getResources().getAssets().list("")) {
-                Log.d("AARON", f);
-            }
             is = context.getResources().getAssets().open(assetName);
 
             fos = new FileOutputStream(file);

@@ -128,8 +128,4 @@ public class Button extends Parent {
         Button model = new Button();
         return Parent.fromUri(model, uri);
     }
-
-    public void click(Context context) {
-        AbstractUniversalRemoteProvider.sendButton(context, this);
-    }
 }
