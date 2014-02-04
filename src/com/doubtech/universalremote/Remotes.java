@@ -3,6 +3,7 @@ package com.doubtech.universalremote;
 import java.util.ArrayList;
 import java.util.List;
 
+import wei.mark.standout.StandOutWindow;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -56,6 +57,7 @@ public class Remotes extends FragmentActivity {
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setBackgroundResource(R.drawable.background);
 
         Constants.REMOTE_FILE.getParentFile().mkdirs();
 
@@ -79,10 +81,18 @@ public class Remotes extends FragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
+        switch(item.getItemId()) {
+        case R.id.action_settings:
             Intent intent = new Intent(this, RemotePageConfiguration.class);
             intent.setData(mFile);
             startActivityForResult(intent, REQUEST_CONFIGURE);
+            return true;
+        case R.id.action_slideon:
+            StandOutWindow.closeAll(this, SlideOnRemote.class);
+            StandOutWindow.show(this, SlideOnRemote.class,
+                    StandOutWindow.DEFAULT_ID);
+            return true;
+
         }
         return super.onOptionsItemSelected(item);
     }

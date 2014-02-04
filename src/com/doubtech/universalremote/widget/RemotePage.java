@@ -15,6 +15,7 @@ import org.xmlpull.v1.XmlSerializer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -142,6 +143,7 @@ public class RemotePage extends DropGridLayout {
                     numberPad.setButtonFunction(i, identifiedButtons.get(ButtonIds.BUTTON_0 + i));
                     unusedIdentifiedButtons.remove(ButtonIds.BUTTON_0 + i);
                 }
+                numberPad.setTextColor(Color.WHITE);
                 mPage.addView(numberPad, spec);
             }
 
@@ -212,6 +214,8 @@ public class RemotePage extends DropGridLayout {
             dpad.setLeftButton(identifiedButtons.get(buttonLeft));
             dpad.setRightButton(identifiedButtons.get(buttonRight));
             dpad.setOkButton(identifiedButtons.get(buttonOk));
+
+            dpad.setTextColor(Color.WHITE);
 
 
             unusedIdentifiedButtons.remove(buttonUp);
@@ -368,5 +372,10 @@ public class RemotePage extends DropGridLayout {
             }
         }
         return page;
+    }
+
+    @Override
+    public boolean shouldForceSquare() {
+        return true;
     }
 }

@@ -82,6 +82,7 @@ public class RemoteButton extends ImageView implements IRemoteView {
 
     public void setButtonDetails(ButtonFunction button) {
         clearFunctions();
+        mDrawablesSet = false;
         addButtonFunction(button);
     }
 
@@ -104,18 +105,33 @@ public class RemoteButton extends ImageView implements IRemoteView {
             button.getIcon(getContext(), new IconLoaderListener() {
                 @Override
                 public void onIconLoaded(final Bitmap bitmap) {
-                    // NOTE was using post here, but it seemed like it wasn't
-                    // always being run for some reason
-                    ((Activity)getContext()).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (null != bitmap) {
-                                mDrawablesSet = true;
-                                setImageDrawable(null);
-                                setImageBitmap(bitmap);
+                    if (getContext() instanceof Activity) {
+                        // NOTE was using post here, but it seemed like it wasn't
+                        // always being run for some reason
+                        ((Activity)getContext()).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (null != bitmap) {
+                                    mDrawablesSet = true;
+                                    setImageDrawable(null);
+                                    setImageBitmap(bitmap);
+                                }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        // NOTE was using post here, but it seemed like it wasn't
+                        // always being run for some reason
+                        post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (null != bitmap) {
+                                    mDrawablesSet = true;
+                                    setImageDrawable(null);
+                                    setImageBitmap(bitmap);
+                                }
+                            }
+                        });
+                    }
                 }
             });
         }

@@ -2,7 +2,6 @@ package com.doubtech.universalremote.providers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentProvider;

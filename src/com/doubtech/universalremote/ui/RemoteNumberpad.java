@@ -137,6 +137,14 @@ public class RemoteNumberpad extends View implements IRemoteView {
         return true;
     }
 
+    public void setTextColor(int color) {
+        for (Drawable d : mButtonDrawables) {
+            if (d instanceof TextDrawable) {
+                ((TextDrawable)d).setTextColor(color);
+            }
+        }
+    }
+
     @Override
     public void writeXml(XmlSerializer xml, ChildSpec spec) throws IllegalArgumentException, IllegalStateException, IOException {
         xml.startTag("", XMLTAG);
@@ -158,6 +166,8 @@ public class RemoteNumberpad extends View implements IRemoteView {
             numberPad.setButtonFunction(i,
                     ButtonFunctionSet.fromXml(context, "num" + Integer.toString(i), item));
         }
+        // TODO add xml attribute for setting color
+        numberPad.setTextColor(Color.WHITE);
         return numberPad;
     }
 }

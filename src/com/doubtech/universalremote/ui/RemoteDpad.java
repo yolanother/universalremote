@@ -9,6 +9,7 @@ import android.R.color;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
@@ -251,7 +252,7 @@ public class RemoteDpad extends View implements IRemoteView {
         x += subDivWidth;
         mUpRect.setPoint(2, x, y);
         x = right - divWidth;
-        y = top + divWidth;
+        y = top + divHeight;
         mUpRect.setPoint(3, x, y);
         mRightRect.setPoint(0, x, y);
         x = right;
@@ -430,6 +431,15 @@ public class RemoteDpad extends View implements IRemoteView {
         if (!item.hasAttribute("repeating") || !Boolean.parseBoolean(item.getAttribute("repeating"))) {
             dpad.setRepeating(false);
         }
+        dpad.setTextColor(Color.WHITE);
         return dpad;
+    }
+
+    public void setTextColor(int color) {
+        if (mUpDrawable instanceof TextDrawable) ((TextDrawable) mUpDrawable).setTextColor(color);
+        if (mDownDrawable instanceof TextDrawable) ((TextDrawable) mDownDrawable).setTextColor(color);
+        if (mRightDrawable instanceof TextDrawable) ((TextDrawable) mRightDrawable).setTextColor(color);
+        if (mLeftDrawable instanceof TextDrawable) ((TextDrawable) mLeftDrawable).setTextColor(color);
+        if (mOkDrawable instanceof TextDrawable) ((TextDrawable) mOkDrawable).setTextColor(color);
     }
 }

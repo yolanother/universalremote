@@ -84,7 +84,7 @@ public class DropGridLayout<T> extends RelativeLayout {
         mCellWidth = (width  - getPaddingLeft() - getPaddingRight()) / getColumnCount();
         mCellHeight = (height - getPaddingTop() - getPaddingBottom()) / getRowCount();
 
-        if (height == 0) {
+        if (height == 0 || shouldForceSquare()) {
             mCellHeight = mCellWidth;
         }
 
@@ -98,6 +98,10 @@ public class DropGridLayout<T> extends RelativeLayout {
             height = (int) (mOccupiedCells.size() * mCellHeight + getPaddingBottom() + mCellHeight);
         }
         setMeasuredDimension(width, height);
+    }
+
+    public boolean shouldForceSquare() {
+        return false;
     }
 
     @Override

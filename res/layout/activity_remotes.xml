@@ -3,8 +3,7 @@
     android:id="@+id/pager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Remotes"
-    android:background="@drawable/background" >
+    tools:context=".Remotes" >
 
     <!--
     This title strip will display the currently visible page title, as well as the page
@@ -16,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:background="#33333333"
+        android:background="#AA333333"
         android:paddingBottom="4dp"
         android:paddingTop="4dp"
         android:textColor="#fff" />

@@ -7,7 +7,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="com.doubtech.universalremote.PROVIDE_BUTTONS"/>
+    <uses-permission android:name="com.doubtech.universalremote.PROVIDE_BUTTONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
     <permission android:name="com.doubtech.universalremote.PROVIDE_BUTTONS" />
 
     <uses-sdk
@@ -39,12 +41,11 @@
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.doubtech.universalremote.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
         <provider
             android:name="com.doubtech.universalremote.providers.irremotes.IrRemoteProvider"
             android:authorities="com.doubtech.universalremote.providers.irremotes.LircProvider"
@@ -52,7 +53,6 @@
             android:exported="true"
             android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
         </provider>
-
         <provider
             android:name="com.doubtech.universalremote.providers.irremotes.RemoteCentralProvider"
             android:authorities="com.doubtech.universalremote.providers.irremotes.RemoteCentral"
@@ -60,7 +60,6 @@
             android:exported="true"
             android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
         </provider>
-
         <provider
             android:name="com.doubtech.universalremote.providers.irremotes.ManufacturerProvider"
             android:authorities="com.doubtech.universalremote.providers.irremotes.Manufacturer"
@@ -68,7 +67,6 @@
             android:exported="true"
             android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
         </provider>
-
         <provider
             android:name="com.doubtech.universalremote.providers.irremotes.GlobalCacheProvider"
             android:authorities="com.doubtech.universalremote.providers.irremotes.GlobalCache"
@@ -76,6 +74,8 @@
             android:exported="true"
             android:readPermission="com.doubtech.universalremote.PROVIDE_BUTTONS" >
         </provider>
+
+        <service android:name="com.doubtech.universalremote.SlideOnRemote" />
     </application>
 
 </manifest>
