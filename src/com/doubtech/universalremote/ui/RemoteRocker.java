@@ -7,6 +7,7 @@ import org.xmlpull.v1.XmlSerializer;
 
 import android.R.color;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -21,6 +22,7 @@ import android.view.View;
 import com.doubtech.universalremote.ButtonFunction;
 import com.doubtech.universalremote.ButtonFunctionSet;
 import com.doubtech.universalremote.R;
+import com.doubtech.universalremote.drawables.TextDrawable;
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.widget.DropGridLayout.ChildSpec;
 
@@ -30,6 +32,7 @@ public class RemoteRocker extends View implements IRemoteView {
     private ButtonFunctionSet mBottomButton;
     private Drawable mTopDrawable;
     private Drawable mBottomDrawable;
+    private TextDrawable mLabel;
     private int mButtonSize;
     private boolean top;
     private boolean bottom;
@@ -70,6 +73,11 @@ public class RemoteRocker extends View implements IRemoteView {
 
     private void setBottomButton(ButtonFunctionSet bottomButton) {
         mBottomButton = bottomButton;
+        mBottomDrawable = new TextDrawable(getContext());
+        ((TextDrawable)mBottomDrawable).setText(bottomButton.getLabel());
+
+        checkLabelOverride();
+
         bottomButton.getIcon(getContext(), new IconLoaderListener() {
 
             @Override
@@ -82,6 +90,11 @@ public class RemoteRocker extends View implements IRemoteView {
 
     private void setTopButton(ButtonFunctionSet topButton) {
         mTopButton = topButton;
+        mTopDrawable = new TextDrawable(getContext());
+        ((TextDrawable)mTopDrawable).setText(topButton.getLabel());
+
+        checkLabelOverride();
+
         topButton.getIcon(getContext(), new IconLoaderListener() {
 
             @Override
@@ -90,6 +103,22 @@ public class RemoteRocker extends View implements IRemoteView {
                 postInvalidate();
             }
         });
+    }
+
+    private void checkLabelOverride() {
+        if (null == mTopButton || null == mBottomButton) {
+            return;
+        }
+
+        if (mTopButton.getLabel().endsWith("+") && mBottomButton.getLabel().endsWith("-")) {
+            mLabel = new TextDrawable(getContext());
+            mLabel.setTextColor(Color.WHITE);
+            mLabel.setText(mBottomButton.getLabel().replaceAll("-", "").trim());
+
+            Resources res = getContext().getResources();
+            mTopDrawable = res.getDrawable(R.drawable.button_plus);
+            mBottomDrawable = res.getDrawable(R.drawable.button_minus);
+        }
     }
 
     @Override
@@ -201,6 +230,15 @@ public class RemoteRocker extends View implements IRemoteView {
         if (null != mBottomDrawable) {
             mBottomDrawable.setBounds(getPaddingLeft(), getHeight() - mButtonSize - getPaddingBottom(), mButtonSize, getHeight() - getPaddingBottom());
             mBottomDrawable.draw(canvas);
+        }
+
+        if (null != mLabel) {
+            mLabel.setBounds(
+                    getPaddingLeft(),
+                    (int) (getHeight() / 2.0f) - mButtonSize,
+                    getWidth() - getPaddingRight(),
+                    (int) (getHeight() / 2.0f + mButtonSize));
+            mLabel.draw(canvas);
         }
     }
 
