@@ -136,7 +136,7 @@ public class RemotePage extends DropGridLayout {
                                 ButtonIds.BUTTON_ENTER);
             }
 
-            if (numberButtons == 10) {
+            if (numberButtons >= 10) {
                 spec = new ChildSpec(0, (int) (colCount / 2.0f - 1), 4, 3);
                 RemoteNumberpad numberPad = new RemoteNumberpad(mPage.getContext());
                 for (int i = 0; i <= 10; i++) {
@@ -149,10 +149,17 @@ public class RemotePage extends DropGridLayout {
 
             addButton(colCount - 1, ButtonIds.BUTTON_SOURCE);
 
-            addRocker(colCount - 1, ButtonIds.BUTTON_VOLUME_UP, ButtonIds.BUTTON_VOLUME_DOWN, true);
-            addButton(colCount - 1, ButtonIds.BUTTON_MUTE);
+            addRocker(1, colCount - 1, ButtonIds.BUTTON_VOLUME_UP, ButtonIds.BUTTON_VOLUME_DOWN, true);
+            addButton(3, colCount - 1, ButtonIds.BUTTON_MUTE);
+            addButton(colCount - 1, ButtonIds.BUTTON_CLOSED_CAPTIONS);
             addRocker(0, ButtonIds.BUTTON_CH_UP, ButtonIds.BUTTON_CH_DOWN, false);
+            addRocker(0, ButtonIds.BUTTON_PAGE_UP, ButtonIds.BUTTON_PAGE_DOWN, false);
             addButton(colCount - 1, ButtonIds.BUTTON_MENU);
+
+            addButton(1, ButtonIds.BUTTON_HOME);
+            addButton(1, ButtonIds.BUTTON_GUIDE);
+            addButton(colCount - 2, ButtonIds.BUTTON_BACK);
+            addButton(colCount - 2, ButtonIds.BUTTON_SEARCH);
 
             int middle = (int) (colCount / 2.0f);
             int playctlheight = 2;
@@ -170,6 +177,22 @@ public class RemotePage extends DropGridLayout {
             // Fill in the rest of the buttons
             int col = 0;
             int row = mPage.getMaxRow() + 1;
+
+            // Group alpha buttons
+            for (int i = ButtonIds.BUTTON_A; i <= ButtonIds.BUTTON_Z; i++) {
+                ButtonFunction button = identifiedButtons.get(i);
+                if (null != button) {
+                    addButton(row, col, button);
+                    col++;
+                    if (col == mPage.getColumnCount()) {
+                        row++;
+                        col = 0;
+                    }
+                }
+            }
+
+            col = 0;
+            row = mPage.getMaxRow() + 1;
 
             unidentifiedButtons.addAll(unusedIdentifiedButtons.values());
             Collections.sort(unidentifiedButtons, new Comparator<ButtonFunction>() {
@@ -228,7 +251,11 @@ public class RemotePage extends DropGridLayout {
         }
 
         private boolean addRocker(int column, int upIdentifier, int downIdentifier, boolean repeating) {
-            ChildSpec spec = new ChildSpec(0, column, 2, 1);
+            return addRocker(0, column, upIdentifier, downIdentifier, repeating);
+        }
+
+        private boolean addRocker(int row, int column, int upIdentifier, int downIdentifier, boolean repeating) {
+            ChildSpec spec = new ChildSpec(row, column, 2, 1);
             return addRocker(spec, upIdentifier, downIdentifier, repeating);
         }
 
@@ -254,15 +281,23 @@ public class RemotePage extends DropGridLayout {
         }
 
         private boolean addButton(int column, int buttonIdentifier) {
+            return addButton(0, column, buttonIdentifier);
+        }
+
+        private boolean addButton(int row, int column, int buttonIdentifier) {
             ButtonFunction button;
             button = identifiedButtons.get(buttonIdentifier);
-            addButton(column, button);
+            addButton(row, column, button);
             return null != button;
         }
 
         public RemotePageBuilder addButton(int column, ButtonFunction button) {
+            return addButton(0, column, button);
+        }
+
+        public RemotePageBuilder addButton(int row, int column, ButtonFunction button) {
             if (null != button) {
-                ChildSpec spec = new ChildSpec(0, column);
+                ChildSpec spec = new ChildSpec(row, column);
                 mPage.addView(new RemoteButton(mPage.getContext(), button), spec);
                 unusedIdentifiedButtons.remove(button.getButtonIdentifier());
             }

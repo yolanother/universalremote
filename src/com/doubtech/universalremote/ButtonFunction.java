@@ -91,6 +91,7 @@ public class ButtonFunction extends ButtonFunctionSet {
         ButtonFunction details = new ButtonFunction();
         details.mButton = new Button(item.getAttribute("authority"), item.getAttribute("id"), true);
         details.mLabel = item.getAttribute("label");
+        details.mButton.setName(details.mLabel);
         return details;
     }
 

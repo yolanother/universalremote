@@ -24,8 +24,8 @@ import com.doubtech.universalremote.widget.RemotePage;
 public class SlideOnRemote extends SlideOnWindow {
     ViewPager mViewPager;
     private Uri mFile;
-	private ListPageAdapter<RemotePage> mPageAdapter;
-	
+    private ListPageAdapter<RemotePage> mPageAdapter;
+
 
     public SlideOnRemote() {
         super(SlideOnRemote.class);
@@ -46,21 +46,21 @@ public class SlideOnRemote extends SlideOnWindow {
         mViewPager = (ViewPager) v.findViewById(R.id.pager);
         mPageAdapter = new ListPageAdapter<RemotePage>(this) {
 
-    		@Override
-    		public void initView(View v, RemotePage item, int position) {
-    			FrameLayout parent = ((FrameLayout)v);
-    			ViewGroup oldParent = (ViewGroup) item.getParent();
-    			if(null != oldParent) {
-    				oldParent.removeView(item);
-    			}
-    			parent.addView(item);
-    		}
-    		
-    		@Override
-    		public CharSequence getPageTitle(int position) {
-    			return get(position).getTitle();
-    		}
-    	};
+            @Override
+            public void initView(View v, RemotePage item, int position) {
+                FrameLayout parent = ((FrameLayout)v);
+                ViewGroup oldParent = (ViewGroup) item.getParent();
+                if (null != oldParent) {
+                    oldParent.removeView(item);
+                }
+                parent.addView(item);
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                return get(position).getTitle();
+            }
+        };
         open(mFile);
         return v;
     }

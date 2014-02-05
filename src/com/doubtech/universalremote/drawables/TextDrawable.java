@@ -135,7 +135,7 @@ public class TextDrawable extends Drawable {
                             break;
                     }
                 } catch (Exception e) {
-                    Log.d("TextDrawable", "Unable to precess attributes.", e);
+                    Log.i("TextDrawable", "Unable to precess attributes: " + e.getMessage());
                 }
             }
 

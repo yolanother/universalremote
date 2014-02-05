@@ -68,6 +68,7 @@ public class ButtonStyler {
         NAME_LABEL_IDS[ButtonIds.BUTTON_SOURCE] = R.string.button_source;
         NAME_LABEL_IDS[ButtonIds.BUTTON_CLOSED_CAPTIONS] = R.string.button_closed_captions;
         NAME_LABEL_IDS[ButtonIds.BUTTON_DOT] = R.string.button_dot;
+        NAME_LABEL_IDS[ButtonIds.BUTTON_SEARCH] = R.string.button_search;
 
         NAME_ICON_IDS[ButtonIds.BUTTON_VOLUME_UP] = R.drawable.button_volume_up;
         NAME_ICON_IDS[ButtonIds.BUTTON_VOLUME_DOWN] = R.drawable.button_volume_down;
@@ -86,7 +87,7 @@ public class ButtonStyler {
         //NAME_ICON_IDS[ButtonIds.BUTTON_RETURN] = R.drawable.button_return;
         NAME_ICON_IDS[ButtonIds.BUTTON_HELP] = R.drawable.button_help;
         //NAME_ICON_IDS[ButtonIds.BUTTON_GUIDE] = R.drawable.button_guide;
-        //NAME_ICON_IDS[ButtonIds.BUTTON_HOME] = R.drawable.button_home;
+        NAME_ICON_IDS[ButtonIds.BUTTON_HOME] = R.drawable.button_home;
         NAME_ICON_IDS[ButtonIds.BUTTON_EXIT] = R.drawable.button_return;
         NAME_ICON_IDS[ButtonIds.BUTTON_PLAY] = R.drawable.button_play;
         NAME_ICON_IDS[ButtonIds.BUTTON_PAUSE] = R.drawable.button_pause;
@@ -109,12 +110,14 @@ public class ButtonStyler {
         NAME_ICON_IDS[ButtonIds.BUTTON_PREVIOUS] = R.drawable.button_previous;
         NAME_ICON_IDS[ButtonIds.BUTTON_SOURCE] = R.drawable.button_input_source;
         NAME_ICON_IDS[ButtonIds.BUTTON_DOT] = R.drawable.button_dot;
+        NAME_ICON_IDS[ButtonIds.BUTTON_SEARCH] = R.drawable.ic_action_search;
     }
 
     public static String getLabel(Resources res, String label) {
         Integer definedLabel = ButtonIdentifier.getKnownButton(label);
         if (null != definedLabel && 0 != definedLabel) {
-            return getLabel(res, definedLabel);
+            String l = getLabel(res, definedLabel);
+            if (null != l) return l;
         }
 
         String alteredLabel = sButtonLabels.get(label);
@@ -129,10 +132,14 @@ public class ButtonStyler {
     }
 
     private static String getLabel(Resources res, int buttonIdentifier) {
-        return res.getString(NAME_LABEL_IDS[buttonIdentifier]);
+        int id = NAME_LABEL_IDS[buttonIdentifier];
+        return 0 != id ? res.getString(id) : null;
     }
 
     public static int getIconId(String label) {
+        if (null == label) {
+            return 0;
+        }
         Integer buttonId = ButtonIdentifier.getKnownButton(label);
         return getIconId(buttonId);
     }

@@ -128,4 +128,8 @@ public class Button extends Parent {
         Button model = new Button();
         return Parent.fromUri(model, uri);
     }
+
+    public void setName(String name) {
+        mName = name;
+    }
 }

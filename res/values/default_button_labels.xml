@@ -53,5 +53,5 @@
     <string name="button_source">SOURCE</string>
     <string name="button_closed_captions">CC</string>
     <string name="button_dot">DOT</string>
-
+    <string name="button_search">SEARCH</string>
 </resources>

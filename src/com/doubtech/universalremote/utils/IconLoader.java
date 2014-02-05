@@ -58,6 +58,15 @@ public class IconLoader {
                                 fos.close();
                                 return;
                             }
+                        } else {
+                            int id = ButtonStyler.getIconId(button.getName());
+                            if (0 != id) {
+                                Bitmap bitmap = BitmapFactory.decodeStream(context.getResources().openRawResource(id));
+                                if (null != key && null != bitmap) {
+                                    mIconCache.put(key, bitmap);
+                                    iconLoaderListener.onIconLoaded(bitmap);
+                                }
+                            }
                         }
                     } catch (FileNotFoundException e) {
                         Log.w("UniversalRemote", e.getMessage(), e);

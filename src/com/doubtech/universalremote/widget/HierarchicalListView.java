@@ -47,6 +47,7 @@ public class HierarchicalListView extends FrameLayout {
     private OnItemLongClickListener mItemLongClickListener;
     private OnHierarchyChangedListener mHierarchyChangedListener;
     private boolean mClosing;
+    private boolean mChangingHierarchy;
 
     public HierarchicalListView(Context context) {
         super(context);
@@ -71,6 +72,7 @@ public class HierarchicalListView extends FrameLayout {
 
             @Override
             public void onClick(View v) {
+                if (mChangingHierarchy) return;
                 closeTopView();
             }
         });
@@ -249,6 +251,7 @@ public class HierarchicalListView extends FrameLayout {
     }
 
     public void addAdapter(final BaseAdapter adapter) {
+        mChangingHierarchy = true;
         final InternalListView listView = new InternalListView(getContext());
         listView.setTag(adapter);
         mAdapters.add(adapter);
@@ -256,6 +259,7 @@ public class HierarchicalListView extends FrameLayout {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position,
                     long id) {
+                if (mChangingHierarchy) return;
                 Object item = adapterView.getItemAtPosition(position);
                 if (null != mItemClickListener && mItemClickListener.onItemClick(
                         listView, view, position, id)) {
@@ -322,6 +326,7 @@ public class HierarchicalListView extends FrameLayout {
     }
 
     private void completeAddHierarchyView(View view) {
+        mChangingHierarchy = true;
         int width = getMeasuredWidth();
         if (getChildCount() >= 2) {
             int offset = (getChildCount() - 1) * mOffsetWidth;
@@ -345,16 +350,25 @@ public class HierarchicalListView extends FrameLayout {
                 childView.animate()
                 .setInterpolator(mInterpolator)
                 .translationXBy(mOffsetWidth-childView.getMeasuredWidth())
-                .setDuration(500)
+                .setDuration(400)
                 .start();
             } else {
                 childView.animate()
                     .setInterpolator(mInterpolator)
                     .translationXBy(-childView.getMeasuredWidth())
-                    .setDuration(500)
+                    .setDuration(400)
                     .start();
             }
         }
+
+        // Allow all animations to complete ten reenable item selection on
+        // hierarchy.
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mChangingHierarchy = false;
+            }
+        }, 500);
 
         if (null != mHierarchyChangedListener) {
             mHierarchyChangedListener.onHierarchyChangedListener(getChildCount() - 1);

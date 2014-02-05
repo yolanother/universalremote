@@ -13,6 +13,7 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Parents;
@@ -161,30 +162,34 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
     @Override
     public Cursor query(final Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
-        List<String> segments = uri.getPathSegments();
-        String table = segments.get(0);
-        if (URPContract.TABLE_PROVIDER_DETAILS_PATH.equals(table)) {
-            MatrixCursor cursor = new MatrixCursor(URPContract.ProviderDetails.ALL);
-            cursor.addRow(new Object[] {
-                getAuthority(),
-                getProviderName(),
-                getProviderDescription(),
-                isProviderEnabled() ? 1 : 0
-            });
-            cursor.moveToFirst();
-            return cursor;
-        } else if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
-            Parent[] nodes = getChildren(Parent.fromUri(uri));
-            return getCursor(nodes);
-        } else if (URPContract.BUTTON_COMMAND_SEND.equals(table)) {
-            // TODO Might want to replace with a single thread executor.
-            new Thread() {
-                public void run() {
-                    Button button = (Button) getDetails(Parent.fromUri(uri));
-                    sendButtons(new Button[] { button });
-                }
-            }.start();
-            return new MatrixCursor(new String[] {"Sent"});
+        try {
+            List<String> segments = uri.getPathSegments();
+            String table = segments.get(0);
+            if (URPContract.TABLE_PROVIDER_DETAILS_PATH.equals(table)) {
+                MatrixCursor cursor = new MatrixCursor(URPContract.ProviderDetails.ALL);
+                cursor.addRow(new Object[] {
+                    getAuthority(),
+                    getProviderName(),
+                    getProviderDescription(),
+                    isProviderEnabled() ? 1 : 0
+                });
+                cursor.moveToFirst();
+                return cursor;
+            } else if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
+                Parent[] nodes = getChildren(Parent.fromUri(uri));
+                return getCursor(nodes);
+            } else if (URPContract.BUTTON_COMMAND_SEND.equals(table)) {
+                // TODO Might want to replace with a single thread executor.
+                new Thread() {
+                    public void run() {
+                        Button button = (Button) getCachedDetails(Parent.fromUri(uri));
+                        sendButtons(new Button[] { button });
+                    }
+                }.start();
+                return new MatrixCursor(new String[] {"Sent"});
+            }
+        } catch (Exception e) {
+            Log.d(TAG, e.getMessage(), e);
         }
         throw new IllegalArgumentException("Unknown query: " + uri);
     }

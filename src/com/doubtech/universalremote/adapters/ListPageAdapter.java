@@ -16,84 +16,84 @@ import android.widget.FrameLayout;
  */
 public abstract class ListPageAdapter<T> extends PagerAdapter {
 
-	// Views that can be reused.
-	private final List<View> mDiscardedViews = new ArrayList<View>();
-	// Views that are already in use.
-	private final SparseArray<View> mBindedViews = new SparseArray<View>();
+    // Views that can be reused.
+    private final List<View> mDiscardedViews = new ArrayList<View>();
+    // Views that are already in use.
+    private final SparseArray<View> mBindedViews = new SparseArray<View>();
 
-	private final ArrayList<T> mItems;
-	private final LayoutInflater mInflator;
-	private final int mResourceId;
-	private Context mContext;
-	
-	public ListPageAdapter(Context context) {
-		this(context, 0);
-	}
+    private final ArrayList<T> mItems;
+    private final LayoutInflater mInflator;
+    private final int mResourceId;
+    private Context mContext;
 
-	public ListPageAdapter(Context context, int viewRes) {
-		mItems = new ArrayList<T>();
-		mInflator = LayoutInflater.from(context);
-		mResourceId = viewRes;
-		mContext = context;
-	}
+    public ListPageAdapter(Context context) {
+        this(context, 0);
+    }
 
-	@Override
-	public int getCount() {
-		return mItems.size();
-	}
+    public ListPageAdapter(Context context, int viewRes) {
+        mItems = new ArrayList<T>();
+        mInflator = LayoutInflater.from(context);
+        mResourceId = viewRes;
+        mContext = context;
+    }
 
-	@Override
-	public boolean isViewFromObject(View v, Object obj) {
-		return v == mBindedViews.get(mItems.indexOf(obj));
-	}
+    @Override
+    public int getCount() {
+        return mItems.size();
+    }
 
-	@Override
-	public void destroyItem(ViewGroup container, int position, Object object) {
-		View view = mBindedViews.get(position);
-		if (view != null) {
-			mDiscardedViews.add(view);
-			mBindedViews.remove(position);
-			container.removeView(view);
-		}
-	}
+    @Override
+    public boolean isViewFromObject(View v, Object obj) {
+        return v == mBindedViews.get(mItems.indexOf(obj));
+    }
 
-	@Override
-	public Object instantiateItem(ViewGroup container, int position) {
-		View child = null;
-		if(mResourceId != 0) {
-			child = mDiscardedViews.isEmpty() ? mInflator.inflate(mResourceId,
-				container, false) : mDiscardedViews.remove(0);
-		} else {
-			child = mDiscardedViews.isEmpty() ?
-					new FrameLayout(mContext) : mDiscardedViews.remove(0);
-		}
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        View view = mBindedViews.get(position);
+        if (view != null) {
+            mDiscardedViews.add(view);
+            mBindedViews.remove(position);
+            container.removeView(view);
+        }
+    }
 
-		T data = mItems.get(position);
-		initView(child, data, position);
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        View child = null;
+        if (mResourceId != 0) {
+            child = mDiscardedViews.isEmpty() ? mInflator.inflate(mResourceId,
+                container, false) : mDiscardedViews.remove(0);
+        } else {
+            child = mDiscardedViews.isEmpty() ?
+                    new FrameLayout(mContext) : mDiscardedViews.remove(0);
+        }
 
-		mBindedViews.append(position, child);
-		container.addView(child, 0);
-		return data;
-	}
+        T data = mItems.get(position);
+        initView(child, data, position);
 
-	public void add(T item) {
-		mItems.add(item);
-	}
+        mBindedViews.append(position, child);
+        container.addView(child, 0);
+        return data;
+    }
 
-	public T remove(int position) {
-		return mItems.remove(position);
-	}
-	
-	public T get(int position) {
-		return mItems.get(position);
-	}
+    public void add(T item) {
+        mItems.add(item);
+    }
 
-	public void clear() {
-		mItems.clear();
-	}
+    public T remove(int position) {
+        return mItems.remove(position);
+    }
 
-	/**
-	 * Initiate the view here
-	 */
-	public abstract void initView(View v, T item, int position);
+    public T get(int position) {
+        return mItems.get(position);
+    }
+
+    public void clear() {
+        mItems.clear();
+    }
+
+    /**
+     * Initiate the view here
+     */
+    public abstract void initView(View v, T item, int position);
 }
