@@ -17,30 +17,51 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_item_height"
-    android:minHeight="@dimen/list_item_height"
     android:background="#000000"
-    android:gravity="center_vertical" >
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/list_item_height" >
 
-    <TextView
-        android:id="@+id/label"
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="@dimen/list_item_height"
+        android:layout_height="@dimen/list_item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="5dp"
+        android:paddingLeft="10dp"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/border"
+        android:visibility="invisible" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:textColor="#ffffff"
-        android:textSize="@dimen/list_text_size"
-        android:text="sample"/>
+        android:layout_alignBottom="@id/icon"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/icon"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="15dp" >
 
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/label"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:textColor="#ffffff"
-        android:textSize="@dimen/list_sub_text_size"
-        android:text="sample description"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="sample"
+            android:textColor="#ffffff"
+            android:textSize="@dimen/list_text_size" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="15dp"
+            android:text="sample description"
+            android:textColor="#ffffff"
+            android:textSize="@dimen/list_sub_text_size"
+            android:visibility="gone" />
+    </LinearLayout>
 
 </RelativeLayout>

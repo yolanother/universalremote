@@ -82,4 +82,9 @@ public class GlobalCacheProvider extends AbstractJsonUniversalRemoteProvider {
     public boolean isProviderEnabled() {
         return IrManager.isSupported(getContext());
     }
+
+    @Override
+    public int getProviderIcon() {
+        return R.drawable.globalcache;
+    }
 }

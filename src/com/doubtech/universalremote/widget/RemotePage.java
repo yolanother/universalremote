@@ -123,7 +123,7 @@ public class RemotePage extends DropGridLayout {
 
             ChildSpec spec;
 
-            addToggleButton(0, ButtonIds.BUTTON_POWER_TOGGLE, ButtonIds.BUTTON_POWER_ON, ButtonIds.BUTTON_POWER_OFF);
+            addButton(0, ButtonIds.BUTTON_POWER_TOGGLE);
 
             if (arrowButtons >= 4) {
                 addDpad((int) (colCount / 2.0f - 1),
@@ -176,7 +176,7 @@ public class RemotePage extends DropGridLayout {
 
             // Fill in the rest of the buttons
             int col = 0;
-            int row = mPage.getMaxRow() + 1;
+            int row = mPage.getMaxRow();
 
             // Group alpha buttons
             for (int i = ButtonIds.BUTTON_A; i <= ButtonIds.BUTTON_Z; i++) {
@@ -192,7 +192,7 @@ public class RemotePage extends DropGridLayout {
             }
 
             col = 0;
-            row = mPage.getMaxRow() + 1;
+            row = mPage.getMaxRow();
 
             unidentifiedButtons.addAll(unusedIdentifiedButtons.values());
             Collections.sort(unidentifiedButtons, new Comparator<ButtonFunction>() {

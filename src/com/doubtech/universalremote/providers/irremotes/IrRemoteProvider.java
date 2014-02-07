@@ -284,4 +284,9 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
     public boolean isProviderEnabled() {
         return IrManager.isSupported(getContext());
     }
+
+    @Override
+    public int getProviderIcon() {
+        return R.drawable.lirc;
+    }
 }

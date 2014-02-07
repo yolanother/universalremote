@@ -60,4 +60,9 @@ public class ManufacturerProvider extends AbstractJsonIRUniversalRemoteProvider 
     public int getIconId(Parent button) {
         return ButtonStyler.getIconId(button.getName());
     }
+
+    @Override
+    public int getProviderIcon() {
+        return R.drawable.manufacturer;
+    }
 }

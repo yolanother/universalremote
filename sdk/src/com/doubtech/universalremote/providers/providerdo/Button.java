@@ -36,12 +36,12 @@ public class Button extends Parent {
             return super.setName(name);
         }
 
-        public ParentBuilder setButtonIdentifier(int buttonIdentifier) {
+        public ButtonBuilder setButtonIdentifier(int buttonIdentifier) {
             ((Button)mParent).mButtonIdentifier = buttonIdentifier;
             return this;
         }
 
-        public ParentBuilder putExtra(String name, String extra) {
+        public ButtonBuilder putExtra(String name, String extra) {
             ((Button)mParent).putExtra(name, extra);
             return this;
         }

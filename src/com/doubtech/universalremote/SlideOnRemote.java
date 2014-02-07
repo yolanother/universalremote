@@ -1,6 +1,5 @@
 package com.doubtech.universalremote;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import wei.mark.standout.SlideOnWindow;
@@ -49,6 +48,7 @@ public class SlideOnRemote extends SlideOnWindow {
             @Override
             public void initView(View v, RemotePage item, int position) {
                 FrameLayout parent = ((FrameLayout)v);
+                parent.removeAllViews();
                 ViewGroup oldParent = (ViewGroup) item.getParent();
                 if (null != oldParent) {
                     oldParent.removeView(item);

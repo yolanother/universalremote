@@ -17,21 +17,35 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
+import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.providerdo.Button;
 
 public class IconLoader {
     private static ConcurrentHashMap<String, Bitmap> mIconCache = new ConcurrentHashMap<String, Bitmap>();
     static Executor mIconLoader = Executors.newFixedThreadPool(4);
-    public static void loadIcon(final Context context, final Button button,
+
+    public static void loadProviderIcon(Context context, String authority, final IconLoaderListener iconLoaderListener) {
+        Uri uri = URPContract.getProviderDetailsUri(authority);
+        loadIcon(context, authority, uri, null, iconLoaderListener);
+    }
+
+    public static void loadIcon(Context context, Button button,
             final IconLoaderListener iconLoaderListener) {
         final String key = getIconCacheKey(button);
+        Uri uri = button.getUri();
+
+        loadIcon(context, key, uri, button.getName(), iconLoaderListener);
+    }
+
+    public static void loadIcon(final Context context, final String key, final Uri uri, final String buttonName,
+            final IconLoaderListener iconLoaderListener) {
         Bitmap mButtonIcon = mIconCache.get(key);
         if (null == mButtonIcon) {
             mIconLoader.execute(new Runnable() {
 
                 @Override
                 public void run() {
-                    Uri uri = button.getUri();
                     File dir = new File(context.getCacheDir(), "iconcache");
                     File cacheFile = new File(dir, key + ".png");
 
@@ -58,8 +72,8 @@ public class IconLoader {
                                 fos.close();
                                 return;
                             }
-                        } else {
-                            int id = ButtonStyler.getIconId(button.getName());
+                        } else if (null != buttonName) {
+                            int id = ButtonStyler.getIconId(buttonName);
                             if (0 != id) {
                                 Bitmap bitmap = BitmapFactory.decodeStream(context.getResources().openRawResource(id));
                                 if (null != key && null != bitmap) {

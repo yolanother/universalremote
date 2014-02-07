@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.URPContract.Parents;

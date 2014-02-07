@@ -87,6 +87,17 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
                 }
                 return openButtonIconAsset(nodes);
             }
+        } else if (URPContract.TABLE_PROVIDER_DETAILS_PATH.equals(table)) {
+            int iconId = getProviderIcon();
+            try {
+                if (0 != iconId) {
+                    return getContext()
+                            .getResources()
+                            .openRawResourceFd(iconId);
+                }
+            } catch (Exception e) {
+                Log.d("UniversalRemote", "Could not open icon file.", e);
+            }
         }
         return null;
     }
@@ -221,8 +232,8 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
 
         return getDetails(parent);
     }
-
     public abstract Parent[] getChildren(Parent parent);
+
     /**
      * If this node's details haven't been loaded yet it's details will be populated
      * here.
@@ -256,5 +267,21 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
 
     public String getDescription(Parent node) {
         return null;
+    }
+
+    /**
+     * Returns true if the parent is the root of the provider's nodes.
+     * @return
+     */
+    public boolean isRoot(Parent parent) {
+        return null == parent || parent.getPath().length == 0;
+    }
+
+    /**
+     * Returns an icon representing this provider
+     * @return
+     */
+    public int getProviderIcon() {
+        return 0;
     }
 }

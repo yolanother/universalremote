@@ -3,16 +3,20 @@ package com.doubtech.universalremote.adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.doubtech.universalremote.R;
+import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.providers.providerdo.Parent;
+import com.doubtech.universalremote.utils.IconLoader;
 import com.doubtech.universalremote.utils.ProviderUtils;
 
 public class TextAdapter extends CursorAdapter {
@@ -121,16 +125,19 @@ public class TextAdapter extends CursorAdapter {
     private class ViewHolder {
         private TextView mLabel;
         private TextView mDescription;
+        private ImageView mIcon;
 
         public ViewHolder(View view) {
             mLabel = (TextView) view.findViewById(R.id.label);
             mDescription = (TextView) view.findViewById(R.id.description);
+            mIcon = (ImageView) view.findViewById(R.id.icon);
+            mIcon.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        ViewHolder holder = (ViewHolder) view.getTag();
+        final ViewHolder holder = (ViewHolder) view.getTag();
         Parent parent = Parent.fromCursor(cursor);
         holder.mLabel.setText(parent.getName());
         if (null != parent.getDescription()) {
