@@ -28,3 +28,5 @@ proguard/
 *.iws
 .idea/
 .settings
+bin.release
+.externalToolBuilders
