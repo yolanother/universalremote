@@ -1,8 +1,11 @@
 package com.doubtech.universalremote;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -459,13 +462,12 @@ public class RemotePageConfiguration extends Activity {
         mRemotes.addAdapter(new ProviderAdapter(this));
         mReader = new RemoteConfigurationReader(this);
 
-        Uri uri = getIntent().getData();
-        if (null != uri) {
-            mReader.open(uri, new RemotesLoadedListener() {
+        mFile = getIntent().getData();
+        if (null != mFile) {
+            mReader.open(mFile, new RemotesLoadedListener() {
 
                 @Override
                 public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
-                    mFile = uri;
                     for (RemotePage page : pages) {
                         mRemotePageAdapter.add(page);
                     }
@@ -554,8 +556,11 @@ public class RemotePageConfiguration extends Activity {
                 });
             }
         });
-        mTitle = "";
-        setTitle(getString(R.string.title_activity_remote_page_configuration));
+        mTitle = getIntent().getStringExtra("title");
+        if (null == mTitle) {
+            mTitle = getString(R.string.title_activity_remote_page_configuration);
+        }
+        setTitle(mTitle);
     }
 
     private CharSequence getActiveTitle() {
@@ -600,6 +605,11 @@ public class RemotePageConfiguration extends Activity {
             ParcelFileDescriptor fd = null;
             FileOutputStream fos = null;
             try {
+                /*try {
+                    new File(new URI(mFile.toString())).createNewFile();
+                } catch (URISyntaxException e) {
+                    Log.d(TAG, "Couldn't create new file, path is invalid: " + mFile);
+                }*/
                 fd = getContentResolver().openFileDescriptor(mFile, "w");
                 fos = new FileOutputStream(fd.getFileDescriptor());
                 RemoteConfigurationWriter writer = new RemoteConfigurationWriter(fos, "Default Configuration");

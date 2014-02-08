@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.doubtech.universalremote"
-    android:versionCode="8"
-    android:versionName="0.0.8" >
+    android:versionCode="9"
+    android:versionName="0.0.9" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.doubtech.universalremote.PROVIDE_BUTTONS" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -78,6 +78,12 @@
         </provider>
 
         <service android:name="com.doubtech.universalremote.SlideOnRemote" />
+
+        <activity
+            android:name="com.doubtech.universalremote.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@android:style/Theme.Holo" >
+        </activity>
     </application>
 
 </manifest>

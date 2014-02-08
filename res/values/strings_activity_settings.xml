@@ -1,0 +1,20 @@
+<resources>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_title_slide_on">Enable slide on sidebar</string>
+    <string name="pref_description_slide_on">Starts the slide on remote sidebar as soon as the application is started.</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_rooms">Rooms</string>
+    <string name="pref_title_add_room">Add Room</string>
+    <string name="pref_description_add_room">Long press on a room for more options.</string>
+    <string name="pref_default_room_name">Living Room</string>
+    <string name="delete">Delete</string>
+
+</resources>

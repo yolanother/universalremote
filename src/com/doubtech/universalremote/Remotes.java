@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wei.mark.standout.StandOutWindow;
+import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,11 +20,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.doubtech.universalremote.io.RemoteConfigurationReader;
 import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedListener;
+import com.doubtech.universalremote.io.RemoteFilesLoader;
+import com.doubtech.universalremote.io.RemoteFilesLoader.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
 import com.doubtech.universalremote.widget.RemotePage;
 
@@ -47,6 +52,22 @@ public class Remotes extends FragmentActivity {
 
     private Uri mFile;
 
+    private RemoteFilesLoader mFileLoader;
+
+    private OnNavigationListener mOnNavigationListener = new OnNavigationListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+            mFile = FileProvider.getUriForFile(Remotes.this,
+                    Constants.AUTHORITY_FILE_PROVIDER,
+                    mFiles[itemPosition].getFile());
+            open(mFile);
+            return true;
+        }
+    };
+
+    private RemoteFile[] mFiles;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,14 +82,32 @@ public class Remotes extends FragmentActivity {
 
         Constants.REMOTE_FILE.getParentFile().mkdirs();
 
+        mFileLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
+        mFileLoader.load();
+        mFiles = mFileLoader.getRemoteFiles();
         mFile = FileProvider.getUriForFile(this,
                 Constants.AUTHORITY_FILE_PROVIDER,
-                Constants.REMOTE_FILE);
+                mFiles[0].getFile());
+
+        // Set up the action bar to show a dropdown list.
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        mFileLoader.load();
+        mFiles = mFileLoader.getRemoteFiles();
+
+        final ActionBar actionBar = getActionBar();
+        // Set up the dropdown list navigation in the action bar.
+        actionBar.setListNavigationCallbacks(
+        // Specify a SpinnerAdapter to populate the dropdown list.
+                new ArrayAdapter<RemoteFile>(actionBar.getThemedContext(),
+                        android.R.layout.simple_list_item_1,
+                        android.R.id.text1, mFiles), mOnNavigationListener);
         open(mFile);
     }
 
@@ -83,8 +122,7 @@ public class Remotes extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
         case R.id.action_settings:
-            Intent intent = new Intent(this, RemotePageConfiguration.class);
-            intent.setData(mFile);
+            Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, REQUEST_CONFIGURE);
             return true;
         case R.id.action_slideon:

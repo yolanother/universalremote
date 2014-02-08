@@ -1,0 +1,9 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="key_pref_slide_on"
+        android:summary="@string/pref_description_slide_on"
+        android:title="@string/pref_title_slide_on" />
+
+</PreferenceScreen>

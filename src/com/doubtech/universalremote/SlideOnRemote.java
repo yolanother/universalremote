@@ -11,12 +11,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.doubtech.universalremote.adapters.ListPageAdapter;
 import com.doubtech.universalremote.io.RemoteConfigurationReader;
 import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedListener;
+import com.doubtech.universalremote.io.RemoteFilesLoader;
+import com.doubtech.universalremote.io.RemoteFilesLoader.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
 import com.doubtech.universalremote.widget.RemotePage;
 
@@ -24,6 +30,25 @@ public class SlideOnRemote extends SlideOnWindow {
     ViewPager mViewPager;
     private Uri mFile;
     private ListPageAdapter<RemotePage> mPageAdapter;
+    private RemoteFilesLoader mFileLoader;
+    private RemoteFile[] mFiles;
+    private OnItemSelectedListener mNavigationListener = new OnItemSelectedListener() {
+
+        @Override
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int position,
+                long arg3) {
+            mFile = FileProvider.getUriForFile(SlideOnRemote.this,
+                    Constants.AUTHORITY_FILE_PROVIDER,
+                    mFiles[position].getFile());
+            open(mFile);
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+
+        }
+    };
 
 
     public SlideOnRemote() {
@@ -33,14 +58,14 @@ public class SlideOnRemote extends SlideOnWindow {
     @Override
     public void onCreate() {
         super.onCreate();
-        mFile = FileProvider.getUriForFile(this,
-                Constants.AUTHORITY_FILE_PROVIDER,
-                Constants.REMOTE_FILE);
+
+
+
     }
 
     @Override
     public View createView(LayoutInflater inflater, ViewGroup root) {
-        View v = inflater.inflate(R.layout.activity_remotes, root, true);
+        View v = inflater.inflate(R.layout.activity_remotes_slideon, root, true);
         v.setBackgroundColor(Color.argb(180, 0, 0, 0));
         mViewPager = (ViewPager) v.findViewById(R.id.pager);
         mPageAdapter = new ListPageAdapter<RemotePage>(this) {
@@ -58,9 +83,26 @@ public class SlideOnRemote extends SlideOnWindow {
 
             @Override
             public CharSequence getPageTitle(int position) {
-                return get(position).getTitle();
+                if (position < getCount()) {
+                    return get(position).getTitle();
+                }
+                return "";
             }
         };
+
+        mFileLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
+        mFileLoader.load();
+        mFiles = mFileLoader.getRemoteFiles();
+        mFile = FileProvider.getUriForFile(this,
+                Constants.AUTHORITY_FILE_PROVIDER,
+                mFiles[0].getFile());
+        Spinner spinner = (Spinner) v.findViewById(R.id.room_spinner);
+        spinner.setAdapter(
+        // Specify a SpinnerAdapter to populate the dropdown list.
+                new ArrayAdapter<RemoteFile>(this,
+                        android.R.layout.simple_list_item_1,
+                        android.R.id.text1, mFiles));
+        spinner.setOnItemSelectedListener(mNavigationListener);
         open(mFile);
         return v;
     }
