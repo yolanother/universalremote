@@ -6,14 +6,12 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Parents;
-import com.doubtech.universalremote.providers.providerdo.Parent.ParentBuilder;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 
 public class Button extends Parent {

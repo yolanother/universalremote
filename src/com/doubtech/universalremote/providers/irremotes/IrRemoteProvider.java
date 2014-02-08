@@ -50,10 +50,7 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
 
     @Override
     public Parent getDetails(Parent parent) {
-        if (parent instanceof Button) {
-            return getButtons(parent)[0];
-        }
-        return parent;
+        return getButtons(parent)[0];
     }
 
     private Parent[] getBrands(Parent parent) {
@@ -90,7 +87,7 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
         return brands;
     }
 
-    private Parent[] getButtons(Parent parent) {
+    private Button[] getButtons(Parent parent) {
         String[] buttonIds = null;
         String modelId = parent.getId();
         if (parent.getPath().length == 3) {
@@ -98,12 +95,12 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
             modelId = parent.getPath()[1];
         }
         Cursor cursor = getButtons(Buttons.Columns.ALL, modelId, buttonIds, null);
-        Parent[] brands = new Parent[cursor.getCount()];
+        Button[] brands = new Button[cursor.getCount()];
         cursor.moveToFirst();
         String levelName = getContext().getResources().getString(R.string.level_models);
         for (int i = 0; i < brands.length; i++) {
             String id = cursor.getString(Buttons.Columns.PROJECTION_BUTTON_ID);
-            brands[i] = new ButtonBuilder(getAuthority(), new String[] { parent.getPath()[0], parent.getPath()[1], id })
+            brands[i] = (Button) new ButtonBuilder(getAuthority(), new String[] { parent.getPath()[0], parent.getPath()[1], id })
                 .putExtra(Buttons.Columns.ButtonCode, cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE))
                 .setName(cursor.getString(Buttons.Columns.PROJECTION_BUTTON_NAME))
                 .setHasButtonSets(true)

@@ -111,7 +111,7 @@
                 file="AndroidManifest.xml"
                 match='android:versionName="\d+.\d+.\d+"'
                 replace='android:versionName="@buildMajor@.@buildMinor@.@buildNum@"' >
-        </replaceregexp> 
+        </replaceregexp>
         <replace
                 file="AndroidManifest.xml"
                 value="value not found in version.properties"

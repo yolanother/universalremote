@@ -13,7 +13,6 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Parents;
@@ -27,7 +26,7 @@ import com.doubtech.universalremote.utils.StringUtils;
  *
  */
 public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
-    private static final String TAG = "AbstractUniversalRemoteProvicer";
+    private static final String TAG = "AbstractUniversalRemoteProvider";
     private static final boolean DEBUG = false;
     private UriMatcher mUriMatcher;
 
@@ -193,16 +192,41 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
                 // TODO Might want to replace with a single thread executor.
                 new Thread() {
                     public void run() {
-                        Button button = (Button) getCachedDetails(Parent.fromUri(uri));
-                        sendButtons(new Button[] { button });
+                        try {
+                            Button button = (Button) getCachedDetails(Parent.fromUri(uri));
+                            sendButtons(new Button[] { button });
+                        } catch (Exception e) {
+                            // Gotta catch em all so buggy plugins don't bring down
+                            // the main application.
+                            if (!onError(e)) {
+                                Log.e(TAG, "Error sending button " + uri + "\n" + e.getMessage(), e);
+                            }
+                        }
                     }
                 }.start();
                 return new MatrixCursor(new String[] {"Sent"});
             }
         } catch (Exception e) {
-            Log.d(TAG, e.getMessage(), e);
+            // Gotta catch em all so buggy plugins don't bring down
+            // the main application.
+            if (!onError(e)) {
+                Log.d(TAG, e.getMessage(), e);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            } else {
+                return null;
+            }
         }
         throw new IllegalArgumentException("Unknown query: " + uri);
+    }
+
+    /**
+     * An error was caught during a query or button send operation.
+     * @param e
+     * @returns Return true if you have handled this exception and do not want to show the extra error logs.
+     */
+    public boolean onError(Exception e) {
+        // Override this if you are concerned with handling error messages.
+        return false;
     }
 
     private Cursor getCursor(Parent[] nodes) {
