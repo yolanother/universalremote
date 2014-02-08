@@ -1,5 +1,7 @@
 #!/bin/bash
 
+stty -echo
+
 pushd IrLib
 ant releasea
 popd
@@ -9,3 +11,5 @@ ant deploy
 popd
 
 ant deploy
+
+stty echo
