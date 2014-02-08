@@ -17,7 +17,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
-import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.providerdo.Button;
 
@@ -41,6 +40,9 @@ public class IconLoader {
     public static void loadIcon(final Context context, final String key, final Uri uri, final String buttonName,
             final IconLoaderListener iconLoaderListener) {
         Bitmap mButtonIcon = mIconCache.get(key);
+        if (null != buttonName) {
+            loadDefaultAsset(context, key, buttonName, iconLoaderListener);
+        }
         if (null == mButtonIcon) {
             mIconLoader.execute(new Runnable() {
 
@@ -73,14 +75,7 @@ public class IconLoader {
                                 return;
                             }
                         } else if (null != buttonName) {
-                            int id = ButtonStyler.getIconId(buttonName);
-                            if (0 != id) {
-                                Bitmap bitmap = BitmapFactory.decodeStream(context.getResources().openRawResource(id));
-                                if (null != key && null != bitmap) {
-                                    mIconCache.put(key, bitmap);
-                                    iconLoaderListener.onIconLoaded(bitmap);
-                                }
-                            }
+                            loadDefaultAsset(context, key, buttonName, iconLoaderListener);
                         }
                     } catch (FileNotFoundException e) {
                         Log.w("UniversalRemote", e.getMessage(), e);
@@ -92,6 +87,27 @@ public class IconLoader {
         } else {
             iconLoaderListener.onIconLoaded(mButtonIcon);
         }
+    }
+
+    private static void loadDefaultAsset(Context context, String key, String buttonName,
+            IconLoaderListener iconLoaderListener) {
+        int id = ButtonStyler.getIconId(buttonName);
+        if (0 != id) {
+            Bitmap bitmap = BitmapFactory.decodeStream(context.getResources().openRawResource(id));
+            if (null != key && null != bitmap) {
+                mIconCache.put(key, bitmap);
+                onIconLoaded(bitmap, iconLoaderListener);
+            }
+        }
+    }
+
+    private static void onIconLoaded(final Bitmap bitmap, final IconLoaderListener listener) {
+        Utils.runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onIconLoaded(bitmap);
+                }
+            });
     }
 
     private static String getIconCacheKey(Button button) {
