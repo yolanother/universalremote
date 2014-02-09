@@ -7,6 +7,7 @@ import wei.mark.standout.StandOutWindow;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -29,6 +30,7 @@ import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedLi
 import com.doubtech.universalremote.io.RemoteFilesLoader;
 import com.doubtech.universalremote.io.RemoteFilesLoader.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
+import com.doubtech.universalremote.utils.Utils;
 import com.doubtech.universalremote.widget.RemotePage;
 
 public class Remotes extends FragmentActivity {
@@ -73,6 +75,10 @@ public class Remotes extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_remotes);
 
+        if (Utils.isXLargeScreen(this)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
 
@@ -85,9 +91,11 @@ public class Remotes extends FragmentActivity {
         mFileLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
         mFileLoader.load();
         mFiles = mFileLoader.getRemoteFiles();
-        mFile = FileProvider.getUriForFile(this,
-                Constants.AUTHORITY_FILE_PROVIDER,
-                mFiles[0].getFile());
+        if (mFiles.length > 0) {
+            mFile = FileProvider.getUriForFile(this,
+                    Constants.AUTHORITY_FILE_PROVIDER,
+                    mFiles[0].getFile());
+        }
 
         // Set up the action bar to show a dropdown list.
         final ActionBar actionBar = getActionBar();
@@ -143,10 +151,12 @@ public class Remotes extends FragmentActivity {
     }
 
     private void open(Uri uri) {
-        mSectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager());
-        mSectionsPagerAdapter.open(uri);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        if (null != uri) {
+            mSectionsPagerAdapter = new SectionsPagerAdapter(
+                    getSupportFragmentManager());
+            mSectionsPagerAdapter.open(uri);
+            mViewPager.setAdapter(mSectionsPagerAdapter);
+        }
     }
 
     /**

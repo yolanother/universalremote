@@ -93,9 +93,11 @@ public class SlideOnRemote extends SlideOnWindow {
         mFileLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
         mFileLoader.load();
         mFiles = mFileLoader.getRemoteFiles();
-        mFile = FileProvider.getUriForFile(this,
-                Constants.AUTHORITY_FILE_PROVIDER,
-                mFiles[0].getFile());
+        if (mFiles.length > 0) {
+            mFile = FileProvider.getUriForFile(this,
+                    Constants.AUTHORITY_FILE_PROVIDER,
+                    mFiles[0].getFile());
+        }
         Spinner spinner = (Spinner) v.findViewById(R.id.room_spinner);
         spinner.setAdapter(
         // Specify a SpinnerAdapter to populate the dropdown list.
@@ -108,6 +110,8 @@ public class SlideOnRemote extends SlideOnWindow {
     }
 
     public void open(Uri file) {
+        if (null == file) return;
+
         mFile = file;
         mPageAdapter.clear();
         mPageAdapter.notifyDataSetChanged();

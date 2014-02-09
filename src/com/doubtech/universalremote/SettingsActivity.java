@@ -23,9 +23,11 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -64,14 +66,7 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        mRemoteFilesLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
-        mRemoteFilesLoader.load();
-
         setupSimplePreferencesScreen();
-
-        for (RemoteFile file : mRemoteFilesLoader.getRemoteFiles()) {
-            addRoom(file.getName(), file.getFile());
-        }
     }
 
     private static class LongPressPreference extends Preference implements OnLongClickListener {
@@ -144,6 +139,12 @@ public class SettingsActivity extends PreferenceActivity {
                 return true;
             }
         });
+
+        mRemoteFilesLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
+        mRemoteFilesLoader.load();
+        for (RemoteFile file : mRemoteFilesLoader.getRemoteFiles()) {
+            addRoom(file.getName(), file.getFile());
+        }
     }
 
     private void addRoom(String name, File file) {
@@ -316,13 +317,6 @@ public class SettingsActivity extends PreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
         }
     }
 
@@ -333,6 +327,28 @@ public class SettingsActivity extends PreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class NotificationPreferenceFragment extends
             PreferenceFragment {
+        private RemoteFilesLoader mRemoteFilesLoader;
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            View v = super.onCreateView(inflater, container, savedInstanceState);
+            final ListView listView = (ListView) v.findViewById(android.R.id.list);
+            listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    ListView listView = (ListView) parent;
+                    ListAdapter listAdapter = listView.getAdapter();
+                    Object obj = listAdapter.getItem(position);
+                    if (obj != null && obj instanceof View.OnLongClickListener) {
+                        View.OnLongClickListener longListener = (View.OnLongClickListener) obj;
+                        return longListener.onLongClick(view);
+                    }
+                    return false;
+                }
+            });
+            return v;
+        }
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -340,14 +356,75 @@ public class SettingsActivity extends PreferenceActivity {
             addPreferencesFromResource(R.xml.pref_rooms);
 
             EditTextPreference pref = (EditTextPreference) findPreference(KEY_PREF_ADD_ROOM);
+            pref.setText(getString(R.string.pref_default_room_name));
             pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-
-                    return false;
+                    String name = "" + newValue;
+                    File file = new File(Constants.REMOTES_DIR, name + ".xml");
+                    if (null == findPreference(file.toString())) {
+                        addRoom(name, file);
+                    }
+                    return true;
                 }
             });
+
+            mRemoteFilesLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
+            mRemoteFilesLoader.load();
+
+            for (RemoteFile file : mRemoteFilesLoader.getRemoteFiles()) {
+                addRoom(file.getName(), file.getFile());
+            }
+        }
+
+        private void addRoom(String name, File file) {
+            final LongPressPreference newPref = new LongPressPreference(getActivity());
+            newPref.setLongClickListener(new OnLongClickListener() {
+
+                @Override
+                public boolean onLongClick(View v) {
+                    ActionMode mode = getActivity().startActionMode(new ActionMode.Callback() {
+
+                        @Override
+                        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                            return true;
+                        }
+
+                        @Override
+                        public void onDestroyActionMode(ActionMode mode) {
+
+                        }
+
+                        @Override
+                        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                            switch(item.getItemId()) {
+                            case R.id.action_delete:
+                                getPreferenceScreen().removePreference(newPref);
+                                new File(newPref.getKey()).delete();
+                                mode.finish();
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+                    mode.getMenuInflater().inflate(R.menu.add_item_action_mode, mode.getMenu());
+                    return true;
+                }
+            });
+
+            Intent intent = new Intent(getActivity(), RemotePageConfiguration.class);
+            intent.putExtra("title", name);
+            intent.setData(Uri.fromFile(file));
+            newPref.setIntent(intent);
+            newPref.setSummary(name);
+            newPref.setKey(file.toString());
+            getPreferenceScreen().addPreference(newPref);
         }
     }
 

@@ -15,6 +15,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -58,6 +59,7 @@ import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.utils.IOUtil;
 import com.doubtech.universalremote.utils.ProviderUtils;
+import com.doubtech.universalremote.utils.Utils;
 import com.doubtech.universalremote.widget.DynamicListView.ISwappableAdapter;
 import com.doubtech.universalremote.widget.HierarchicalListView;
 import com.doubtech.universalremote.widget.HierarchicalListView.OnHierarchyChangedListener;
@@ -441,6 +443,11 @@ public class RemotePageConfiguration extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_remote_page_configuration);
+
+        if (Utils.isXLargeScreen(this)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
         mList = (TwoWayListView) findViewById(R.id.remotes);
         mRemotePageAdapter = new RemotePageAdapter();
         mList.setAdapter(mRemotePageAdapter);
