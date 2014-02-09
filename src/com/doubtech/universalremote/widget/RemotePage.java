@@ -13,16 +13,20 @@ import org.w3c.dom.NodeList;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.doubtech.universalremote.ButtonFunction;
+import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.ui.IRemoteView;
@@ -55,10 +59,19 @@ public class RemotePage extends DropGridLayout {
 
     public RemotePage(Context context) {
         super(context);
+        init();
     }
 
     public RemotePage(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
+    }
+
+    private void init() {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int defaultColCount = (int) Math.ceil(metrics.widthPixels / (float) metrics.xdpi * 2.5f);
+        setColumnCount(defaultColCount);
+        setCellSpacing(getResources().getDimensionPixelSize(R.dimen.stroke_width));
     }
 
     public void loadButtons(Parent parent) {
@@ -369,6 +382,7 @@ public class RemotePage extends DropGridLayout {
     public void writeXml(XmlSerializer xml) throws IllegalArgumentException, IllegalStateException, IOException {
         xml.startTag("", XMLTAG);
         xml.attribute("", "title", "" + getTitle());
+        xml.attribute("", "colcount", Integer.toString(getColumnCount()));
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             if (v instanceof IRemoteView) {
@@ -381,6 +395,10 @@ public class RemotePage extends DropGridLayout {
     public static RemotePage fromXml(Context context, Element item) {
         RemotePage page = new RemotePage(context);
         page.setTitle(item.getAttribute("title"));
+        String rc = item.getAttribute("colcount");
+        if (null != rc && rc.length() > 0) {
+            page.setColumnCount(Integer.parseInt(rc));
+        }
         NodeList items = item.getChildNodes();
         for (int i = 0; i < items.getLength(); i++) {
             if (items.item(i) instanceof Element) {
@@ -412,5 +430,33 @@ public class RemotePage extends DropGridLayout {
     @Override
     public boolean shouldForceSquare() {
         return true;
+    }
+
+    private OnLongClickListener mLongClickListener = new OnLongClickListener() {
+
+        @Override
+        public boolean onLongClick(View v) {
+            startDrag(v);
+            return true;
+        }
+    };
+
+
+    @Override
+    public void setDragEnabled(boolean dragEnabled) {
+        for (int i = 0; i < getChildCount(); i++) {
+            getChildAt(i).setOnLongClickListener(dragEnabled ? mLongClickListener : null);
+        }
+        super.setDragEnabled(dragEnabled);
+    }
+
+    public void setEditMode(boolean editMode) {
+        setDragEnabled(editMode);
+        for (int i = 0; i < getChildCount(); i++) {
+            View v = getChildAt(i);
+            if (v instanceof IRemoteView) {
+                ((IRemoteView) v).setEditMode(editMode);
+            }
+        }
     }
 }

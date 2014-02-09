@@ -148,4 +148,9 @@ public class RemoteButton extends ImageView implements IRemoteView {
     public String toString() {
         return mButtonDetails.toString();
     }
+
+    @Override
+    public void setEditMode(boolean editMode) {
+
+    }
 }

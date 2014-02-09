@@ -6,7 +6,10 @@ import java.util.HashMap;
 
 import org.xmlpull.v1.XmlSerializer;
 
+import com.doubtech.universalremote.R;
+
 import android.R.color;
+import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -19,6 +22,8 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.DragEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.DragShadowBuilder;
 import android.widget.RelativeLayout;
 
 public class DropGridLayout<T> extends RelativeLayout {
@@ -36,6 +41,8 @@ public class DropGridLayout<T> extends RelativeLayout {
     private int mCellSpaceBottom;
     private Class<?> mDropFilter;
     private boolean mDragEnabled;
+    private RectF mLayoutRect = new RectF();
+    private ChildSpec mDragSpec;
 
     public DropGridLayout(Context context) {
         super(context);
@@ -52,7 +59,6 @@ public class DropGridLayout<T> extends RelativeLayout {
         mHoloPaint.setColor(getResources().getColor(color.holo_blue_dark));
         mHoloPaint.setAlpha(128);
         mHoloPaint.setStyle(Style.FILL_AND_STROKE);
-        mDragBounds = new RectF();
     }
 
     public int getColumnCount() {
@@ -110,12 +116,22 @@ public class DropGridLayout<T> extends RelativeLayout {
             View child = getChildAt(i);
             ChildSpec spec = mChildSpecs.get(child);
 
-            int left = (int) (spec.col * mCellWidth) + l + getPaddingLeft();
-            int top = (int) (spec.row * mCellHeight) + t + getPaddingTop();
-            int right = (int) (left + mCellWidth * spec.colspan);
-            int bottom = (int) (top + mCellHeight * spec.rowspan);
-            child.layout(left + mCellSpaceLeft, top + mCellSpaceTop, right - mCellSpaceRight, bottom - mCellSpaceBottom);
+            layout(spec, mLayoutRect);
+            child.layout((int) mLayoutRect.left, (int) mLayoutRect.top,
+                    (int) mLayoutRect.right, (int) mLayoutRect.bottom);
         }
+    }
+
+    private void layout(ChildSpec spec, RectF layout) {
+        layout.left = (int) (spec.col * mCellWidth) + getPaddingLeft();
+        layout.top = (int) (spec.row * mCellHeight) + getPaddingTop();
+        layout.right = (int) (layout.left + mCellWidth * spec.colspan);
+        layout.bottom = (int) (layout.top + mCellHeight * spec.rowspan);
+
+        layout.left += mCellSpaceLeft;
+        layout.top += mCellSpaceTop;
+        layout.right -= mCellSpaceRight;
+        layout.bottom -= mCellSpaceBottom;
     }
 
     public void setCellSpacing(int spacing) {
@@ -167,29 +183,16 @@ public class DropGridLayout<T> extends RelativeLayout {
             break;
         case DragEvent.ACTION_DRAG_ENDED:
             mDragShadow = null;
+            mDragSpec = null;
+            mDragBounds = null;
             invalidate();
             break;
         case DragEvent.ACTION_DROP:
             View view = (View) event.getLocalState();
             if (null == view.getParent() || view.getParent() == this) {
-                Point cell = calculateCell(event.getX(), event.getY());
                 mDragShadow = null;
                 invalidate();
-                ChildSpec spec = getChildSpec(view);
-                if (null == spec) {
-                    int width = view.getMeasuredWidth();
-                    int height = view.getMeasuredHeight();
-                    width = (int) Math.max(Math.ceil(width / (float) mCellWidth), 1);
-                    height = (int) Math.max(Math.ceil(height / (float) mCellHeight), 1);
-                    spec = new ChildSpec(cell.y, cell.x, width, height);
-                } else {
-                    spec.row = cell.y;
-                    spec.col = cell.x;
-                }
-                if (null != view.getParent()) {
-                    removeView(view);
-                }
-                addView(view, spec);
+                addView(view, mDragSpec);
             }
             break;
         }
@@ -200,30 +203,33 @@ public class DropGridLayout<T> extends RelativeLayout {
         return false;
     }
 
-    private Point calculateCell(float x, float y) {
-        Point point = new Point();
-        point.x = (int) (x / getWidth() * getColumnCount());
-        point.y = (int) (y / getHeight() * getRowCount());
-        return point;
-    }
-
-    private void calculateCellCoords(float x, float y, RectF cellBounds) {
-        cellBounds.left = (int) (x / getWidth() * getColumnCount()) * mCellWidth + getPaddingLeft();
-        cellBounds.top = (int) (y / getHeight() * getRowCount()) * mCellHeight + getPaddingTop();
-        cellBounds.bottom = cellBounds.top + mCellHeight;
-        cellBounds.right = cellBounds.left + mCellWidth;
+    public void startDrag(View v) {
+        ClipData dragData = ClipData.newPlainText("button", toString());
+        View.DragShadowBuilder shadow = new DragShadowBuilder(v);
+        v.startDrag(dragData, shadow, v, 0);
+        mDragSpec = mChildSpecs.get(v);
+        if (null == mDragSpec) {
+            mDragSpec = new ChildSpec(0, 0);
+        }
+        ((ViewGroup)v.getParent()).removeView(v);
     }
 
     private void updateDragShadow(float x, float y) {
-        mDragShadow = new PointF(x, y);
-        calculateCellCoords(x, y, mDragBounds);
+        if (null != mDragSpec) {
+            if (null == mDragBounds) {
+                mDragBounds = new RectF();
+            }
+            mDragSpec.row = (int) (y / mCellHeight);
+            mDragSpec.col = (int) (x / mCellWidth);
+            layout(mDragSpec, mDragBounds);
+        }
         invalidate();
     }
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        if (null != mDragShadow) {
+        if (null != mDragBounds) {
             canvas.drawRect(mDragBounds, mHoloPaint);
         }
     }
@@ -301,7 +307,13 @@ public class DropGridLayout<T> extends RelativeLayout {
     private SparseArray<SparseArray<Boolean>> mOccupiedCells = new SparseArray<SparseArray<Boolean>>();
 
     public void addView(View child, ChildSpec spec) {
-        child.setPadding(10, 10, 10, 10);
+        int padding = getResources().getDimensionPixelSize(R.dimen.stroke_width);
+        child.setPadding(padding, padding, padding, padding);
+        if (spec.col > getColumnCount()) {
+            ChildSpec ns = new ChildSpec(spec.row, getColumnCount() - 1, spec.rowspan, spec.colspan);
+            addView(child, ns);
+            return;
+        }
         for (int row = spec.row; row < spec.row + spec.rowspan; row++) {
             for (int col = spec.col; col < spec.col + spec.colspan; col++) {
                 if (isOccupied(row, col)) {
@@ -318,6 +330,10 @@ public class DropGridLayout<T> extends RelativeLayout {
             }
         }
 
+        actuallyAddView(child, spec);
+    }
+
+    private void actuallyAddView(View child, ChildSpec spec) {
         super.addView(child);
         mChildSpecs.put(child, spec);
     }

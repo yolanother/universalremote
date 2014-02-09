@@ -40,6 +40,7 @@ public class RemoteRocker extends View implements IRemoteView {
     private GradientDrawable mDownGradient;
     private boolean mRepeating;
     private int mAlpha;
+    private boolean mEditMode;
 
     public RemoteRocker(Context context) {
         super(context);
@@ -127,8 +128,13 @@ public class RemoteRocker extends View implements IRemoteView {
         mButtonSize = w - getPaddingLeft() - getPaddingRight();
     }
 
+    public void setEditMode(boolean editMode) {
+        mEditMode = editMode;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mEditMode) return super.onTouchEvent(event);
 
         switch(event.getAction()) {
         case MotionEvent.ACTION_DOWN:

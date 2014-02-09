@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.doubtech.universalremote.ButtonFunctionSet;
+import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.drawables.TextDrawable;
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.utils.ProviderUtils;
@@ -120,11 +121,12 @@ public class RemoteDpad extends View implements IRemoteView {
     private Poly mCurrentPoly;
     private int mCurrentTouchIndex;
     private Paint mTouchedPaint;
+    private boolean mEditMode;
 
     public RemoteDpad(Context context) {
         super(context);
         mPathPaint = new Paint();
-        mPathPaint.setStrokeWidth(10);
+        mPathPaint.setStrokeWidth(getResources().getDimensionPixelSize(R.dimen.stroke_width));
         mPathPaint.setStrokeCap(Cap.ROUND);
         mPathPaint.setStrokeJoin(Join.ROUND);
         mPathPaint.setColor(getResources().getColor(color.holo_blue_dark));
@@ -357,8 +359,13 @@ public class RemoteDpad extends View implements IRemoteView {
         }
     }
 
+    public void setEditMode(boolean editMode) {
+        mEditMode = editMode;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mEditMode) return super.onTouchEvent(event);
         PointF point = new PointF(event.getX(), event.getY());
         mCurrentPoly = null;
         for (int i = 0; i < mTouchAreas.length; i++) {

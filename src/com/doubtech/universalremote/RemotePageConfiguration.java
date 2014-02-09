@@ -299,9 +299,8 @@ public class RemotePageConfiguration extends Activity {
                     mRemotes.setSelectedPosition(position);
                     RemotePageButtonSource page = new RemotePageButtonSource(RemotePageConfiguration.this);
 
+
                     ScrollView sv = new ScrollView(RemotePageConfiguration.this);
-                    page.setColumnCount(page.getColumnCount() - 2);
-                    page.setCellSpacing(getResources().getDimensionPixelSize(R.dimen.cell_padding));
                     sv.addView(page);
                     mRevertHierarchyLevel = mHierarchyLevel;
                     mRemotes.addHierarchyView(sv);
@@ -666,9 +665,10 @@ public class RemotePageConfiguration extends Activity {
         if (mEditorContainer.getChildCount() > 0) {
             if (null != mEditorContainer.getTag()) {
                 ViewGroup vg = (ViewGroup) mEditorContainer.getTag();
-                View cv = mEditorContainer.getChildAt(0);
+                RemotePage cv = (RemotePage) mEditorContainer.getChildAt(0);
                 mEditorContainer.removeView(cv);
                 vg.addView(cv);
+                cv.setEditMode(false);
             }
             mEditorContainer.setVisibility(View.GONE);
             setTitle(R.string.title_activity_remote_page_configuration);
@@ -689,5 +689,6 @@ public class RemotePageConfiguration extends Activity {
         }
         setTitle(page.getTitle());
         mEditorContainer.addView(page);
+        page.setEditMode(true);
     }
 }

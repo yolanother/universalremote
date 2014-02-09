@@ -9,4 +9,5 @@ import com.doubtech.universalremote.widget.DropGridLayout.ChildSpec;
 public interface IRemoteView {
     void writeXml(XmlSerializer xml, ChildSpec childSpec) throws IllegalArgumentException,
             IllegalStateException, IOException;
+    void setEditMode(boolean editMode);
 }

@@ -11,4 +11,6 @@
 
     <dimen name="remote_preview_width">100dp</dimen>
     <dimen name="remote_preview_height">174dp</dimen>
+
+    <dimen name="stroke_width">2dp</dimen>
 </resources>

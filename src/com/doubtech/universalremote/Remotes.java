@@ -146,7 +146,7 @@ public class Remotes extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CONFIGURE && resultCode == RESULT_OK) {
-            open(data.getData());
+            open(mFile);
         }
     }
 
@@ -237,7 +237,6 @@ public class Remotes extends FragmentActivity {
                 Bundle savedInstanceState) {
             mRootView = new ScrollView(getActivity());
             if (null != mPage) {
-                mPage.setCellSpacing(getResources().getDimensionPixelSize(R.dimen.cell_padding));
                 ViewGroup parent = (ViewGroup) mPage.getParent();
                 if (null != parent) {
                     parent.removeView(mPage);
