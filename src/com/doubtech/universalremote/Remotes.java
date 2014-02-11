@@ -116,7 +116,6 @@ public class Remotes extends FragmentActivity {
                 new ArrayAdapter<RemoteFile>(actionBar.getThemedContext(),
                         android.R.layout.simple_list_item_1,
                         android.R.id.text1, mFiles), mOnNavigationListener);
-        open(mFile);
     }
 
     @Override
@@ -143,18 +142,11 @@ public class Remotes extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CONFIGURE && resultCode == RESULT_OK) {
-            open(mFile);
-        }
-    }
-
     private void open(Uri uri) {
         if (null != uri) {
             mSectionsPagerAdapter = new SectionsPagerAdapter(
-                    getSupportFragmentManager());
-            mSectionsPagerAdapter.open(uri);
+                    getSupportFragmentManager(),
+                    uri);
             mViewPager.setAdapter(mSectionsPagerAdapter);
         }
     }
@@ -166,12 +158,9 @@ public class Remotes extends FragmentActivity {
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         List<RemotePage> mPages = new ArrayList<RemotePage>();
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        public SectionsPagerAdapter(FragmentManager fm, Uri file) {
             super(fm);
-        }
 
-        public void open(Uri file) {
-            mFile = file;
             mPages.clear();
             notifyDataSetChanged();
             RemoteConfigurationReader reader = new RemoteConfigurationReader(Remotes.this);
