@@ -3,7 +3,7 @@
 stty -echo
 
 pushd IrLib
-ant releasea
+ant release
 popd
 
 pushd sdk
