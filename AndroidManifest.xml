@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.doubtech.universalremote"
-    android:versionCode="11"
-    android:versionName="0.0.11" >
+    android:versionCode="10"
+    android:versionName="0.0.10" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
 
     <permission android:name="com.doubtech.universalremote.PROVIDE_BUTTONS" />
 
@@ -23,6 +25,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+
         <activity
             android:name="com.doubtech.universalremote.Remotes"
             android:label="@string/app_name"

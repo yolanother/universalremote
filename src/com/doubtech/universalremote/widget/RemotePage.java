@@ -413,6 +413,7 @@ public class RemotePage extends DropGridLayout {
 
                     View view = (View) method.invoke(null, context, control);
                     page.addView(view, new ChildSpec(row, col, rowspan, colspan));
+                    Log.d("AARON", "" + view + "@" + row + "," + col);
                 } catch (NoSuchMethodException e) {
                     Log.wtf(TAG, "Unknown control (no such method): " + control.getTagName(), e);
                 } catch (IllegalAccessException e) {

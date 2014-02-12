@@ -3,7 +3,6 @@ package com.doubtech.universalremote.io;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -22,14 +21,16 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
+import com.doubtech.geofenceeditor.SimpleGeofence;
 import com.doubtech.universalremote.widget.RemotePage;
 
 public class RemoteConfigurationReader {
     private static final String TAG = "UniversalRemote :: RemoteConfigurationReader";
 
     public interface RemotesLoadedListener {
-        void onRemotesLoaded(Uri uri, List<RemotePage> pages);
+        void onRemotesLoaded(Uri uri, String name, List<RemotePage> pages, SimpleGeofence geofence);
         void onRemoteLoadFailed(Throwable error);
     }
 
@@ -46,7 +47,11 @@ public class RemoteConfigurationReader {
 
         @Override
         public void run() {
-            mListener.onRemoteLoadFailed(mError);
+            if (null != mListener) {
+                mListener.onRemoteLoadFailed(mError);
+            } else {
+                Log.d(TAG, mError.getMessage(), mError);
+            }
         }
     }
 
@@ -59,20 +64,29 @@ public class RemoteConfigurationReader {
         mHandler = new Handler();
     }
 
-    public void open(final Uri uri, final RemotesLoadedListener listener) {
+    public void open(final Uri uri, final boolean readPages, final RemotesLoadedListener listener) {
         sLoaderService.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     ParcelFileDescriptor fd = mContext.getContentResolver().openFileDescriptor(uri, "r");
-                    final List<RemotePage> pages = read(new FileInputStream(fd.getFileDescriptor()));
-                    mHandler.post(new Runnable() {
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder;
 
-                        @Override
-                        public void run() {
-                            listener.onRemotesLoaded(uri, pages);
-                        }
-                    });
+                    builder = factory.newDocumentBuilder();
+                    Document dom = builder.parse(new FileInputStream(fd.getFileDescriptor()));
+                    Element root = dom.getDocumentElement();
+                    final List<RemotePage> pages = readPages ? read(root) : null;
+                    final SimpleGeofence geofence = readGeofence(root);
+                    final String name = root.getAttribute("name");
+                    if (null != listener) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onRemotesLoaded(uri, name, pages, geofence);
+                            }
+                        });
+                    }
                 } catch (FileNotFoundException e) {
                     mHandler.post(new ErrorRunnable(listener, e));
                 } catch (ParserConfigurationException e) {
@@ -86,19 +100,34 @@ public class RemoteConfigurationReader {
         });
     }
 
-    public List<RemotePage> read(InputStream stream) throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    private List<RemotePage> read(Element root) throws ParserConfigurationException, SAXException, IOException {
         List<RemotePage> pages = new ArrayList<RemotePage>();
-        DocumentBuilder builder;
-
-        builder = factory.newDocumentBuilder();
-        Document dom = builder.parse(stream);
-        Element root = dom.getDocumentElement();
         NodeList nodes = root.getElementsByTagName(RemotePage.XMLTAG);
         for (int i = 0; i < nodes.getLength(); i++) {
             pages.add(RemotePage.fromXml(mContext, (Element) nodes.item(i)));
         }
 
         return pages;
+    }
+
+    public static SimpleGeofence readGeofence(Element root) {
+        NodeList nodes = root.getElementsByTagName("geofence");
+        for (int i = 0; i < nodes.getLength(); i++) {
+            // TODO support multiple geofences
+            Element node = (Element) nodes.item(i);
+            SimpleGeofence geofence = new SimpleGeofence(
+                    node.getAttribute(SimpleGeofence.EXTRA_ID),
+                    Double.parseDouble(node.getAttribute(SimpleGeofence.EXTRA_LATITUDE)),
+                    Double.parseDouble(node.getAttribute(SimpleGeofence.EXTRA_LONGITUDE)),
+                    Float.parseFloat(node.getAttribute(SimpleGeofence.EXTRA_RADIUS)),
+                    Long.parseLong(node.getAttribute(SimpleGeofence.EXTRA_EXPIRATION)),
+                    SimpleGeofence.transitionTypeFromString(node.getAttribute(SimpleGeofence.EXTRA_TRANSITION_TYPE)));
+
+            if (node.hasAttribute(SimpleGeofence.EXTRA_NAME)) {
+                geofence.setName(node.getAttribute(SimpleGeofence.EXTRA_NAME));
+            }
+            return geofence;
+        }
+        return null;
     }
 }

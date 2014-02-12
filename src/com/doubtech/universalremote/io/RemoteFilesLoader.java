@@ -8,28 +8,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.Context;
+import android.net.Uri;
+import android.support.v4.content.FileProvider;
+
+import com.doubtech.universalremote.adapters.RemoteRoomAdapter.RemoteFile;
+import com.doubtech.universalremote.utils.Constants;
+
 public class RemoteFilesLoader {
-    public static class RemoteFile {
-        public RemoteFile(String name, File file) {
-            mName = name;
-            mFile = file;
-        }
-        private String mName;
-        private File mFile;
-
-        public File getFile() {
-            return mFile;
-        }
-
-        public String getName() {
-            return mName;
-        }
-
-        @Override
-        public String toString() {
-            return mName;
-        }
-    }
 
     private File mDirectory;
     private List<RemoteFile> mFiles;
@@ -38,7 +24,7 @@ public class RemoteFilesLoader {
         mDirectory = directory;
     }
 
-    public void load() {
+    public void load(Context context) {
         mFiles = new ArrayList<RemoteFile>();
         FilenameFilter filter = new FilenameFilter() {
 
@@ -49,14 +35,17 @@ public class RemoteFilesLoader {
         };
 
         for (File file : mDirectory.listFiles(filter)) {
-            mFiles.add(new RemoteFile(file.getName().replaceAll(".xml", ""), file));
+            Uri uri = FileProvider.getUriForFile(context,
+                    Constants.AUTHORITY_FILE_PROVIDER,
+                    file);
+            mFiles.add(new RemoteFile(file.getName().replaceAll(".xml", ""), uri, null));
         }
 
         Collections.sort(mFiles, new Comparator<RemoteFile>() {
 
             @Override
             public int compare(RemoteFile lhs, RemoteFile rhs) {
-                return lhs.mName.compareTo(rhs.mName);
+                return lhs.getName().compareTo(rhs.getName());
             }
         });
     }

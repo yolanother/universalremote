@@ -21,21 +21,22 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import com.doubtech.universalremote.adapters.RemoteRoomAdapter.RemoteFile;
 import com.doubtech.universalremote.io.RemoteFilesLoader;
-import com.doubtech.universalremote.io.RemoteFilesLoader.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
 
 /**
@@ -133,21 +134,24 @@ public class SettingsActivity extends PreferenceActivity {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String name = "" + newValue;
                 File file = new File(Constants.REMOTES_DIR, name + ".xml");
+                Uri uri = FileProvider.getUriForFile(SettingsActivity.this,
+                        Constants.AUTHORITY_FILE_PROVIDER,
+                        file);
                 if (null == findPreference(file.toString())) {
-                    addRoom(name, file);
+                    addRoom(name, uri);
                 }
                 return true;
             }
         });
 
         mRemoteFilesLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
-        mRemoteFilesLoader.load();
+        mRemoteFilesLoader.load(SettingsActivity.this);
         for (RemoteFile file : mRemoteFilesLoader.getRemoteFiles()) {
             addRoom(file.getName(), file.getFile());
         }
     }
 
-    private void addRoom(String name, File file) {
+    private void addRoom(String name, Uri file) {
         final LongPressPreference newPref = new LongPressPreference(SettingsActivity.this);
         newPref.setLongClickListener(new OnLongClickListener() {
 
@@ -189,7 +193,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         Intent intent = new Intent(SettingsActivity.this, RemotePageConfiguration.class);
         intent.putExtra("title", name);
-        intent.setData(Uri.fromFile(file));
+        intent.setData(file);
         newPref.setIntent(intent);
         newPref.setSummary(name);
         newPref.setKey(file.toString());
@@ -363,22 +367,25 @@ public class SettingsActivity extends PreferenceActivity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     String name = "" + newValue;
                     File file = new File(Constants.REMOTES_DIR, name + ".xml");
+                    Uri uri = FileProvider.getUriForFile(getActivity(),
+                            Constants.AUTHORITY_FILE_PROVIDER,
+                            file);
                     if (null == findPreference(file.toString())) {
-                        addRoom(name, file);
+                        addRoom(name, uri);
                     }
                     return true;
                 }
             });
 
             mRemoteFilesLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
-            mRemoteFilesLoader.load();
+            mRemoteFilesLoader.load(getActivity());
 
             for (RemoteFile file : mRemoteFilesLoader.getRemoteFiles()) {
                 addRoom(file.getName(), file.getFile());
             }
         }
 
-        private void addRoom(String name, File file) {
+        private void addRoom(String name, Uri file) {
             final LongPressPreference newPref = new LongPressPreference(getActivity());
             newPref.setLongClickListener(new OnLongClickListener() {
 
@@ -420,7 +427,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             Intent intent = new Intent(getActivity(), RemotePageConfiguration.class);
             intent.putExtra("title", name);
-            intent.setData(Uri.fromFile(file));
+            intent.setData(file);
             newPref.setIntent(intent);
             newPref.setSummary(name);
             newPref.setKey(file.toString());

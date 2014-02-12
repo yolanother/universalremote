@@ -17,8 +17,9 @@ import android.widget.Spinner;
 
 import com.doubtech.universalremote.adapters.ListPageAdapter;
 import com.doubtech.universalremote.adapters.RemotePageAdapter;
+import com.doubtech.universalremote.adapters.RemoteRoomAdapter;
+import com.doubtech.universalremote.adapters.RemoteRoomAdapter.RemoteFile;
 import com.doubtech.universalremote.io.RemoteFilesLoader;
-import com.doubtech.universalremote.io.RemoteFilesLoader.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
 import com.doubtech.universalremote.widget.RemotePage;
 
@@ -26,18 +27,15 @@ public class SlideOnRemote extends SlideOnWindow {
     ViewPager mViewPager;
     private Uri mFile;
     private ListPageAdapter<RemotePage> mPageAdapter;
-    private RemoteFilesLoader mFileLoader;
-    private RemoteFile[] mFiles;
+    private RemoteRoomAdapter mFiles;
     private OnItemSelectedListener mNavigationListener = new OnItemSelectedListener() {
 
         @Override
         public void onItemSelected(AdapterView<?> arg0, View arg1, int position,
                 long arg3) {
-            mFile = FileProvider.getUriForFile(SlideOnRemote.this,
-                    Constants.AUTHORITY_FILE_PROVIDER,
-                    mFiles[position].getFile());
+            RemoteFile file = (RemoteFile) mFiles.getItem(position);
 
-            mViewPager.setAdapter(new RemotePageAdapter(SlideOnRemote.this).open(mFile));
+            mViewPager.setAdapter(new RemotePageAdapter(SlideOnRemote.this).open(file.getFile()));
         }
 
         @Override
@@ -87,20 +85,9 @@ public class SlideOnRemote extends SlideOnWindow {
             }
         };
 
-        mFileLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
-        mFileLoader.load();
-        mFiles = mFileLoader.getRemoteFiles();
-        if (mFiles.length > 0) {
-            mFile = FileProvider.getUriForFile(this,
-                    Constants.AUTHORITY_FILE_PROVIDER,
-                    mFiles[0].getFile());
-        }
+        mFiles = new RemoteRoomAdapter(this, Constants.REMOTES_DIR);
         Spinner spinner = (Spinner) v.findViewById(R.id.room_spinner);
-        spinner.setAdapter(
-        // Specify a SpinnerAdapter to populate the dropdown list.
-                new ArrayAdapter<RemoteFile>(this,
-                        android.R.layout.simple_list_item_1,
-                        android.R.id.text1, mFiles));
+        spinner.setAdapter(mFiles);
         spinner.setOnItemSelectedListener(mNavigationListener);
         return v;
     }

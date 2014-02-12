@@ -1,11 +1,8 @@
 package com.doubtech.universalremote;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +10,9 @@ import java.util.List;
 import android.R.color;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ClipData;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -49,6 +48,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.doubtech.geofenceeditor.GeofenceEditor;
+import com.doubtech.geofenceeditor.SimpleGeofence;
 import com.doubtech.universalremote.adapters.ProviderAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter.RequestChildAdapterListener;
@@ -71,6 +72,16 @@ import com.doubtech.universalremote.widget.TwoWayListView;
 
 public class RemotePageConfiguration extends Activity {
     private static final String TAG = "UniversalRemote :: RemotePageConfiguration";
+
+    /*
+     * Define a request code to send to Google Play services
+     * This code is returned in Activity.onActivityResult
+     */
+    private final static int
+            CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+
+    private static final int REQUEST_GEOFENCE = 0;
+
     private class ViewHolder {
 
         private TextView mLabel;
@@ -361,6 +372,8 @@ public class RemotePageConfiguration extends Activity {
     private RemotePage mNewPage;
     private TextView mSourcesLabel;
     private FrameLayout mEditorContainer;
+    private SimpleGeofence mGeofence;
+
     private OnDragListener mRemotePageDragListener = new OnDragListener() {
 
         @Override
@@ -470,13 +483,15 @@ public class RemotePageConfiguration extends Activity {
 
         mFile = getIntent().getData();
         if (null != mFile) {
-            mReader.open(mFile, new RemotesLoadedListener() {
-
+            mReader.open(mFile, true, new RemotesLoadedListener() {
                 @Override
-                public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
+                public void onRemotesLoaded(Uri uri, String name,
+                        List<RemotePage> pages, SimpleGeofence geofence) {
                     for (RemotePage page : pages) {
                         mRemotePageAdapter.add(page);
                     }
+                    mTitle = name;
+                    mGeofence = geofence;
                 }
 
                 @Override
@@ -618,7 +633,10 @@ public class RemotePageConfiguration extends Activity {
                 }*/
                 fd = getContentResolver().openFileDescriptor(mFile, "w");
                 fos = new FileOutputStream(fd.getFileDescriptor());
-                RemoteConfigurationWriter writer = new RemoteConfigurationWriter(fos, "Default Configuration");
+                RemoteConfigurationWriter writer = new RemoteConfigurationWriter(fos, mTitle);
+                if (null != mGeofence) {
+                    writer.writeGeofence(mGeofence);
+                }
                 for (RemotePage page : mRemotePageAdapter.mRemotes) {
                     writer.addPage(page);
                 }
@@ -644,9 +662,38 @@ public class RemotePageConfiguration extends Activity {
                 mRemotePageAdapter.add(page);
             }
             return true;
+        case R.id.action_geofence:
+            if (GeofenceEditor.isGeofenceEditorInstalled(this)) {
+                Intent geoIntent = GeofenceEditor.getIntent();
+                geoIntent.putExtra(SimpleGeofence.EXTRA_NAME, mTitle);
+                startActivityForResult(geoIntent, REQUEST_GEOFENCE);
+            } else {
+                AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("No geofencing application installed")
+                    .setMessage("You currently do not have a geofencing manager application installed. Would you like to install one?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            GeofenceEditor.installGeofenceEditor(RemotePageConfiguration.this);
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .create();
+                dialog.show();
+            }
+            return true;
         }
         return super.onMenuItemSelected(featureId, item);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (RESULT_OK == resultCode && REQUEST_GEOFENCE == requestCode) {
+            mGeofence = SimpleGeofence.fromIntent(data);
+        }
+    }
+
 
     public RequestChildAdapterListener getRequestChildListener() {
         return mRequestChildListener;

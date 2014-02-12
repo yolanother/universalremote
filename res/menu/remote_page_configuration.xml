@@ -1,5 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
+        android:id="@+id/action_geofence"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_geofence"
+        android:icon="@drawable/ic_action_geofencing"/>
+
+    <item
         android:id="@+id/action_remote"
         android:orderInCategory="100"
         android:showAsAction="always"

@@ -7,7 +7,6 @@ import java.util.Collections;
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlSerializer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -22,6 +21,7 @@ import com.doubtech.universalremote.drawables.TextDrawable;
 import com.doubtech.universalremote.io.BackgroundLoader;
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.widget.DropGridLayout.ChildSpec;
+import com.doubtech.universalremote.widget.RemotePage;
 
 public class RemoteButton extends ImageView implements IRemoteView {
     public static final String XMLTAG = "button";
@@ -53,6 +53,8 @@ public class RemoteButton extends ImageView implements IRemoteView {
             onClickListener = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    ChildSpec spec = ((RemotePage)v.getParent()).getChildSpec(RemoteButton.this);
+                    Log.d("AARON", RemoteButton.this + "@" + spec.getRow() + "," + spec.getCol());
                     mButtonDetails.send(getContext());
                 }
             };

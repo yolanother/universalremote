@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.doubtech.geofenceeditor.SimpleGeofence;
 import com.doubtech.universalremote.io.RemoteConfigurationReader;
 import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedListener;
 import com.doubtech.universalremote.utils.Utils;
@@ -48,10 +49,10 @@ public class RemotePageAdapter extends ListPageAdapter<RemotePage> {
 
             mFile = uri;
             RemoteConfigurationReader reader = new RemoteConfigurationReader(mContext);
-            reader.open(uri, new RemotesLoadedListener() {
-
+            reader.open(uri, true, new RemotesLoadedListener() {
                 @Override
-                public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
+                public void onRemotesLoaded(Uri uri, String name,
+                        List<RemotePage> pages, SimpleGeofence geofence) {
                     for (RemotePage page : pages) {
                         add(page);
                         notifyDataSetChanged();

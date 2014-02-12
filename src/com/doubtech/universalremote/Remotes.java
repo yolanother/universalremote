@@ -8,16 +8,14 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 
 import com.doubtech.universalremote.adapters.ListPageAdapter;
 import com.doubtech.universalremote.adapters.RemotePageAdapter;
-import com.doubtech.universalremote.io.RemoteFilesLoader;
-import com.doubtech.universalremote.io.RemoteFilesLoader.RemoteFile;
+import com.doubtech.universalremote.adapters.RemoteRoomAdapter;
+import com.doubtech.universalremote.adapters.RemoteRoomAdapter.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
 import com.doubtech.universalremote.utils.Utils;
 import com.doubtech.universalremote.widget.RemotePage;
@@ -41,23 +39,17 @@ public class Remotes extends FragmentActivity {
      */
     ViewPager mViewPager;
 
-    private Uri mFile;
-
-    private RemoteFilesLoader mFileLoader;
-
     private OnNavigationListener mOnNavigationListener = new OnNavigationListener() {
 
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-            mFile = FileProvider.getUriForFile(Remotes.this,
-                    Constants.AUTHORITY_FILE_PROVIDER,
-                    mFiles[itemPosition].getFile());
-            mViewPager.setAdapter(new RemotePageAdapter(Remotes.this).open(mFile));
+            RemoteFile file = (RemoteFile) mFiles.getItem(itemPosition);
+            mViewPager.setAdapter(new RemotePageAdapter(Remotes.this).open(file.getFile()));
             return true;
         }
     };
 
-    private RemoteFile[] mFiles;
+    private RemoteRoomAdapter mFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,15 +69,6 @@ public class Remotes extends FragmentActivity {
 
         Constants.REMOTE_FILE.getParentFile().mkdirs();
 
-        mFileLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
-        mFileLoader.load();
-        mFiles = mFileLoader.getRemoteFiles();
-        if (mFiles.length > 0) {
-            mFile = FileProvider.getUriForFile(this,
-                    Constants.AUTHORITY_FILE_PROVIDER,
-                    mFiles[0].getFile());
-        }
-
         // Set up the action bar to show a dropdown list.
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
@@ -95,16 +78,21 @@ public class Remotes extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mFileLoader.load();
-        mFiles = mFileLoader.getRemoteFiles();
+        mFiles = new RemoteRoomAdapter(this, Constants.REMOTES_DIR);
 
         final ActionBar actionBar = getActionBar();
         // Set up the dropdown list navigation in the action bar.
         actionBar.setListNavigationCallbacks(
-        // Specify a SpinnerAdapter to populate the dropdown list.
-                new ArrayAdapter<RemoteFile>(actionBar.getThemedContext(),
-                        android.R.layout.simple_list_item_1,
-                        android.R.id.text1, mFiles), mOnNavigationListener);
+                mFiles,
+                mOnNavigationListener);
+
+        mFiles.enableLocationServices();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mFiles.disableLocationServices();
     }
 
     @Override
