@@ -1,8 +1,5 @@
 package com.doubtech.universalremote;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import wei.mark.standout.StandOutWindow;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
@@ -10,23 +7,15 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ScrollView;
-import android.widget.Toast;
 
-import com.doubtech.universalremote.io.RemoteConfigurationReader;
-import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedListener;
+import com.doubtech.universalremote.adapters.ListPageAdapter;
+import com.doubtech.universalremote.adapters.RemotePageAdapter;
 import com.doubtech.universalremote.io.RemoteFilesLoader;
 import com.doubtech.universalremote.io.RemoteFilesLoader.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
@@ -45,7 +34,7 @@ public class Remotes extends FragmentActivity {
      * intensive, it may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter mSectionsPagerAdapter;
+    ListPageAdapter<RemotePage> mSectionsPagerAdapter;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -63,7 +52,7 @@ public class Remotes extends FragmentActivity {
             mFile = FileProvider.getUriForFile(Remotes.this,
                     Constants.AUTHORITY_FILE_PROVIDER,
                     mFiles[itemPosition].getFile());
-            open(mFile);
+            mViewPager.setAdapter(new RemotePageAdapter(Remotes.this).open(mFile));
             return true;
         }
     };
@@ -140,99 +129,5 @@ public class Remotes extends FragmentActivity {
 
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void open(Uri uri) {
-        if (null != uri) {
-            mSectionsPagerAdapter = new SectionsPagerAdapter(
-                    getSupportFragmentManager(),
-                    uri);
-            mViewPager.setAdapter(mSectionsPagerAdapter);
-        }
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-        List<RemotePage> mPages = new ArrayList<RemotePage>();
-
-        public SectionsPagerAdapter(FragmentManager fm, Uri file) {
-            super(fm);
-
-            mPages.clear();
-            notifyDataSetChanged();
-            RemoteConfigurationReader reader = new RemoteConfigurationReader(Remotes.this);
-            reader.open(file, new RemotesLoadedListener() {
-
-                @Override
-                public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
-                    for (RemotePage page : pages) {
-                        mPages.add(page);
-                        notifyDataSetChanged();
-                    }
-                }
-
-                @Override
-                public void onRemoteLoadFailed(Throwable error) {
-                    Toast.makeText(Remotes.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a DummySectionFragment (defined as a static inner class
-            // below) with the page number as its lone argument.
-            SectionFragment fragment = new SectionFragment();
-            fragment.setPage(mPages.get(position));
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-            return mPages.size();
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mPages.get(position).getTitle();
-        }
-    }
-
-    /**
-     * A dummy fragment representing a section of the app, but that simply
-     * displays dummy text.
-     */
-    public static class SectionFragment extends Fragment {
-        private ScrollView mRootView;
-        private RemotePage mPage;
-
-        public SectionFragment() {
-        }
-
-        public void setPage(RemotePage remotePage) {
-            mPage = remotePage;
-            if (null != mRootView) {
-                mRootView.removeAllViews();
-                mRootView.addView(mPage);
-            }
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            mRootView = new ScrollView(getActivity());
-            if (null != mPage) {
-                ViewGroup parent = (ViewGroup) mPage.getParent();
-                if (null != parent) {
-                    parent.removeView(mPage);
-                }
-                mRootView.addView(mPage);
-            }
-            return mRootView;
-        }
     }
 }

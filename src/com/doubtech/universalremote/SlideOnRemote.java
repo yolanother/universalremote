@@ -1,7 +1,5 @@
 package com.doubtech.universalremote;
 
-import java.util.List;
-
 import wei.mark.standout.SlideOnWindow;
 import android.graphics.Color;
 import android.net.Uri;
@@ -16,11 +14,9 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.doubtech.universalremote.adapters.ListPageAdapter;
-import com.doubtech.universalremote.io.RemoteConfigurationReader;
-import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedListener;
+import com.doubtech.universalremote.adapters.RemotePageAdapter;
 import com.doubtech.universalremote.io.RemoteFilesLoader;
 import com.doubtech.universalremote.io.RemoteFilesLoader.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
@@ -40,7 +36,8 @@ public class SlideOnRemote extends SlideOnWindow {
             mFile = FileProvider.getUriForFile(SlideOnRemote.this,
                     Constants.AUTHORITY_FILE_PROVIDER,
                     mFiles[position].getFile());
-            open(mFile);
+
+            mViewPager.setAdapter(new RemotePageAdapter(SlideOnRemote.this).open(mFile));
         }
 
         @Override
@@ -105,33 +102,7 @@ public class SlideOnRemote extends SlideOnWindow {
                         android.R.layout.simple_list_item_1,
                         android.R.id.text1, mFiles));
         spinner.setOnItemSelectedListener(mNavigationListener);
-        open(mFile);
         return v;
-    }
-
-    public void open(Uri file) {
-        if (null == file) return;
-
-        mFile = file;
-        mPageAdapter.clear();
-        mPageAdapter.notifyDataSetChanged();
-        RemoteConfigurationReader reader = new RemoteConfigurationReader(SlideOnRemote.this);
-        reader.open(file, new RemotesLoadedListener() {
-
-            @Override
-            public void onRemotesLoaded(Uri uri, List<RemotePage> pages) {
-                for (RemotePage page : pages) {
-                    mPageAdapter.add(page);
-                    mPageAdapter.notifyDataSetChanged();
-                }
-                mViewPager.setAdapter(mPageAdapter);
-            }
-
-            @Override
-            public void onRemoteLoadFailed(Throwable error) {
-                Toast.makeText(SlideOnRemote.this, error.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
     }
 
     @Override
