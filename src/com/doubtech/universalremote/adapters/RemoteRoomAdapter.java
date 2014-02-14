@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -129,10 +130,14 @@ public class RemoteRoomAdapter extends BaseAdapter implements LocationListener {
     }
 
     public void addFile(RemoteFile file) {
-        mFiles.add(file);
+        if (!mFiles.contains(file)) {
+            mFiles.add(file);
 
-        sort();
-        notifyDataSetChanged();
+            sort();
+            notifyDataSetChanged();
+
+            onLocationChanged(getLocation());
+        }
     }
 
     private void sort() {
@@ -220,5 +225,14 @@ public class RemoteRoomAdapter extends BaseAdapter implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    public Location getLocation() {
+        // Get the location manager
+        LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String bestProvider = locationManager.getBestProvider(criteria, false);
+        Location location = locationManager.getLastKnownLocation(bestProvider);
+        return location;
     }
 }

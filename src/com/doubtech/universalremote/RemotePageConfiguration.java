@@ -571,7 +571,6 @@ public class RemotePageConfiguration extends Activity {
 
                     @Override
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                        Log.d("AARON", "ActionMode item clicked: " + item.getItemId());
                         return false;
                     }
                 });
