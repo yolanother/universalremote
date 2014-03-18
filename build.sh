@@ -2,6 +2,9 @@
 
 stty -echo
 
+rm -rf ../StandOut/library/bin/res/crunch
+
+
 pushd IrLib
 ant release
 popd
@@ -12,4 +15,5 @@ popd
 
 ant deploy
 
+cat version.properties
 stty echo
