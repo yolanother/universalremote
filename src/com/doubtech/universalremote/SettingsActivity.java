@@ -7,6 +7,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.view.ActionMode;
@@ -151,7 +153,21 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-    private void addRoom(String name, Uri file) {
+    public File getFileFromURI(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(contentUri, null, null,
+                    null, null);
+            cursor.moveToFirst();
+            return new File(Constants.REMOTES_DIR, cursor.getString(0));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    private void addRoom(String name, final Uri file) {
         final LongPressPreference newPref = new LongPressPreference(SettingsActivity.this);
         newPref.setLongClickListener(new OnLongClickListener() {
 
@@ -179,7 +195,7 @@ public class SettingsActivity extends PreferenceActivity {
                         switch(item.getItemId()) {
                         case R.id.action_delete:
                             getPreferenceScreen().removePreference(newPref);
-                            new File(newPref.getKey()).delete();
+                            getFileFromURI(SettingsActivity.this, file).delete();
                             mode.finish();
                             return true;
                         }

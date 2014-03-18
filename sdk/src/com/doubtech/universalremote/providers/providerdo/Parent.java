@@ -259,7 +259,8 @@ public class Parent {
     public boolean equals(Object o) {
         if (o instanceof Parent) {
             Parent b = (Parent) o;
-            return getPathString().equals(b.getPathString());
+            return getAuthority().equals(b.getAuthority()) &&
+                    getPathString().equals(b.getPathString());
         }
         return false;
     }
