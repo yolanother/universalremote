@@ -118,6 +118,8 @@ public class IconLoader {
             builder.append("/");
             builder.append(Uri.encode(segment).replaceAll("[^a-zA-Z0-9_-]", "_"));
         }
+        builder.append("/");
+        builder.append(Uri.encode(button.getName()).replaceAll("[^a-zA-Z0-9_-]", "_"));
         return builder.toString();
     }
 }

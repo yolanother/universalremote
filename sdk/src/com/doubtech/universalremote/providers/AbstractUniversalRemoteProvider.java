@@ -233,7 +233,17 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
         MatrixCursor cursor;
         if (nodes.length > 0) {
             cursor = new MatrixCursor(nodes[0].getColumns());
+            String table = "";
+            for (String col : nodes[0].getColumns()) {
+                table += col + "\t";
+            }
+            //Log.d("AARON", table);
             for (Parent node : nodes) {
+                /*String row = "";
+                for (Object col : node.toRow()) {
+                    row += col + "\t";
+                }
+                Log.d("AARON", row);*/
                 cursor.addRow(node.toRow());
             }
         } else {

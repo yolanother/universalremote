@@ -6,6 +6,7 @@ import java.util.Locale;
 import com.doubtech.universalremote.R;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 public class ButtonStyler {
     public static final int[] NAME_LABEL_IDS = new int[ButtonIdentifier.NAME_PATTERN_STRINGS.length];

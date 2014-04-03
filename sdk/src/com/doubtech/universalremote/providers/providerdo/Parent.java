@@ -58,7 +58,11 @@ public class Parent {
         }
 
         public Parent build() {
-            return mParent;
+            try {
+                return (Parent) mParent.clone();
+            } catch (CloneNotSupportedException e) {
+                return mParent;
+            }
         }
     }
 
