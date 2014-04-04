@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.doubtech.geofenceeditor.SimpleGeofence;
@@ -33,7 +34,9 @@ public class RemotePageAdapter extends ListPageAdapter<RemotePage> {
         if (null != oldParent) {
             oldParent.removeView(item);
         }
-        parent.addView(item);
+        ScrollView sv = new ScrollView(mContext);
+        sv.addView(item);
+        parent.addView(sv);
     }
 
     @Override

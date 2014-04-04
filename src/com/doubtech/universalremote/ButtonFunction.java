@@ -97,16 +97,20 @@ public class ButtonFunction extends ButtonFunctionSet {
         details.mButton = new Button(item.getAttribute("authority"), item.getAttribute("id"), true);
         details.mLabel = item.getAttribute("label");
         details.mButton.setName(details.mLabel);
-        new Thread(new Runnable() {
+        mDetailLoader.execute(new Runnable() {
 
             @Override
             public void run() {
                 Cursor cursor = ProviderUtils.query(context, details.mButton);
-                details.mButton = (Button) Button.fromCursor(details.mButton, cursor);
-                // Reset the name again just incase the button instance has changed (it probably has)
-                details.mButton.setName(details.mLabel);
+                try {
+                    details.mButton = (Button) Button.fromCursor(details.mButton, cursor);
+                    // Reset the name again just incase the button instance has changed (it probably has)
+                    details.mButton.setName(details.mLabel);
+                } catch (Exception e) {
+                    Log.e("UniversalRemote", e.getMessage(), e);
+                }
             }
-        }).start();
+        });
         return details;
     }
 
