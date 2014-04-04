@@ -38,22 +38,55 @@ public abstract class IrManager {
     }
 
     public IrManager() {
-        mSendPool = Executors.newSingleThreadExecutor();
+        mSendPool = Executors.newFixedThreadPool(8);
     }
 
-    public void transmitPronto(String timings) {
-        String[] timingStringSet = timings.split("[ ,]");
-        if (timingStringSet.length > PRONTO_HEADER_BLOCK_LENGTH) {
-            int frequency = (int) (1000000/(Integer.parseInt(timingStringSet[1]) * .241246));
-            int[] timingIntSet = new int[timingStringSet.length - PRONTO_HEADER_BLOCK_LENGTH];
+    public void transmitPronto(String pronto) {
+        String[] prontotringSet = pronto.split("[ ,]");
+        if (prontotringSet.length > PRONTO_HEADER_BLOCK_LENGTH) {
+            int frequency = (int) (1000000/(Integer.parseInt(prontotringSet[1]) * .241246));
+            int[] timingIntSet = new int[prontotringSet.length - PRONTO_HEADER_BLOCK_LENGTH];
             for (int i = 0; i < timingIntSet.length; i++) {
-                if (timingStringSet[i].length() > 0) {
-                    timingIntSet[i] = Integer.parseInt(timingStringSet[i + PRONTO_HEADER_BLOCK_LENGTH]);
+                if (prontotringSet[i].length() > 0) {
+                    timingIntSet[i] = Integer.parseInt(prontotringSet[i + PRONTO_HEADER_BLOCK_LENGTH]);
                 }
             }
 
             transmit(frequency, timingIntSet);
         }
+    }
+
+    /**
+     * Send an ir code stored in a string
+     * Format:
+     * Frequency,time0,time1,time2...
+     * @param timingString
+     */
+    public void transmitTimingString(String timingString) {
+        String[] set = timingString.split("[ ,]");
+        int frequency = Integer.parseInt(set[0]);
+        int[] timings = new int[set.length - 1];
+        for (int i = 0; i < timings.length; i++) {
+            timings[i] = Integer.parseInt(set[i + 1]);
+        }
+        transmit(frequency, timings);
+    }
+
+    public static String prontoToTimings(String pronto) {
+        StringBuilder timings = new StringBuilder();
+        String[] prontotringSet = pronto.split("[ ,]");
+        if (prontotringSet.length > PRONTO_HEADER_BLOCK_LENGTH) {
+            int frequency = (int) (1000000/(Integer.parseInt(prontotringSet[1]) * .241246));
+            timings.append(frequency);
+            int[] timingIntSet = new int[prontotringSet.length - PRONTO_HEADER_BLOCK_LENGTH];
+            for (int i = 0; i < timingIntSet.length; i++) {
+                if (prontotringSet[i].length() > 0) {
+                    timings.append(",");
+                    timings.append(Integer.parseInt(prontotringSet[i + PRONTO_HEADER_BLOCK_LENGTH]));
+                }
+            }
+        }
+        return timings.toString();
     }
 
     public void transmit(final int frequency, final int[] timings) {
@@ -86,5 +119,9 @@ public abstract class IrManager {
         mInstance = null;
     }
 
-    abstract void transmitImpl(int frequency, int[] timings) throws InvalidIrCodeException;
+    abstract void transmitImpl(int frequency, int[] pronto) throws InvalidIrCodeException;
+
+    public static String getIrUri(String pronto) {
+        return "ir://" + pronto;
+    }
 }

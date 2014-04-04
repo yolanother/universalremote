@@ -28,6 +28,7 @@ import com.doubtech.universalremote.utils.StringUtils;
 public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
     private static final String TAG = "AbstractUniversalRemoteProvider";
     private static final boolean DEBUG = false;
+    private static final boolean DEBUG_CURSOR = false;
     private UriMatcher mUriMatcher;
 
     public AbstractUniversalRemoteProvider() {
@@ -185,6 +186,8 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
                 });
                 cursor.moveToFirst();
                 return cursor;
+            } else if (URPContract.TABLE_BUTTON_DETAILS_PATH.equals(table)) {
+                return getCursor(new Parent[] { getCachedDetails(Parent.fromUri(uri)) });
             } else if (URPContract.TABLE_BUTTONS_PATH.equals(table)) {
                 Parent[] nodes = getChildren(Parent.fromUri(uri));
                 return getCursor(nodes);
@@ -237,13 +240,15 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             for (String col : nodes[0].getColumns()) {
                 table += col + "\t";
             }
-            //Log.d("AARON", table);
+            if (DEBUG_CURSOR) Log.d(TAG, table);
             for (Parent node : nodes) {
-                /*String row = "";
-                for (Object col : node.toRow()) {
-                    row += col + "\t";
+                if (DEBUG_CURSOR) {
+                    String row = "";
+                    for (Object col : node.toRow()) {
+                        row += col + "\t";
+                    }
+                    Log.d(TAG, row);
                 }
-                Log.d("AARON", row);*/
                 cursor.addRow(node.toRow());
             }
         } else {
@@ -264,7 +269,8 @@ public abstract class AbstractUniversalRemoteProvider extends ContentProvider {
             return parent;
         }
 
-        return getDetails(parent);
+        parent = getDetails(parent);
+        return Parent.getCached(parent);
     }
     public abstract Parent[] getChildren(Parent parent);
 

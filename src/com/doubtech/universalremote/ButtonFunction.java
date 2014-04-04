@@ -2,20 +2,23 @@ package com.doubtech.universalremote;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.doubtech.universalremote.listeners.IconLoaderListener;
-import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
 import com.doubtech.universalremote.utils.ButtonStyler;
 import com.doubtech.universalremote.utils.IconLoader;
+import com.doubtech.universalremote.utils.ProviderUtils;
 
 public class ButtonFunction extends ButtonFunctionSet {
     private static final long serialVersionUID = 1L;
@@ -87,11 +90,23 @@ public class ButtonFunction extends ButtonFunctionSet {
         super.writeXml(xml);
     }
 
-    public static ButtonFunction fromXml(Context context, Element item) {
-        ButtonFunction details = new ButtonFunction();
+    private static Executor mDetailLoader = Executors.newSingleThreadExecutor();
+
+    public static ButtonFunction fromXml(final Context context, Element item) {
+        final ButtonFunction details = new ButtonFunction();
         details.mButton = new Button(item.getAttribute("authority"), item.getAttribute("id"), true);
         details.mLabel = item.getAttribute("label");
         details.mButton.setName(details.mLabel);
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                Cursor cursor = ProviderUtils.query(context, details.mButton);
+                details.mButton = (Button) Button.fromCursor(details.mButton, cursor);
+                // Reset the name again just incase the button instance has changed (it probably has)
+                details.mButton.setName(details.mLabel);
+            }
+        }).start();
         return details;
     }
 

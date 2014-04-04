@@ -1,40 +1,15 @@
 package com.doubtech.universalremote.providers.irremotes;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import android.content.Context;
 import android.util.Log;
 
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.ir.IrManager;
-import com.doubtech.universalremote.jsonretreivers.HttpJsonRetreiver;
-import com.doubtech.universalremote.jsonretreivers.JsonRetreiver;
-import com.doubtech.universalremote.providers.AbstractJsonUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.AbstractJsonIRUniversalRemoteProvider;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.utils.ButtonStyler;
 
-public class GlobalCacheProvider extends AbstractJsonUniversalRemoteProvider {
-    private static class Retreiver extends HttpJsonRetreiver {
-
-        public Retreiver(Context context, File cache) {
-            super(context, cache);
-        }
-
-        @Override
-        protected URL getUrl(Parent parent) {
-            try {
-                return new URL("http://ir.doubtech.com/json.php/globalcache" + parent.getPathString());
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException("Bad url generated. Should never get here.");
-            }
-        }
-    }
-
-    private Retreiver mRetreiver;
-
+public class GlobalCacheProvider extends AbstractJsonIRUniversalRemoteProvider {
     @Override
     public String getProviderName() {
         return getContext().getString(R.string.globalcache_provider_name);
@@ -51,11 +26,8 @@ public class GlobalCacheProvider extends AbstractJsonUniversalRemoteProvider {
     }
 
     @Override
-    public JsonRetreiver getJsonRetreiver() {
-        if (null == mRetreiver) {
-            mRetreiver = new Retreiver(getContext(), new File(getContext().getCacheDir(), "globalcache"));
-        }
-        return mRetreiver;
+    public String getUrlString(Parent parent) {
+        return "http://ir.doubtech.com/json.php/globalcache" + parent.getPathString();
     }
 
     @Override
@@ -67,7 +39,7 @@ public class GlobalCacheProvider extends AbstractJsonUniversalRemoteProvider {
     public Button[] sendButtons(Button[] buttons) {
         IrManager manager = IrManager.getInstance(getContext());
         for (Button button : buttons) {
-            String buttonData = button.getInternalData("buttonCode");
+            String buttonData = button.getInternalData(INTERNAL_DATA_BUTTON_CODE);
             String[] code = buttonData.split(",");
             int[] timings = new int[code.length - 1];
             for (int i = 0; i < timings.length; i++) {
@@ -79,8 +51,13 @@ public class GlobalCacheProvider extends AbstractJsonUniversalRemoteProvider {
     }
 
     @Override
-    public boolean isProviderEnabled() {
-        return IrManager.isSupported(getContext());
+    public Parent getDetails(Parent parent) {
+        parent = super.getDetails(parent);
+        if (parent instanceof Button) {
+
+            ((Button) parent).setHardwareUri(IrManager.getIrUri(((Button) parent).getInternalData("buttonCode")));
+        }
+        return parent;
     }
 
     @Override

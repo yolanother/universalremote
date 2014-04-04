@@ -100,7 +100,10 @@ public class IrRemoteProvider extends AbstractUniversalRemoteProvider {
         String levelName = getContext().getResources().getString(R.string.level_models);
         for (int i = 0; i < brands.length; i++) {
             String id = cursor.getString(Buttons.Columns.PROJECTION_BUTTON_ID);
+            String ircode = cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE);
+            ircode = IrManager.prontoToTimings(ircode);
             brands[i] = (Button) new ButtonBuilder(getAuthority(), new String[] { parent.getPath()[0], parent.getPath()[1], id })
+                .setHardwareUri(IrManager.getIrUri(ircode))
                 .putExtra(Buttons.Columns.ButtonCode, cursor.getString(Buttons.Columns.PROJECTION_BUTTON_CODE))
                 .setName(cursor.getString(Buttons.Columns.PROJECTION_BUTTON_NAME))
                 .setHasButtonSets(true)

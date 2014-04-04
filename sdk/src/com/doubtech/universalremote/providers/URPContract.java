@@ -8,8 +8,9 @@ public final class URPContract {
     public static final String TABLE_BRANDS_PATH = "brands";
     public static final String TABLE_MODELS_PATH = "models";
     public static final String TABLE_BUTTONS_PATH = "buttons";
+    public static final String TABLE_BUTTON_DETAILS_PATH = "button-details";
     public static final String TABLE_BUTTON_LAYOUT_PATH = "layouts";
-    public static final String TABLE_PROVIDER_DETAILS_PATH = "details";
+    public static final String TABLE_PROVIDER_DETAILS_PATH = "provider-details";
 
     public static final String COLUMN_AUTHORITY = "authority";
 
@@ -89,6 +90,7 @@ public final class URPContract {
         public static final int COLIDX_TYPE = 6;
         public static final int COLIDX_HAS_BUTTONSETS = 7;
         public static final int COLIDX_BUTTON_IDENTIFIER = 8;
+        public static final int COLIDX_HARDWARE_URI = 9;
 
         public static final String COLUMN_ID = "_id";
         public static final String COLUMN_AUTHORITY = URPContract.COLUMN_AUTHORITY;
@@ -99,6 +101,7 @@ public final class URPContract {
         public static final String COLUMN_TYPE = "type";
         public static final String COLUMN_BUTTON_IDENTIFIER = "button_identifier";
         public static final String COLUMN_HAS_BUTTONSETS = "hasButtonSets";
+        public static final String COLUMN_HARDWARE_URI = "hwuri";
 
         public static final String[] ALL = new String[] {
             COLUMN_ID,
@@ -109,7 +112,8 @@ public final class URPContract {
             COLUMN_DESCRIPTION,
             COLUMN_TYPE,
             COLUMN_HAS_BUTTONSETS,
-            COLUMN_BUTTON_IDENTIFIER
+            COLUMN_BUTTON_IDENTIFIER,
+            COLUMN_HARDWARE_URI
         };
     }
 

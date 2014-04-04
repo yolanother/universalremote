@@ -1,16 +1,39 @@
 package com.doubtech.universalremote.providers;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.json.JSONException;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.doubtech.universalremote.jsonretreivers.HttpJsonRetreiver;
 import com.doubtech.universalremote.jsonretreivers.JsonRetreiver;
-import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 
 public abstract class AbstractJsonUniversalRemoteProvider extends
         AbstractUniversalRemoteProvider {
     public static final String TAG = "UniversalRemote : AbstractJsonURP";
+
+    protected class Retreiver extends HttpJsonRetreiver {
+
+        public Retreiver(Context context, File cache) {
+            super(context, cache);
+        }
+
+        @Override
+        protected URL getUrl(Parent parent) {
+            try {
+                return new URL(getUrlString(parent));
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Bad url generated. Should never get here.");
+            }
+        }
+    }
+
+    private Retreiver mRetreiver;
 
     @Override
     public Parent[] getChildren(Parent parent) {
@@ -40,5 +63,12 @@ public abstract class AbstractJsonUniversalRemoteProvider extends
         return Parent.getCached(parent);
     }
 
-    public abstract JsonRetreiver getJsonRetreiver();
+    public JsonRetreiver getJsonRetreiver() {
+        if (null == mRetreiver) {
+            mRetreiver = new Retreiver(getContext(), new File(getContext().getCacheDir(), getAuthority()));
+        }
+        return mRetreiver;
+    }
+
+    public abstract String getUrlString(Parent parent);
 }

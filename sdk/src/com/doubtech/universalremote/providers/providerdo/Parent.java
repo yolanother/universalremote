@@ -115,12 +115,12 @@ public class Parent {
         idx = cursor.getColumnIndex(Parents.COLUMN_TYPE);
         boolean isParent = -1 == idx || "parent".equals(cursor.getString(idx));
 
-        Parent node;
+        return fromCursor(isParent ? new Parent(authority, getPath(parent), true) :
+                new Button(authority, getPath(parent), true), cursor);
+    }
 
-        node = isParent ? new Parent(authority, getPath(parent), true) :
-                new Button(authority, getPath(parent), true);
-
-        idx = cursor.getColumnIndex(Parents.COLUMN_NAME);
+    public static Parent fromCursor(Parent node, Cursor cursor) {
+        int idx = cursor.getColumnIndex(Parents.COLUMN_NAME);
         if (idx >= 0) {
             node.mName = cursor.getString(idx);
         }
@@ -135,7 +135,7 @@ public class Parent {
             node.mHasButtonSets = cursor.getInt(idx) != 0;
         }
 
-        if (!isParent) {
+        if (node instanceof Button) {
             node = Button.fromCursor((Button) node, cursor);
         }
 

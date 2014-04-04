@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import com.doubtech.universalremote.providers.AbstractUniversalRemoteProvider;
+import com.doubtech.universalremote.providers.URPContract;
 import com.doubtech.universalremote.providers.URPContract.Buttons;
 import com.doubtech.universalremote.providers.URPContract.Parents;
 import com.doubtech.universalremote.utils.ButtonIdentifier;
@@ -18,6 +19,7 @@ public class Button extends Parent {
 
     protected int mButtonIdentifier = 0;
     protected HashMap<String, String> mInternalData = new HashMap<String, String>();
+    private String mHardwareUri;
 
 
 
@@ -43,6 +45,11 @@ public class Button extends Parent {
             ((Button)mParent).putExtra(name, extra);
             return this;
         }
+
+        public ButtonBuilder setHardwareUri(String irUri) {
+            ((Button) mParent).setHardwareUri(irUri);
+            return this;
+        }
     }
 
     private Button() {
@@ -64,6 +71,7 @@ public class Button extends Parent {
         button = (Button) getCached(button);
 
         button.mButtonIdentifier = ButtonIdentifier.getKnownButton(button.getName());
+        button.setHardwareUri(cursor.getString(Buttons.COLIDX_HARDWARE_URI));
 
         return button;
     }
@@ -71,6 +79,9 @@ public class Button extends Parent {
     public static Button fromJson(AbstractUniversalRemoteProvider provider,
             JSONObject obj, Button button) throws JSONException {
         button.mButtonIdentifier = ButtonIdentifier.getKnownButton(button.getName());
+        if (obj.has("hwuri")) {
+            button.setHardwareUri(obj.getString("hwuri"));
+        }
         Iterator<?> iterator = obj.keys();
         while (iterator.hasNext()) {
             String key = "" + iterator.next();
@@ -90,7 +101,8 @@ public class Button extends Parent {
                 getDescription(),
                 Parents.TYPE_BUTTON,
                 hasButtonSets() ? 1 : 0,
-                getButtonIdentifier()
+                getButtonIdentifier(),
+                getHardwareUri()
         };
         return row;
     }
@@ -129,5 +141,18 @@ public class Button extends Parent {
 
     public void setName(String name) {
         mName = name;
+    }
+
+    public String getHardwareUri() {
+        return mHardwareUri;
+    }
+
+    public void setHardwareUri(String hwuri) {
+        mHardwareUri = hwuri;
+    }
+
+    @Override
+    public Uri getUri() {
+        return URPContract.getUri(mAuthority, URPContract.TABLE_BUTTON_DETAILS_PATH, getPath());
     }
 }
