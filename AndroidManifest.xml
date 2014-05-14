@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.doubtech.universalremote"
-    android:versionCode="17"
-    android:versionName="0.0.17" >
+    android:versionCode="20"
+    android:versionName="0.0.20" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
@@ -12,6 +12,12 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
 
     <permission android:name="com.doubtech.universalremote.PROVIDE_BUTTONS" />
@@ -88,6 +94,54 @@
             android:label="@string/title_activity_settings"
             android:theme="@android:style/Theme.Holo" >
         </activity>
+
+
+
+        <!-- Popup Activities -->
+        <activity
+            android:name="com.doubtech.universalremote.TooleapRemote"
+            android:configChanges="keyboardHidden"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleInstance"
+            android:screenOrientation="user"
+            android:theme="@*android:style/Theme.Translucent.NoTitleBar"
+            android:windowSoftInputMode="stateHidden" >
+            <intent-filter>
+                <action android:name="com.tooleap.sdk.TOOLEAP_SHOW" />
+            </intent-filter>
+        </activity>
+
+        <service android:name="com.tooleap.sdk.TooleapAppService" />
+        <service
+            android:name="com.tooleap.sdk.TooleapUIService"
+            android:exported="true"
+            android:process=":UIService" >
+            <intent-filter>
+                <action android:name="com.tooleap.sdk.BIND_UI_SERVICE" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name="com.tooleap.sdk.TooleapReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.tooleap.sdk.TOOLEAP_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="com.tooleap.sdk.reportTooleapExceptions"
+            android:value="true" />
+        <meta-data
+            android:name="com.tooleap.sdk.footerViewSupported"
+            android:value="true" />
+
     </application>
 
 </manifest>

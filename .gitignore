@@ -30,3 +30,4 @@ proguard/
 .settings
 bin.release
 .externalToolBuilders
+libs/tooleap-sdk-0.9.2.jar

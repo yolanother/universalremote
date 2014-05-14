@@ -1,12 +1,14 @@
 package com.doubtech.universalremote;
 
-import wei.mark.standout.StandOutWindow;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
@@ -19,6 +21,8 @@ import com.doubtech.universalremote.adapters.RemoteRoomAdapter.RemoteFile;
 import com.doubtech.universalremote.utils.Constants;
 import com.doubtech.universalremote.utils.Utils;
 import com.doubtech.universalremote.widget.RemotePage;
+import com.tooleap.sdk.Tooleap;
+import com.tooleap.sdk.TooleapPersistentMiniApp;
 
 public class Remotes extends FragmentActivity {
 
@@ -51,6 +55,8 @@ public class Remotes extends FragmentActivity {
 
     private RemoteRoomAdapter mFiles;
 
+    private SharedPreferences mPrefs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +79,8 @@ public class Remotes extends FragmentActivity {
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     @Override
@@ -110,9 +118,27 @@ public class Remotes extends FragmentActivity {
             startActivityForResult(intent, REQUEST_CONFIGURE);
             return true;
         case R.id.action_slideon:
-            StandOutWindow.closeAll(this, SlideOnRemote.class);
+
+            Intent i = new Intent(this, TooleapRemote.class);
+            TooleapPersistentMiniApp app = new TooleapPersistentMiniApp(this, i);
+            app.setIcon(this, R.drawable.shadow_icon);
+            app.bubbleBackgroundColor = Color.argb(0xFF, 0x7b, 0xae, 0x88);
+            app.notificationBadgeNumber = 0;
+            app.allowUserToDismiss(true);
+
+            long appid = mPrefs.getLong("tooleap", 0);
+            if (0 == appid) {
+                appid = Tooleap.getInstance(this).addMiniApp(app);
+                Editor editor = mPrefs.edit();
+                editor.putLong("tooleap", appid);
+                editor.commit();
+            } else {
+                Tooleap.getInstance(this).updateMiniApp(appid, app);
+            }
+
+            /*StandOutWindow.closeAll(this, SlideOnRemote.class);
             StandOutWindow.show(this, SlideOnRemote.class,
-                    StandOutWindow.DEFAULT_ID);
+                    StandOutWindow.DEFAULT_ID);*/
             return true;
 
         }
