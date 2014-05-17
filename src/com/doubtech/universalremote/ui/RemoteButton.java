@@ -1,15 +1,19 @@
 package com.doubtech.universalremote.ui;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -18,11 +22,13 @@ import com.doubtech.universalremote.ButtonFunctionSet;
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.drawables.TextDrawable;
 import com.doubtech.universalremote.io.BackgroundLoader;
+import com.doubtech.universalremote.json.JsonObjectManager;
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.widget.DropGridLayout.ChildSpec;
 
 public class RemoteButton extends ImageView implements IRemoteView {
     public static final String XMLTAG = "button";
+    private static final String TAG = "UniversalRemote::RemoteButton";
     private ButtonFunctionSet mButtonDetails;
     protected String mBackground;
 
@@ -140,6 +146,23 @@ public class RemoteButton extends ImageView implements IRemoteView {
         button.mBackground = BackgroundLoader.setBackground(button, item.getAttribute("background"));
         button.setButtonFunctionSet(ButtonFunctionSet.fromXml(context, item));
         return button;
+    }
+
+    @Override
+    public JSONObject toJson() throws JSONException {
+        JSONObject object = new JSONObject();
+        object.put("background", mBackground);
+        if (null != mButtonDetails) {
+            mButtonDetails.toJson(object);
+        }
+        return object;
+    }
+
+    @Override
+    public void fromJson(JSONObject object) throws JSONException {
+        mBackground = BackgroundLoader.setBackground(this, object.getString("background"));
+        ButtonFunctionSet buttonFunctionSet = ButtonFunctionSet.fromJson(getContext(), object);
+        setButtonFunctionSet(buttonFunctionSet);
     }
 
     @Override

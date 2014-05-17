@@ -5,6 +5,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -41,7 +43,7 @@ public class ButtonFunction extends ButtonFunctionSet {
         }
     }
 
-    ButtonFunction() {
+    public ButtonFunction() {
         // This will be set up by a builder/from method
     }
 
@@ -97,24 +99,54 @@ public class ButtonFunction extends ButtonFunctionSet {
         details.mButton = new Button(item.getAttribute("authority"), item.getAttribute("id"), true);
         details.mLabel = item.getAttribute("label");
         details.mButton.setName(details.mLabel);
-        mDetailLoader.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                Cursor cursor = ProviderUtils.query(context, details.mButton);
-                try {
-                    details.mButton = (Button) Button.fromCursor(details.mButton, cursor);
-                    // Reset the name again just incase the button instance has changed (it probably has)
-                    details.mButton.setName(details.mLabel);
-                } catch (Exception e) {
-                    Log.e("UniversalRemote", e.getMessage(), e);
-                }
-            }
-        });
+        details.loadDetails(context);
         return details;
     }
 
     public Button getButton() {
         return mButton;
+    }
+
+    @Override
+    public JSONObject toJson() throws JSONException {
+        JSONObject object = super.toJson();
+        object.put("id", mButton.getPathString());
+        object.put("authority", mButton.getAuthority());
+        object.put("label", mLabel);
+        if (null != mButton.getHardwareUri()) {
+            object.put("hardware", mButton.getHardwareUri());
+        }
+        return object;
+    }
+
+    @Override
+    public void fromJson(JSONObject object) throws JSONException {
+        super.fromJson(object);
+        try {
+            mButton = new Button(
+                    object.getString("authority"),
+                    object.getString("id"), true);
+            mLabel = object.getString("label");
+            mButton.setName(mLabel);
+        } catch (JSONException e) {
+            Log.d("UniversalRemote:JSON", e.getMessage() + ": " + object.toString(2));
+            throw e;
+        }
+    }
+
+    public void loadDetails(final Context context) {
+        mDetailLoader.execute(new Runnable() {
+            @Override
+            public void run() {
+                Cursor cursor = ProviderUtils.query(context, mButton);
+                try {
+                    mButton = (Button) Button.fromCursor(mButton, cursor);
+                    // Reset the name again just incase the button instance has changed (it probably has)
+                    mButton.setName(mLabel);
+                } catch (Exception e) {
+                    Log.e("UniversalRemote", e.getMessage(), e);
+                }
+            }
+        });
     }
 }

@@ -1,11 +1,16 @@
 package com.doubtech.universalremote;
 
+import static com.doubtech.universalremote.utils.Constants.EXTRA_COLUMN_COUNT;
+import static com.doubtech.universalremote.utils.Constants.EXTRA_TITLE;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.json.JSONException;
 
 import android.R.color;
 import android.app.ActionBar;
@@ -53,9 +58,11 @@ import com.doubtech.geofenceeditor.SimpleGeofence;
 import com.doubtech.universalremote.adapters.ProviderAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter;
 import com.doubtech.universalremote.adapters.TextAdapter.RequestChildAdapterListener;
+import com.doubtech.universalremote.io.RemoteConfigurationFactory;
+import com.doubtech.universalremote.io.RemoteConfigurationJsonWriter;
 import com.doubtech.universalremote.io.RemoteConfigurationReader;
-import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedListener;
 import com.doubtech.universalremote.io.RemoteConfigurationWriter;
+import com.doubtech.universalremote.io.RemoteConfigurationXmlWriter;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.utils.IOUtil;
@@ -231,6 +238,7 @@ public class RemotePageConfiguration extends Activity {
                 if (parent.hasButtonSets()) {
                     ScalePreviewView v = new ScalePreviewView(RemotePageConfiguration.this);
                     RemotePage page = new RemotePage(RemotePageConfiguration.this);
+                    page.setColumnCount(mColumnCount);
                     page.loadButtons(parent);
                     page.setTitle(parent.getName());
 
@@ -451,6 +459,8 @@ public class RemotePageConfiguration extends Activity {
     private TextView mActionBarTitle;
     private CharSequence mTitle;
 
+    private int mColumnCount;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -479,9 +489,14 @@ public class RemotePageConfiguration extends Activity {
         // loaderManager = getLoaderManager();
         // loaderManager.initLoader(LOADER_BRAND, null, mLoaderHandler);
         mRemotes.addAdapter(new ProviderAdapter(this));
-        mReader = new RemoteConfigurationReader(this);
-
         mFile = getIntent().getData();
+        mReader = RemoteConfigurationFactory.getInstance(this, mFile);
+
+        if (null == mReader) {
+            Toast.makeText(this, R.string.unknown_file_extension, Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (null != mFile) {
             mReader.open(mFile, true, new RemotesLoadedListener() {
                 @Override
@@ -499,6 +514,7 @@ public class RemotePageConfiguration extends Activity {
                     if (error instanceof FileNotFoundException) {
                         // Handle new configuration.
                     } else {
+                        Log.e("UniversalRemote", "Configuration parse error.", error);
                         Toast.makeText(RemotePageConfiguration.this, error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
@@ -576,11 +592,14 @@ public class RemotePageConfiguration extends Activity {
                 });
             }
         });
-        mTitle = getIntent().getStringExtra("title");
+        mTitle = getIntent().getStringExtra(EXTRA_TITLE);
         if (null == mTitle) {
             mTitle = getString(R.string.title_activity_remote_page_configuration);
         }
         setTitle(mTitle);
+
+        Intent intent = getIntent();
+        mColumnCount = intent.getIntExtra(EXTRA_COLUMN_COUNT, 7);
     }
 
     private CharSequence getActiveTitle() {
@@ -632,7 +651,12 @@ public class RemotePageConfiguration extends Activity {
                 }*/
                 fd = getContentResolver().openFileDescriptor(mFile, "w");
                 fos = new FileOutputStream(fd.getFileDescriptor());
-                RemoteConfigurationWriter writer = new RemoteConfigurationWriter(fos, mTitle);
+                RemoteConfigurationWriter writer;
+                if (mFile.toString().endsWith("xml")) {
+                    writer = new RemoteConfigurationXmlWriter(fos, mTitle);
+                } else {
+                    writer = new RemoteConfigurationJsonWriter(fos, mTitle);
+                }
                 if (null != mGeofence) {
                     writer.writeGeofence(mGeofence);
                 }
@@ -641,6 +665,8 @@ public class RemotePageConfiguration extends Activity {
                 }
                 writer.close();
             } catch (IOException e) {
+                Log.d(TAG, e.getMessage(), e);
+            } catch (JSONException e) {
                 Log.d(TAG, e.getMessage(), e);
             } finally {
                 IOUtil.closeQuietly(fos);
@@ -656,6 +682,7 @@ public class RemotePageConfiguration extends Activity {
                 Parent info = (Parent) mCurrentPage.getTag();
                 ScalePreviewView v = new ScalePreviewView(RemotePageConfiguration.this);
                 RemotePage page = new RemotePage(RemotePageConfiguration.this);
+                page.setColumnCount(mColumnCount);
                 page.loadButtons(info);
                 page.setTitle(mCurrentPage.getTitle());
                 mRemotePageAdapter.add(page);

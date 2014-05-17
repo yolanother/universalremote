@@ -28,8 +28,12 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.doubtech.geofenceeditor.SimpleGeofence;
+import com.doubtech.universalremote.R;
+import com.doubtech.universalremote.RemotesLoadedListener;
+import com.doubtech.universalremote.io.RemoteConfigurationFactory;
+import com.doubtech.universalremote.io.RemoteConfigurationJsonReader;
 import com.doubtech.universalremote.io.RemoteConfigurationReader;
-import com.doubtech.universalremote.io.RemoteConfigurationReader.RemotesLoadedListener;
+import com.doubtech.universalremote.io.RemoteConfigurationXmlReader;
 import com.doubtech.universalremote.utils.Constants;
 import com.doubtech.universalremote.widget.RemotePage;
 
@@ -69,14 +73,14 @@ public class RemoteRoomAdapter extends BaseAdapter implements LocationListener {
     private ExecutorService mExecutor;
     private List<RemoteFile> mFiles;
     private List<RemoteFile> mAllFiles;
-    private RemoteConfigurationReader mReader;
+    private RemoteConfigurationJsonReader mJsonReader;
+    private RemoteConfigurationXmlReader mXmlReader;
 
     public RemoteRoomAdapter(Context context, File directory) {
         mDirectory = directory;
         mContext = context;
         mHandler = new Handler();
 
-        mReader = new RemoteConfigurationReader(mContext);
         mExecutor = Executors.newSingleThreadExecutor();
         mExecutor.execute(new Runnable() {
 
@@ -105,27 +109,32 @@ public class RemoteRoomAdapter extends BaseAdapter implements LocationListener {
             Uri uri = FileProvider.getUriForFile(mContext,
                     Constants.AUTHORITY_FILE_PROVIDER,
                     file);
-            mReader.open(uri, false, new RemotesLoadedListener() {
+            RemoteConfigurationReader reader = RemoteConfigurationFactory.getInstance(mContext, file);
+            if (null != reader) {
+                reader.open(uri, false, new RemotesLoadedListener() {
 
-                @Override
-                public void onRemotesLoaded(Uri uri, String name, List<RemotePage> pages,
-                        SimpleGeofence geofence) {
-                    final RemoteFile rf = new RemoteFile(name, uri, geofence);
-                    mAllFiles.add(rf);
-                    mHandler.post(new Runnable() {
+                    @Override
+                    public void onRemotesLoaded(Uri uri, String name, List<RemotePage> pages,
+                            SimpleGeofence geofence) {
+                        final RemoteFile rf = new RemoteFile(name, uri, geofence);
+                        mAllFiles.add(rf);
+                        mHandler.post(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            addFile(rf);
-                        }
-                    });
-                }
+                            @Override
+                            public void run() {
+                                addFile(rf);
+                            }
+                        });
+                    }
 
-                @Override
-                public void onRemoteLoadFailed(Throwable error) {
-                    Log.e(TAG, error.getMessage(), error);
-                }
-            });
+                    @Override
+                    public void onRemoteLoadFailed(Throwable error) {
+                        Log.e(TAG, error.getMessage(), error);
+                    }
+                });
+            } else {
+                Log.e(TAG, "Could not determine reader for " + file.getName());
+            }
         }
     }
 
@@ -167,10 +176,11 @@ public class RemoteRoomAdapter extends BaseAdapter implements LocationListener {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        TextView tv = (TextView) convertView;
         if (null == convertView) {
-            convertView = LayoutInflater.from(mContext).inflate(android.R.layout.simple_list_item_1, null);
+            tv = (TextView) LayoutInflater.from(mContext)
+                    .inflate(R.layout.spinner_text, null);
         }
-        TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
         tv.setText(mFiles.get(position).mName);
         tv.setTextColor(Color.WHITE);
         return tv;
@@ -192,18 +202,19 @@ public class RemoteRoomAdapter extends BaseAdapter implements LocationListener {
         for (RemoteFile file : mAllFiles) {
             SimpleGeofence fence = file.getGeofence();
             if (null != fence) {
-                Location.distanceBetween(
-                        fence.getLatitude(),
-                        fence.getLongitude(),
-                        location.getLatitude(),
-                        location.getLongitude(),
-                        results);
-                if (results[0] < fence.getRadius()) {
-                    if (!mFiles.contains(file)) {
-                        mFiles.add(file);
-                        sort();
-                        notifyDataSetChanged();
-                    }
+                if (null != location) {
+                    Location.distanceBetween(
+                            fence.getLatitude(),
+                            fence.getLongitude(),
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            results);
+                }
+                if ((null == location || results[0] < fence.getRadius()) &&
+                        !mFiles.contains(file)) {
+                    mFiles.add(file);
+                    sort();
+                    notifyDataSetChanged();
                 } else {
                     mFiles.remove(file);
                     notifyDataSetChanged();

@@ -2,6 +2,8 @@ package com.doubtech.universalremote.ui;
 
 import java.io.IOException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -16,12 +18,14 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.doubtech.universalremote.ButtonFunctionSet;
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.drawables.TextDrawable;
+import com.doubtech.universalremote.json.JsonUtil;
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.widget.DropGridLayout.ChildSpec;
 
@@ -168,13 +172,41 @@ public class RemoteNumberpad extends View implements IRemoteView {
     }
 
     public static RemoteNumberpad fromXml(Context context, Element item) {
+        boolean warn = false;
         RemoteNumberpad numberPad = new RemoteNumberpad(context);
         for (int i = 0; i < numberPad.mButtons.length; i++) {
-            numberPad.setButtonFunction(i,
-                    ButtonFunctionSet.fromXml(context, "num" + Integer.toString(i), item));
+            ButtonFunctionSet button = ButtonFunctionSet.fromXml(context, "num" + Integer.toString(i), item);
+            numberPad.setButtonFunction(i, button);
+            if (null == button) warn = true;
+        }
+        if (warn) {
+            Log.w("UniversalRemote:XML", "A button in the numberpad was not loaded.\n" + item.toString());
         }
         // TODO add xml attribute for setting color
         numberPad.setTextColor(Color.WHITE);
         return numberPad;
+    }
+
+    @Override
+    public JSONObject toJson() throws JSONException {
+        JSONObject object = new JSONObject();
+        for (int i = 0; i < mButtons.length; i++) {
+            JsonUtil.put(object, "num" + i, mButtons[i]);
+        }
+        return object;
+    }
+
+    @Override
+    public void fromJson(JSONObject object) throws JSONException {
+        boolean warn = false;
+        for (int i = 0; i < mButtons.length; i++) {
+            setButtonFunction(i, JsonUtil.getButton(getContext(), object, "num" + i));
+            if (null == mButtons[i]) warn = true;
+        }
+        setTextColor(JsonUtil.getInt(object, "textcolor", Color.WHITE));
+
+        if (warn) {
+            Log.w("UniversalRemote:JSON", "A button in the numberpad was not loaded.\n" + JsonUtil.toDebugString(object));
+        }
     }
 }

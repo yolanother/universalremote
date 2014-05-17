@@ -26,20 +26,8 @@ public class RemoteFilesLoader {
 
     public void load(Context context) {
         mFiles = new ArrayList<RemoteFile>();
-        FilenameFilter filter = new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String filename) {
-                return filename.toLowerCase(Locale.getDefault()).endsWith("xml");
-            }
-        };
-
-        for (File file : mDirectory.listFiles(filter)) {
-            Uri uri = FileProvider.getUriForFile(context,
-                    Constants.AUTHORITY_FILE_PROVIDER,
-                    file);
-            mFiles.add(new RemoteFile(file.getName().replaceAll(".xml", ""), uri, null));
-        }
+        load(context, "xml");
+        load(context, "json");
 
         Collections.sort(mFiles, new Comparator<RemoteFile>() {
 
@@ -48,6 +36,23 @@ public class RemoteFilesLoader {
                 return lhs.getName().compareTo(rhs.getName());
             }
         });
+    }
+
+    private void load(Context context, final String extension) {
+        FilenameFilter filter = new FilenameFilter() {
+
+            @Override
+            public boolean accept(File dir, String filename) {
+                return filename.toLowerCase(Locale.getDefault()).endsWith(extension);
+            }
+        };
+
+        for (File file : mDirectory.listFiles(filter)) {
+            Uri uri = FileProvider.getUriForFile(context,
+                    Constants.AUTHORITY_FILE_PROVIDER,
+                    file);
+            mFiles.add(new RemoteFile(file.getName().replaceAll("." + extension, ""), uri, null));
+        }
     }
 
     public RemoteFile[] getRemoteFiles() {

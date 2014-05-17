@@ -1,5 +1,9 @@
 package com.doubtech.universalremote;
 
+import static com.doubtech.universalremote.utils.Constants.EXTRA_COLUMN_COUNT;
+import static com.doubtech.universalremote.utils.Constants.EXTRA_REMOTES_DIR;
+import static com.doubtech.universalremote.utils.Constants.EXTRA_TITLE;
+
 import java.io.File;
 import java.util.List;
 
@@ -22,9 +26,9 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
-import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,6 +59,7 @@ import com.doubtech.universalremote.utils.Constants;
 public class SettingsActivity extends PreferenceActivity {
     private static final String KEY_PREF_ADD_ROOM = "key_pref_add_room";
 
+
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -64,6 +69,9 @@ public class SettingsActivity extends PreferenceActivity {
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
     private RemoteFilesLoader mRemoteFilesLoader;
+
+    private File mDir;
+    private int mColumnCount;
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -101,11 +109,22 @@ public class SettingsActivity extends PreferenceActivity {
             return;
         }
 
+        Intent intent = getIntent();
+        if (intent.hasExtra(EXTRA_REMOTES_DIR)) {
+            mDir = new File(intent.getStringExtra(EXTRA_REMOTES_DIR));
+        } else {
+            mDir = Constants.REMOTES_DIR;
+        }
+
+        mColumnCount = intent.getIntExtra(EXTRA_COLUMN_COUNT, 7);
+
+        String title = intent.getStringExtra(Constants.EXTRA_ACCESSORY_NAME);
+        if (null != title) {
+            setTitle(title);
+        }
+
         // In the simplified UI, fragments are not used at all and we instead
         // use the older PreferenceActivity APIs.
-
-        // Add 'general' preferences.
-        addPreferencesFromResource(R.xml.pref_general);
 
         addPreferencesFromResource(R.xml.pref_rooms);
 
@@ -135,7 +154,7 @@ public class SettingsActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String name = "" + newValue;
-                File file = new File(Constants.REMOTES_DIR, name + ".xml");
+                File file = new File(mDir, name + ".json");
                 Uri uri = FileProvider.getUriForFile(SettingsActivity.this,
                         Constants.AUTHORITY_FILE_PROVIDER,
                         file);
@@ -146,7 +165,9 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
-        mRemoteFilesLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
+        Log.d("AARON", "mDir: " + mDir);
+        mDir.mkdirs();
+        mRemoteFilesLoader = new RemoteFilesLoader(mDir);
         mRemoteFilesLoader.load(SettingsActivity.this);
         for (RemoteFile file : mRemoteFilesLoader.getRemoteFiles()) {
             addRoom(file.getName(), file.getFile());
@@ -159,7 +180,7 @@ public class SettingsActivity extends PreferenceActivity {
             cursor = context.getContentResolver().query(contentUri, null, null,
                     null, null);
             cursor.moveToFirst();
-            return new File(Constants.REMOTES_DIR, cursor.getString(0));
+            return new File(mDir, cursor.getString(0));
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -208,7 +229,10 @@ public class SettingsActivity extends PreferenceActivity {
         });
 
         Intent intent = new Intent(SettingsActivity.this, RemotePageConfiguration.class);
-        intent.putExtra("title", name);
+        intent.putExtra(EXTRA_TITLE, name);
+        intent.putExtra(EXTRA_COLUMN_COUNT, mColumnCount);
+        intent.putExtra(EXTRA_REMOTES_DIR, mDir.getAbsolutePath());
+        mDir.mkdirs();
         intent.setData(file);
         newPref.setIntent(intent);
         newPref.setSummary(name);
@@ -348,6 +372,7 @@ public class SettingsActivity extends PreferenceActivity {
     public static class NotificationPreferenceFragment extends
             PreferenceFragment {
         private RemoteFilesLoader mRemoteFilesLoader;
+        private File mDir;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -375,6 +400,14 @@ public class SettingsActivity extends PreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_rooms);
 
+            Intent intent = getActivity().getIntent();
+            if (intent.hasExtra(EXTRA_REMOTES_DIR)) {
+                mDir = new File(intent.getStringExtra(EXTRA_REMOTES_DIR));
+            } else {
+                mDir = Constants.REMOTES_DIR;
+            }
+
+
             EditTextPreference pref = (EditTextPreference) findPreference(KEY_PREF_ADD_ROOM);
             pref.setText(getString(R.string.pref_default_room_name));
             pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -382,7 +415,7 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     String name = "" + newValue;
-                    File file = new File(Constants.REMOTES_DIR, name + ".xml");
+                    File file = new File(mDir, name + ".json");
                     Uri uri = FileProvider.getUriForFile(getActivity(),
                             Constants.AUTHORITY_FILE_PROVIDER,
                             file);
@@ -393,7 +426,7 @@ public class SettingsActivity extends PreferenceActivity {
                 }
             });
 
-            mRemoteFilesLoader = new RemoteFilesLoader(Constants.REMOTES_DIR);
+            mRemoteFilesLoader = new RemoteFilesLoader(mDir);
             mRemoteFilesLoader.load(getActivity());
 
             for (RemoteFile file : mRemoteFilesLoader.getRemoteFiles()) {
@@ -442,7 +475,7 @@ public class SettingsActivity extends PreferenceActivity {
             });
 
             Intent intent = new Intent(getActivity(), RemotePageConfiguration.class);
-            intent.putExtra("title", name);
+            intent.putExtra(EXTRA_TITLE, name);
             intent.setData(file);
             newPref.setIntent(intent);
             newPref.setSummary(name);

@@ -2,6 +2,8 @@ package com.doubtech.universalremote.ui;
 
 import java.io.IOException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -16,39 +18,49 @@ import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.doubtech.universalremote.ButtonFunctionSet;
 import com.doubtech.universalremote.R;
 import com.doubtech.universalremote.drawables.TextDrawable;
+import com.doubtech.universalremote.json.JsonUtil;
 import com.doubtech.universalremote.listeners.IconLoaderListener;
 import com.doubtech.universalremote.utils.ProviderUtils;
 import com.doubtech.universalremote.widget.DropGridLayout.ChildSpec;
 
 public class RemoteDpad extends View implements IRemoteView {
+    private static final String FIELD_REPEATING = "repeating";
+    private static final String FIELD_OK = "ok";
+    private static final String FIELD_RIGHT = "right";
+    private static final String FIELD_LEFT = "left";
+    private static final String FIELD_DOWN = "down";
+    private static final String FIELD_UP = "up";
     public static final String XMLTAG = "dpad";
-    private final int BUTTON_UP = 0;
-    private final int BUTTON_RIGHT = 1;
-    private final int BUTTON_DOWN = 2;
-    private final int BUTTON_LEFT = 3;
-    private final int BUTTON_OK = 4;
+    public static final int BUTTON_UP = 0;
+    public static final int BUTTON_RIGHT = 1;
+    public static final int BUTTON_DOWN = 2;
+    public static final int BUTTON_LEFT = 3;
+    public static final int BUTTON_OK = 4;
 
-    private ButtonFunctionSet mUpButton;
-    private ButtonFunctionSet mDownButton;
-    private ButtonFunctionSet mRightButton;
-    private ButtonFunctionSet mLeftButton;
-    private ButtonFunctionSet mButtonOk;
+    private static final String[] FIELDS = new String[] {
+        FIELD_UP,
+        FIELD_RIGHT,
+        FIELD_DOWN,
+        FIELD_LEFT,
+        FIELD_OK
+    };
 
-    private ButtonFunctionSet[] mButtonFunctionSets = new ButtonFunctionSet[5];
+    private class DpadButton {
+        ButtonFunctionSet functions;
+        Drawable drawable;
+    }
 
-    private Drawable mUpDrawable;
-    private Drawable mDownDrawable;
-    private Drawable mLeftDrawable;
-    private Drawable mRightDrawable;
-    private Drawable mOkDrawable;
+    private DpadButton[] mButtonFunctionSets = new DpadButton[5];
 
     private class Poly {
         PointF[] points = new PointF[4];
@@ -122,6 +134,9 @@ public class RemoteDpad extends View implements IRemoteView {
     private int mCurrentTouchIndex;
     private Paint mTouchedPaint;
     private boolean mEditMode;
+    private Path mPath = new Path();
+    private Rect[] mButtonBounds;
+    private int mTextColor;
 
     public RemoteDpad(Context context) {
         super(context);
@@ -138,91 +153,36 @@ public class RemoteDpad extends View implements IRemoteView {
         mTouchedPaint.setStrokeCap(Cap.ROUND);
         mTouchedPaint.setStrokeJoin(Join.ROUND);
         mTouchedPaint.setAlpha(190);
+
+        mTextColor = Color.WHITE;
     }
 
-    public void setUpButton(ButtonFunctionSet button) {
-        mUpButton = button;
-        mButtonFunctionSets[BUTTON_UP] = mUpButton;
-        mUpDrawable = new TextDrawable(getContext());
-        if (null != button) {
-            ((TextDrawable) mUpDrawable).setText(button.getLabel());
-            mUpButton.getIcon(getContext(), new IconLoaderListener() {
-                @Override
-                public void onIconLoaded(Bitmap bitmap) {
-                    mUpDrawable = new BitmapDrawable(getResources(), bitmap);
-                    postInvalidate();
-                }
-            });
-        }
-        postInvalidate();
-    }
+    public DpadButton setButton(int buttonId, ButtonFunctionSet button) {
+        if (null == button) {
+            mButtonFunctionSets[buttonId] = null;
+            postInvalidate();
+        } else {
+            final DpadButton b = new DpadButton();
+            mButtonFunctionSets[buttonId] = b;
+            b.functions = button;
+            TextDrawable td = new TextDrawable(getContext());
+            td.setTextColor(mTextColor);
+            b.drawable = td;
 
-    public void setDownButton(ButtonFunctionSet button) {
-        mDownButton = button;
-        mButtonFunctionSets[BUTTON_DOWN] = mDownButton;
-        mDownDrawable = new TextDrawable(getContext());
-        if (null != button) {
-            ((TextDrawable) mDownDrawable).setText(button.getLabel());
-            mDownButton.getIcon(getContext(), new IconLoaderListener() {
-                @Override
-                public void onIconLoaded(Bitmap bitmap) {
-                    mDownDrawable = new BitmapDrawable(getResources(), bitmap);
-                    postInvalidate();
-                }
-            });
+            if (null != button) {
+                ((TextDrawable) b.drawable).setText(button.getLabel());
+                b.functions.getIcon(getContext(), new IconLoaderListener() {
+                    @Override
+                    public void onIconLoaded(Bitmap bitmap) {
+                        b.drawable = new BitmapDrawable(getResources(), bitmap);
+                        postInvalidate();
+                    }
+                });
+            }
+            postInvalidate();
+            return b;
         }
-        postInvalidate();
-    }
-
-    public void setRightButton(ButtonFunctionSet button) {
-        mRightButton = button;
-        mButtonFunctionSets[BUTTON_RIGHT] = mRightButton;
-        mRightDrawable = new TextDrawable(getContext());
-        if (null != button) {
-            ((TextDrawable) mRightDrawable).setText(button.getLabel());
-            mRightButton.getIcon(getContext(), new IconLoaderListener() {
-                @Override
-                public void onIconLoaded(Bitmap bitmap) {
-                    mRightDrawable = new BitmapDrawable(getResources(), bitmap);
-                    postInvalidate();
-                }
-            });
-        }
-        postInvalidate();
-    }
-
-    public void setLeftButton(ButtonFunctionSet button) {
-        mLeftButton = button;
-        mButtonFunctionSets[BUTTON_LEFT] = mLeftButton;
-        mLeftDrawable = new TextDrawable(getContext());
-        if (null != button) {
-            ((TextDrawable) mLeftDrawable).setText(button.getLabel());
-            mLeftButton.getIcon(getContext(), new IconLoaderListener() {
-                @Override
-                public void onIconLoaded(Bitmap bitmap) {
-                    mLeftDrawable = new BitmapDrawable(getResources(), bitmap);
-                    postInvalidate();
-                }
-            });
-        }
-        postInvalidate();
-    }
-
-    public void setOkButton(ButtonFunctionSet button) {
-        mButtonOk = button;
-        mButtonFunctionSets[BUTTON_OK] = mButtonOk;
-        mOkDrawable = new TextDrawable(getContext());
-        if (null != button) {
-            ((TextDrawable) mOkDrawable).setText(button.getLabel());
-            mButtonOk.getIcon(getContext(), new IconLoaderListener() {
-                @Override
-                public void onIconLoaded(Bitmap bitmap) {
-                    mOkDrawable = new BitmapDrawable(getResources(), bitmap);
-                    postInvalidate();
-                }
-            });
-        }
-        postInvalidate();
+        return null;
     }
 
     @Override
@@ -289,73 +249,64 @@ public class RemoteDpad extends View implements IRemoteView {
             PointF point = poly.points[0];
             mOkRect.setPoint(i++, point.x, point.y);
         }
+
+        mButtonBounds = new Rect[] {
+                new Rect(
+                    (int) (left + divWidth),
+                    (int) (top),
+                    (int) (right - divWidth),
+                    (int) (top + divHeight)),
+                new Rect(
+                    (int) (right - divWidth),
+                    (int) (top + divHeight),
+                    (int) (right),
+                    (int) (top + divHeight * 2)),
+                new Rect(
+                    (int) (left + divWidth),
+                    (int) (bottom - divHeight),
+                    (int) (right - divWidth),
+                    (int) (bottom)),
+                new Rect(
+                    (int) (left),
+                    (int) (top + divHeight),
+                    (int) (left + divWidth),
+                    (int) (top + divHeight * 2)),
+                new Rect(
+                    (int) (left + divWidth),
+                    (int) (top + divHeight),
+                    (int) (right - divWidth),
+                    (int) (bottom - divHeight))
+            };
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Path path = new Path();
+        mPath.reset();
 
         if (null != mCurrentPoly) {
-            path.moveTo(mCurrentPoly.points[0].x, mCurrentPoly.points[0].y);
+            mPath.moveTo(mCurrentPoly.points[0].x, mCurrentPoly.points[0].y);
             for (PointF point : mCurrentPoly.points) {
-                path.lineTo(point.x, point.y);
+                mPath.lineTo(point.x, point.y);
             }
-            canvas.drawPath(path, mTouchedPaint);
+            canvas.drawPath(mPath, mTouchedPaint);
         }
-        path.reset();
-        path.moveTo(mVisiblePolygons[0].points[0].x, mVisiblePolygons[0].points[0].y);
+        mPath.reset();
+        mPath.moveTo(mVisiblePolygons[0].points[0].x, mVisiblePolygons[0].points[0].y);
         for (Poly poly : mVisiblePolygons) {
             for (PointF point : poly.points) {
-                path.lineTo(point.x, point.y);
+                mPath.lineTo(point.x, point.y);
             }
         }
-        canvas.drawPath(path, mPathPaint);
+        canvas.drawPath(mPath, mPathPaint);
 
         super.onDraw(canvas);
 
-        if (null != mUpDrawable) {
-            mUpDrawable.setBounds(
-                    (int) (left + divWidth),
-                    (int) (top),
-                    (int) (right - divWidth),
-                    (int) (top + divHeight));
-            mUpDrawable.draw(canvas);
-        }
-
-        if (null != mDownDrawable) {
-            mDownDrawable.setBounds(
-                    (int) (left + divWidth),
-                    (int) (bottom - divHeight),
-                    (int) (right - divWidth),
-                    (int) (bottom));
-            mDownDrawable.draw(canvas);
-        }
-
-        if (null != mLeftDrawable) {
-            mLeftDrawable.setBounds(
-                    (int) (left),
-                    (int) (top + divHeight),
-                    (int) (left + divWidth),
-                    (int) (top + divHeight * 2));
-            mLeftDrawable.draw(canvas);
-        }
-
-        if (null != mRightDrawable) {
-            mRightDrawable.setBounds(
-                    (int) (right - divWidth),
-                    (int) (top + divHeight),
-                    (int) (right),
-                    (int) (top + divHeight * 2));
-            mRightDrawable.draw(canvas);
-        }
-
-        if (null != mOkDrawable) {
-            mOkDrawable.setBounds(
-                    (int) (left + divWidth),
-                    (int) (top + divHeight),
-                    (int) (right - divWidth),
-                    (int) (bottom - divHeight));
-            mOkDrawable.draw(canvas);
+        for (int i = 0; i < mButtonFunctionSets.length; i++) {
+            DpadButton button = mButtonFunctionSets[i];
+            if (null != button) {
+                button.drawable.setBounds(mButtonBounds [i]);
+                button.drawable.draw(canvas);
+            }
         }
     }
 
@@ -379,7 +330,7 @@ public class RemoteDpad extends View implements IRemoteView {
 
         switch(event.getAction()) {
         case MotionEvent.ACTION_UP:
-            ProviderUtils.sendButton(getContext(), mButtonFunctionSets[mCurrentTouchIndex]);
+            ProviderUtils.sendButton(getContext(), mButtonFunctionSets[mCurrentTouchIndex].functions);
         case MotionEvent.ACTION_CANCEL:
             mCurrentPoly = null;
             break;
@@ -400,53 +351,64 @@ public class RemoteDpad extends View implements IRemoteView {
     public void writeXml(XmlSerializer xml, ChildSpec spec) throws IllegalArgumentException, IllegalStateException, IOException {
         xml.startTag("", XMLTAG);
         spec.writeXml(xml);
-        if (null != mUpButton) {
-            xml.startTag("", "up");
-            mUpButton.writeXml(xml);
-            xml.endTag("", "up");
-        }
-        if (null != mDownButton) {
-            xml.startTag("", "down");
-            mDownButton.writeXml(xml);
-            xml.endTag("", "down");
-        }
-        if (null != mLeftButton) {
-            xml.startTag("", "left");
-            mLeftButton.writeXml(xml);
-            xml.endTag("", "left");
-        }
-        if (null != mRightButton) {
-            xml.startTag("", "right");
-            mRightButton.writeXml(xml);
-            xml.endTag("", "right");
-        }
-        if (null != mButtonOk) {
-            xml.startTag("", "ok");
-            mButtonOk.writeXml(xml);
-            xml.endTag("", "ok");
+
+        for (int i = 0; i < mButtonFunctionSets.length; i++) {
+            xml.startTag("", FIELDS[i]);
+            mButtonFunctionSets[i].functions.writeXml(xml);
+            xml.endTag("", FIELDS[i]);
         }
         xml.endTag("", XMLTAG);
     }
 
     public static RemoteDpad fromXml(Context context, Element item) {
         RemoteDpad dpad = new RemoteDpad(context);
-        dpad.setUpButton(ButtonFunctionSet.fromXml(context, "up", item));
-        dpad.setDownButton(ButtonFunctionSet.fromXml(context, "down", item));
-        dpad.setLeftButton(ButtonFunctionSet.fromXml(context, "left", item));
-        dpad.setRightButton(ButtonFunctionSet.fromXml(context, "right", item));
-        dpad.setOkButton(ButtonFunctionSet.fromXml(context, "ok", item));
-        if (!item.hasAttribute("repeating") || !Boolean.parseBoolean(item.getAttribute("repeating"))) {
+        for (int i = 0; i < FIELDS.length; i++) {
+            dpad.setButton(i, ButtonFunctionSet.fromXml(context, FIELDS[i], item));
+        }
+        if (!item.hasAttribute(FIELD_REPEATING) || !Boolean.parseBoolean(item.getAttribute(FIELD_REPEATING))) {
             dpad.setRepeating(false);
         }
         dpad.setTextColor(Color.WHITE);
         return dpad;
     }
 
+    @Override
+    public JSONObject toJson() throws JSONException {
+        JSONObject object = new JSONObject();
+        for (int i = 0; i < FIELDS.length; i++) {
+            DpadButton button = mButtonFunctionSets[i];
+            if (null != button) {
+                JsonUtil.put(object, FIELDS[i], button.functions);
+            }
+        }
+        object.put(FIELD_REPEATING, mRepeating);
+        return object;
+    }
+
+    @Override
+    public void fromJson(JSONObject object) throws JSONException {
+        Context context = getContext();
+        boolean warn = false;
+        for (int i = 0; i < FIELDS.length; i++) {
+            DpadButton button = setButton(i, JsonUtil.getButton(context, object, FIELDS[i]));
+            if (null == button && i < BUTTON_OK) {
+                warn = true;
+            }
+        }
+        mRepeating = JsonUtil.getBoolean(object, FIELD_REPEATING, false);
+        setTextColor(JsonUtil.getInt(object, "textcolor", Color.WHITE));
+
+        if (warn) {
+            Log.w("UniversalRemote:JSON", "One or more arrow button was not loaded on a rocker button.\n" + JsonUtil.toDebugString(object));
+        }
+    }
+
     public void setTextColor(int color) {
-        if (mUpDrawable instanceof TextDrawable) ((TextDrawable) mUpDrawable).setTextColor(color);
-        if (mDownDrawable instanceof TextDrawable) ((TextDrawable) mDownDrawable).setTextColor(color);
-        if (mRightDrawable instanceof TextDrawable) ((TextDrawable) mRightDrawable).setTextColor(color);
-        if (mLeftDrawable instanceof TextDrawable) ((TextDrawable) mLeftDrawable).setTextColor(color);
-        if (mOkDrawable instanceof TextDrawable) ((TextDrawable) mOkDrawable).setTextColor(color);
+        mTextColor = color;
+        for (DpadButton button : mButtonFunctionSets) {
+            if (null != button && button.drawable instanceof TextDrawable) {
+                ((TextDrawable) button.drawable).setTextColor(color);
+            }
+        }
     }
 }

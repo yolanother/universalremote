@@ -7,13 +7,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Locale;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -22,11 +25,12 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.doubtech.universalremote.ButtonFunction;
 import com.doubtech.universalremote.R;
+import com.doubtech.universalremote.json.IJsonElement;
+import com.doubtech.universalremote.json.JsonObjectManager;
 import com.doubtech.universalremote.providers.providerdo.Button;
 import com.doubtech.universalremote.providers.providerdo.Parent;
 import com.doubtech.universalremote.ui.IRemoteView;
@@ -39,20 +43,31 @@ import com.doubtech.universalremote.utils.ButtonIdentifier;
 import com.doubtech.universalremote.utils.ButtonIds;
 import com.doubtech.universalremote.utils.ButtonLoaderTask;
 
-public class RemotePage extends DropGridLayout {
+public class RemotePage extends DropGridLayout<IRemoteView> implements IJsonElement {
+    private static final String TAG = "UniversalRemote::RemotePage";
+
+    private static final String FIELD_COLCOUNT = "colcount";
+    private static final String FIELD_TITLE = "title";
+    private static final String FIELD_CONTROLS = "controls";
+    private static final String FIELD_COLSPAN = "colspan";
+    private static final String FIELD_ROWSPAN = "rowspan";
+    private static final String FIELD_COL = "col";
+    private static final String FIELD_ROW = "row";
+
     public static final String XMLTAG = "page";
 
     private static final HashMap<String, Class<? extends IRemoteView>> AVAILABLE_CONTROLS;
 
-    private static final String TAG = "UniversalRemote::RemotePage";
+
+
 
     static {
         AVAILABLE_CONTROLS = new HashMap<String, Class<? extends IRemoteView>>();
-        AVAILABLE_CONTROLS.put(RemoteButton.XMLTAG.toLowerCase(), RemoteButton.class);
-        AVAILABLE_CONTROLS.put(RemoteToggleButton.XMLTAG.toLowerCase(), RemoteToggleButton.class);
-        AVAILABLE_CONTROLS.put(RemoteDpad.XMLTAG.toLowerCase(), RemoteDpad.class);
-        AVAILABLE_CONTROLS.put(RemoteNumberpad.XMLTAG.toLowerCase(), RemoteNumberpad.class);
-        AVAILABLE_CONTROLS.put(RemoteRocker.XMLTAG.toLowerCase(), RemoteRocker.class);
+        AVAILABLE_CONTROLS.put(RemoteButton.XMLTAG.toLowerCase(Locale.getDefault()), RemoteButton.class);
+        AVAILABLE_CONTROLS.put(RemoteToggleButton.XMLTAG.toLowerCase(Locale.getDefault()), RemoteToggleButton.class);
+        AVAILABLE_CONTROLS.put(RemoteDpad.XMLTAG.toLowerCase(Locale.getDefault()), RemoteDpad.class);
+        AVAILABLE_CONTROLS.put(RemoteNumberpad.XMLTAG.toLowerCase(Locale.getDefault()), RemoteNumberpad.class);
+        AVAILABLE_CONTROLS.put(RemoteRocker.XMLTAG.toLowerCase(Locale.getDefault()), RemoteRocker.class);
     }
 
     private CharSequence mTitle = "";
@@ -245,11 +260,11 @@ public class RemotePage extends DropGridLayout {
             ChildSpec spec = new ChildSpec(0, col, 3, 3);
             RemoteDpad dpad = new RemoteDpad(mPage.getContext());
 
-            dpad.setUpButton(identifiedButtons.get(buttonUp));
-            dpad.setDownButton(identifiedButtons.get(buttonDown));
-            dpad.setLeftButton(identifiedButtons.get(buttonLeft));
-            dpad.setRightButton(identifiedButtons.get(buttonRight));
-            dpad.setOkButton(identifiedButtons.get(buttonOk));
+            dpad.setButton(RemoteDpad.BUTTON_UP, identifiedButtons.get(buttonUp));
+            dpad.setButton(RemoteDpad.BUTTON_DOWN, identifiedButtons.get(buttonDown));
+            dpad.setButton(RemoteDpad.BUTTON_LEFT, identifiedButtons.get(buttonLeft));
+            dpad.setButton(RemoteDpad.BUTTON_RIGHT, identifiedButtons.get(buttonRight));
+            dpad.setButton(RemoteDpad.BUTTON_OK, identifiedButtons.get(buttonOk));
 
             dpad.setTextColor(Color.WHITE);
 
@@ -379,10 +394,67 @@ public class RemotePage extends DropGridLayout {
         mTitle  = text;
     }
 
+    public JSONObject toJson() throws JSONException {
+        JSONObject object = new JSONObject();
+        object.put(FIELD_TITLE, getTitle());
+        object.put(FIELD_COLCOUNT, getColumnCount());
+        JSONArray array = new JSONArray();
+        for (int i = 0; i < getChildCount(); i++) {
+            View v = getChildAt(i);
+            if (v instanceof IRemoteView) {
+                JSONObject jobj = JsonObjectManager.toJson((IRemoteView) v);
+                ChildSpec spec = getChildSpec(v);
+                jobj.put(FIELD_ROW, spec.row);
+                jobj.put(FIELD_COL, spec.col);
+                jobj.put(FIELD_ROWSPAN, spec.rowspan);
+                jobj.put(FIELD_COLSPAN, spec.colspan);
+                array.put(jobj);
+            }
+        }
+        object.put(FIELD_CONTROLS, array);
+        return object;
+    }
+
+    @Override
+    public void fromJson(JSONObject object) throws JSONException {
+        setTitle(object.getString(FIELD_TITLE));
+        setColumnCount(object.getInt(FIELD_COLCOUNT));
+        JSONArray controls = object.getJSONArray(FIELD_CONTROLS);
+        for (int i = 0; i < controls.length(); i++) {
+            JSONObject control = controls.getJSONObject(i);
+            try {
+                View v = (View) JsonObjectManager.fromJson(control, getContext());
+                int row = 0;
+                int col = 0;
+                int rowspan = 1;
+                int colspan = 1;
+                if (control.has(FIELD_ROW)) {
+                    row = control.getInt(FIELD_ROW);
+                }
+                if (control.has(FIELD_COL)) {
+                    col = control.getInt(FIELD_COL);
+                }
+                if (control.has(FIELD_ROWSPAN)) {
+                    rowspan = control.getInt(FIELD_ROWSPAN);
+                }
+                if (control.has(FIELD_COLSPAN)) {
+                    colspan = control.getInt(FIELD_COLSPAN);
+                }
+                ChildSpec spec = new ChildSpec(row, col, rowspan, colspan);
+                addView(v, spec);
+            } catch (ClassNotFoundException | InstantiationException |
+                    IllegalAccessException | IllegalArgumentException |
+                    InvocationTargetException e) {
+                Log.e(TAG, "Error parsing RemotePage: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    @Deprecated
     public void writeXml(XmlSerializer xml) throws IllegalArgumentException, IllegalStateException, IOException {
         xml.startTag("", XMLTAG);
-        xml.attribute("", "title", "" + getTitle());
-        xml.attribute("", "colcount", Integer.toString(getColumnCount()));
+        xml.attribute("", FIELD_TITLE, "" + getTitle());
+        xml.attribute("", FIELD_COLCOUNT, Integer.toString(getColumnCount()));
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             if (v instanceof IRemoteView) {
@@ -392,10 +464,11 @@ public class RemotePage extends DropGridLayout {
         xml.endTag("", XMLTAG);
     }
 
+    @Deprecated
     public static RemotePage fromXml(Context context, Element item) {
         RemotePage page = new RemotePage(context);
-        page.setTitle(item.getAttribute("title"));
-        String rc = item.getAttribute("colcount");
+        page.setTitle(item.getAttribute(FIELD_TITLE));
+        String rc = item.getAttribute(FIELD_COLCOUNT);
         if (null != rc && rc.length() > 0) {
             page.setColumnCount(Integer.parseInt(rc));
         }
@@ -404,12 +477,12 @@ public class RemotePage extends DropGridLayout {
             if (items.item(i) instanceof Element) {
                 Element control = (Element) items.item(i);
                 try {
-                    Class<? extends IRemoteView> controlClass = AVAILABLE_CONTROLS.get(control.getTagName().toLowerCase());
+                    Class<? extends IRemoteView> controlClass = AVAILABLE_CONTROLS.get(control.getTagName().toLowerCase(Locale.getDefault()));
                     Method method = controlClass.getMethod("fromXml", Context.class, Element.class);
-                    int col = Integer.parseInt(control.getAttribute("col"));
-                    int row = Integer.parseInt(control.getAttribute("row"));
-                    int colspan = Integer.parseInt(control.getAttribute("colspan"));
-                    int rowspan = Integer.parseInt(control.getAttribute("rowspan"));
+                    int col = Integer.parseInt(control.getAttribute(FIELD_COL));
+                    int row = Integer.parseInt(control.getAttribute(FIELD_ROW));
+                    int colspan = Integer.parseInt(control.getAttribute(FIELD_COLSPAN));
+                    int rowspan = Integer.parseInt(control.getAttribute(FIELD_ROWSPAN));
 
                     View view = (View) method.invoke(null, context, control);
                     page.addView(view, new ChildSpec(row, col, rowspan, colspan));

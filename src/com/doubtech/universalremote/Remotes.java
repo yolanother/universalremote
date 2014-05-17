@@ -1,5 +1,7 @@
 package com.doubtech.universalremote;
 
+import java.io.File;
+
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
@@ -113,12 +115,22 @@ public class Remotes extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+        // TEMPORARY CODE -->
+        case R.id.action_accessory_settings: {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra(Constants.EXTRA_ACCESSORY_AUTHORITY, "com.doubtech.gear.universalremote");
+            intent.putExtra(Constants.EXTRA_COLUMN_COUNT, 4);
+            intent.putExtra(Constants.EXTRA_REMOTES_DIR, new File(Constants.REMOTES_DIR, "Gear").getAbsolutePath());
+            intent.putExtra(Constants.EXTRA_ACCESSORY_NAME, "Gear Remotes");
+            startActivity(intent);
+            break;
+        }
+        // <-- END TEMORARY CODE
         case R.id.action_settings:
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, REQUEST_CONFIGURE);
             return true;
         case R.id.action_slideon:
-
             Intent i = new Intent(this, TooleapRemote.class);
             TooleapPersistentMiniApp app = new TooleapPersistentMiniApp(this, i);
             app.setIcon(this, R.drawable.shadow_icon);
